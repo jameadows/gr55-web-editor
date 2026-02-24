@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/midi-explorer/midi-explorer.component').then(m => m.MidiExplorerComponent)
   },
   {
+    path: 'demo',
+    loadComponent: () => import('./pages/component-demo/component-demo.component').then(m => m.ComponentDemoComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

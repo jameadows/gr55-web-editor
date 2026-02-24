@@ -1,0 +1,105 @@
+:host {
+  display: inline-block;
+}
+
+.knob-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.knob-svg {
+  cursor: grab;
+  transition: filter 0.2s;
+}
+
+.knob-svg:active {
+  cursor: grabbing;
+}
+
+.knob-svg.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* Color themes */
+.knob-amber {
+  color: #e8a020;
+}
+
+.knob-green {
+  color: #3ddc6a;
+}
+
+.knob-cyan {
+  color: #30c0c0;
+}
+
+.knob-red {
+  color: #e84040;
+}
+
+/* Hover effect */
+.knob-svg:not(.disabled):hover {
+  filter: brightness(1.2);
+}
+
+/* Active/dragging effect */
+.knob-svg:not(.disabled):active .knob-body {
+  filter: brightness(1.1);
+}
+
+/* Knob elements */
+.knob-background {
+  transition: stroke 0.2s;
+}
+
+.knob-track {
+  transition: stroke 0.2s;
+}
+
+.knob-body {
+  --bg-panel: #131715;
+  transition: all 0.1s;
+}
+
+.knob-pointer {
+  transition: stroke 0.1s;
+}
+
+.knob-pointer-dot {
+  transition: fill 0.1s;
+}
+
+.knob-value {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+}
+
+.knob-label {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Glow effect on active knobs */
+.knob-svg:not(.disabled):active .knob-pointer-dot {
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* Animation for value changes */
+.knob-pointer {
+  transition: transform 0.05s ease-out;
+}

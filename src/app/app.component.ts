@@ -35,6 +35,15 @@ import { CommonModule } from '@angular/common';
             <li class="nav-item">
               <a 
                 class="nav-link" 
+                routerLink="/demo" 
+                routerLinkActive="active"
+                (click)="navbarCollapsed = true">
+                Demo
+              </a>
+            </li>
+            <li class="nav-item">
+              <a 
+                class="nav-link" 
                 routerLink="/midi-explorer" 
                 routerLinkActive="active"
                 (click)="navbarCollapsed = true">

@@ -1,0 +1,79 @@
+<div class="knob-container" [style.width.px]="size" [style.height.px]="size + 30">
+  <svg 
+    [attr.width]="size" 
+    [attr.height]="size"
+    viewBox="0 0 100 100"
+    class="knob-svg"
+    [class.disabled]="disabled"
+    [class]="colorClass()"
+    (mousedown)="onMouseDown($event)"
+    (wheel)="onWheel($event)"
+    (dblclick)="onDoubleClick()">
+    
+    <!-- Background circle -->
+    <circle
+      cx="50"
+      cy="50"
+      r="45"
+      class="knob-background"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1"
+      opacity="0.2"/>
+    
+    <!-- Track (arc showing range) -->
+    <path
+      d="M 15 73 A 40 40 0 1 1 85 73"
+      class="knob-track"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      opacity="0.3"/>
+    
+    <!-- Pointer (rotates with value) -->
+    <g [attr.transform]="transform()">
+      <!-- Pointer line -->
+      <line
+        x1="50"
+        y1="50"
+        x2="50"
+        y2="20"
+        class="knob-pointer"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linecap="round"/>
+      
+      <!-- Pointer dot -->
+      <circle
+        cx="50"
+        cy="18"
+        r="4"
+        class="knob-pointer-dot"
+        fill="currentColor"/>
+    </g>
+    
+    <!-- Center circle (inner knob body) -->
+    <circle
+      cx="50"
+      cy="50"
+      r="28"
+      class="knob-body"
+      fill="var(--bg-panel)"
+      stroke="currentColor"
+      stroke-width="2"/>
+    
+    <!-- Value display -->
+    <text
+      x="50"
+      y="50"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      class="knob-value"
+      fill="currentColor">
+      {{ displayValue() }}
+    </text>
+  </svg>
+  
+  <!-- Label -->
+  <div class="knob-label">{{ label }}</div>
+</div>
