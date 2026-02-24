@@ -103,6 +103,24 @@ open prototypes/gr55-explorer.html
 
 This is an early-stage project. Contributions welcome once the core architecture stabilizes.
 
+## Credits
+
+This project builds upon excellent work from the open source community:
+
+### gr55-remote
+**[gr55-remote](https://github.com/motiz88/gr55-remote)** by Moti Zilberman ([@motiz88](https://github.com/motiz88))
+
+We adapted the GR-55 parameter address mappings from this MIT-licensed project. The meticulous reverse engineering work saved weeks of manual documentation. Thank you, Moti!
+
+See [CREDITS.md](CREDITS.md) for full attribution details.
+
+### Community Resources
+- **VGuitarForums** — GR-55 MIDI implementation discussions
+- **GR-55 FloorBoard** (gumtown) — Reference for .g5l format
+- **VController** (sixeight7) — Arduino examples validating SysEx protocol
+
+---
+
 ## License
 
 MIT License (see LICENSE file)
