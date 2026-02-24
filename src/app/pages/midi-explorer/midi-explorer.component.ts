@@ -199,7 +199,7 @@ export class MidiExplorerComponent implements OnInit, OnDestroy {
 
   // ═══ INCOMING MESSAGES ═══
   onMidiMessage(event: any) {
-    const data = Array.from(event.data);
+    const data = Array.from(event.data) as number[];
     const currentStats = this.stats();
     this.stats.set({
       ...currentStats,
