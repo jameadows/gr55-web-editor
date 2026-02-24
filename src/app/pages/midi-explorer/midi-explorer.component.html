@@ -1,0 +1,212 @@
+<div class="explorer-container">
+
+  <!-- Connect Overlay -->
+  @if (connectionStatus() === 'disconnected') {
+    <div class="connect-overlay">
+      <div class="connect-box">
+        <h2>GR-55 Explorer</h2>
+        <p>Connect your GR-55 via USB, then grant MIDI access.<br>
+           SysEx permission is required for patch communication.</p>
+        <button class="big-btn" (click)="requestMidiAccess()">Request MIDI Access</button>
+      </div>
+      <p class="warning-note">Requires Chrome or Edge. Firefox and Safari do not support the Web MIDI API with SysEx.</p>
+    </div>
+  }
+
+  <!-- Main Content -->
+  <div class="workspace">
+
+    <!-- Left Panel -->
+    <div class="left-panel">
+
+      <!-- Ports -->
+      <div class="panel-section">
+        <div class="section-label">MIDI Ports</div>
+        <div class="field">
+          <label>Output (TX → GR-55)</label>
+          <select [(ngModel)]="outputPortId" (change)="selectOutput(outputPortId)">
+            <option value="">— Select Output —</option>
+            @for (port of outputPorts(); track port.id) {
+              <option [value]="port.id">{{ port.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Input (RX ← GR-55)</label>
+          <select [(ngModel)]="inputPortId" (change)="selectInput(inputPortId)">
+            <option value="">— Select Input —</option>
+            @for (port of inputPorts(); track port.id) {
+              <option [value]="port.id">{{ port.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Device ID (hex)</label>
+          <input type="text" [(ngModel)]="deviceId" maxlength="2" 
+                 title="Roland device ID — usually 10 (hex)">
+        </div>
+      </div>
+
+      <!-- Device State -->
+      <div class="panel-section">
+        <div class="section-label">Device State</div>
+        <div class="device-state">
+          <div class="state-box">
+            <div class="val">{{ deviceState().patchNumber }}</div>
+            <div class="lbl">Patch #</div>
+          </div>
+          <div class="state-box">
+            <div class="val">{{ deviceState().mode }}</div>
+            <div class="lbl">Mode</div>
+          </div>
+          <div class="state-box" style="grid-column: 1 / 3;">
+            <div class="val" style="font-size:13px;letter-spacing:0.02em;">{{ deviceState().patchName }}</div>
+            <div class="lbl">Patch Name</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preset Queries -->
+      <div class="panel-section">
+        <div class="section-label">Preset Queries</div>
+
+        <button class="btn primary" (click)="queryIdentity()">
+          Universal Identity Request
+          <span class="addr">F0 7E</span>
+        </button>
+
+        <button class="btn" (click)="queryPatchNumber()" [disabled]="!hasOutput()">
+          Current Patch Number
+          <span class="addr">01 00 00 00</span>
+        </button>
+
+        <button class="btn" (click)="queryMode()" [disabled]="!hasOutput()">
+          Guitar / Bass Mode
+          <span class="addr">18 00 00 00</span>
+        </button>
+
+        <button class="btn" (click)="queryPatchName()" [disabled]="!hasOutput()">
+          Current Patch Name
+          <span class="addr">18 00 00 01</span>
+        </button>
+
+        <button class="btn" (click)="queryPatchLevel()" [disabled]="!hasOutput()">
+          Patch Common Level
+          <span class="addr">18 00 02 00</span>
+        </button>
+
+        <button class="btn" (click)="queryTempo()" [disabled]="!hasOutput()">
+          Patch Tempo
+          <span class="addr">18 00 02 08</span>
+        </button>
+
+        <button class="btn" (click)="queryMfxType()" [disabled]="!hasOutput()">
+          MFX Type
+          <span class="addr">18 00 06 00</span>
+        </button>
+
+        <button class="btn" (click)="queryAssign1()" [disabled]="!hasOutput()">
+          Assign 1 Block
+          <span class="addr">18 00 10 00</span>
+        </button>
+      </div>
+
+      <!-- Custom SysEx Builder -->
+      <div class="panel-section">
+        <div class="section-label">RQ1 Builder</div>
+        <div>
+          <div class="addr-label" style="text-align:left;margin-bottom:6px;font-size:10px;color:var(--text-dim)">
+            Address bytes (hex)
+          </div>
+          <div class="addr-fields">
+            <div>
+              <div class="addr-label">AA</div>
+              <input type="text" class="hex-input" [(ngModel)]="addr1" maxlength="2">
+            </div>
+            <div>
+              <div class="addr-label">BB</div>
+              <input type="text" class="hex-input" [(ngModel)]="addr2" maxlength="2">
+            </div>
+            <div>
+              <div class="addr-label">CC</div>
+              <input type="text" class="hex-input" [(ngModel)]="addr3" maxlength="2">
+            </div>
+            <div>
+              <div class="addr-label">DD</div>
+              <input type="text" class="hex-input" [(ngModel)]="addr4" maxlength="2">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Byte Count (decimal)</label>
+            <input type="number" [(ngModel)]="reqSize" min="1" max="256">
+          </div>
+
+          <div class="sysex-preview" [innerHTML]="sysexPreview()"></div>
+
+          <button class="btn primary" (click)="sendCustomRQ1()" [disabled]="!hasOutput()">
+            Send RQ1 (Data Request)
+          </button>
+
+          <div style="margin-top:10px;">
+            <div class="section-label" style="margin-bottom:8px;">Raw SysEx (hex bytes)</div>
+            <input type="text" class="hex-input" [(ngModel)]="rawSysex" 
+                   placeholder="F0 41 10 00 00 53 11 ..."
+                   style="margin-bottom:6px;">
+            <button class="btn" (click)="sendRawSysex()" [disabled]="!hasOutput()">
+              Send Raw
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left-panel -->
+
+    <!-- Log Area -->
+    <div class="log-area">
+      <div class="log-header">
+        <span>Message Log</span>
+        <div class="log-controls">
+          <button class="log-btn" (click)="toggleAutoScroll()" 
+                  [style.color]="autoScroll ? 'var(--amber)' : ''">
+            ⇩ Auto-scroll
+          </button>
+          <button class="log-btn" (click)="clearLog()">✕ Clear</button>
+          <button class="log-btn" (click)="exportLog()">↓ Export</button>
+        </div>
+      </div>
+      <div id="log" class="log">
+        @for (entry of logEntries(); track $index) {
+          <div class="log-entry" [class]="entry.direction">
+            <div class="log-time">{{ entry.time }}</div>
+            <div class="log-dir">{{ entry.direction.toUpperCase() }}</div>
+            <div class="log-body">
+              <div class="log-label">{{ entry.label }}</div>
+              @if (entry.bytes) {
+                <div class="log-hex">
+                  @for (byte of entry.bytes; track $index) {
+                    <span>{{ toHex(byte) }}</span>
+                  }
+                </div>
+              }
+              @if (entry.decoded) {
+                <div class="log-decoded">↳ {{ entry.decoded }}</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stat">TX: <span>{{ stats().tx }}</span></div>
+      <div class="stat">RX: <span>{{ stats().rx }}</span></div>
+      <div class="stat">Bytes TX: <span>{{ stats().btx }}</span></div>
+      <div class="stat">Bytes RX: <span>{{ stats().brx }}</span></div>
+      <div class="stat">Last RX: <span>{{ stats().lastRx }}</span></div>
+    </div>
+
+  </div><!-- /workspace -->
+
+</div>

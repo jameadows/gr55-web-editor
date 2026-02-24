@@ -6,8 +6,30 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^21.0.0",
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/forms": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "@angular/platform-browser-dynamic": "^21.0.0",
+    "@angular/router": "^21.0.0",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "^0.15.0",
+    "bootstrap": "^5.3.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^21.0.0",
+    "@angular/cli": "^21.0.0",
+    "@angular/compiler-cli": "^21.0.0",
+    "typescript": "~5.6.0"
   },
   "keywords": [
     "roland",
@@ -18,13 +40,5 @@
     "guitar-synth"
   ],
   "author": "GR-55 Web Editor Contributors",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/gr55-web-editor.git"
-  },
-  "bugs": {
-    "url": "https://github.com/your-username/gr55-web-editor/issues"
-  },
-  "homepage": "https://github.com/your-username/gr55-web-editor#readme"
+  "license": "MIT"
 }

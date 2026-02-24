@@ -1,0 +1,74 @@
+/* Import Bootstrap */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Courier New', Courier, monospace;
+  background: #0d0f0e;
+  color: #c8d4c0;
+  overflow-x: hidden;
+}
+
+/* Override Bootstrap navbar dark theme */
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(200, 212, 192, 0.7);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+  color: #e8a020;
+}
+
+.navbar-dark .navbar-brand {
+  color: #e8a020;
+}
+
+.navbar-dark .navbar-brand:hover,
+.navbar-dark .navbar-brand:focus {
+  color: #e8a020;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d0f0e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2820;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3d2e;
+}
+
+/* Utility classes */
+.container {
+  max-width: 1200px;
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  .nav-link,
+  button {
+    display: none !important;
+  }
+}
