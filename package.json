@@ -1,0 +1,30 @@
+{
+  "name": "gr55-web-editor",
+  "version": "0.1.0",
+  "description": "Browser-based patch editor and librarian for Roland GR-55 Guitar Synthesizer",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "test": "ng test",
+    "lint": "ng lint"
+  },
+  "keywords": [
+    "roland",
+    "gr-55",
+    "midi",
+    "web-midi",
+    "patch-editor",
+    "guitar-synth"
+  ],
+  "author": "GR-55 Web Editor Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/gr55-web-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/gr55-web-editor/issues"
+  },
+  "homepage": "https://github.com/your-username/gr55-web-editor#readme"
+}

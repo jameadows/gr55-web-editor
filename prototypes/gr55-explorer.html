@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GR-55 MIDI Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d0f0e;
+    --surface:   #131715;
+    --border:    #1e2820;
+    --border-hi: #2a3d2e;
+    --amber:     #e8a020;
+    --amber-dim: #7a5010;
+    --green:     #3ddc6a;
+    --green-dim: #1a5c2e;
+    --red:       #e84040;
+    --red-dim:   #5c1a1a;
+    --cyan:      #20d4c8;
+    --cyan-dim:  #0a5a56;
+    --text:      #c8d4c0;
+    --text-dim:  #506050;
+    --mono:      'Share Tech Mono', monospace;
+    --display:   'Chakra Petch', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .logo h1 {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--amber);
+    text-transform: uppercase;
+  }
+
+  .logo .sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  #midi-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: background 0.3s;
+    box-shadow: none;
+  }
+
+  .status-dot.connected {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  .status-dot.error {
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+  }
+
+  /* ─── LAYOUT ─── */
+  .workspace {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto 1fr;
+    height: calc(100vh - 57px);
+  }
+
+  /* ─── LEFT PANEL ─── */
+  .left-panel {
+    grid-row: 1 / 3;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .panel-section {
+    border-bottom: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .section-label {
+    font-family: var(--display);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 9px 14px;
+    background: transparent;
+    border: 1px solid var(--border-hi);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--border-hi);
+    transition: background 0.15s;
+  }
+
+  .btn:hover {
+    background: var(--surface);
+    border-color: var(--amber-dim);
+    color: var(--amber);
+  }
+
+  .btn:hover::before { background: var(--amber); }
+
+  .btn:active { transform: translateY(1px); }
+
+  .btn.primary {
+    border-color: var(--amber-dim);
+    color: var(--amber);
+  }
+
+  .btn.primary::before { background: var(--amber); }
+
+  .btn.primary:hover {
+    background: rgba(232, 160, 32, 0.08);
+    border-color: var(--amber);
+  }
+
+  .btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .btn:disabled:hover {
+    background: transparent;
+    border-color: var(--border-hi);
+    color: var(--text);
+  }
+
+  .btn:disabled::before { background: var(--border-hi); }
+
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .btn-row .btn { margin-bottom: 0; }
+
+  .btn .addr {
+    float: right;
+    color: var(--text-dim);
+    font-size: 10px;
+    padding-top: 1px;
+  }
+
+  /* ─── SELECTS & INPUTS ─── */
+  select, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border-hi);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-bottom: 8px;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  select:focus, input:focus {
+    border-color: var(--amber-dim);
+  }
+
+  select option { background: var(--surface); }
+
+  label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .field { margin-bottom: 10px; }
+
+  .field:last-child { margin-bottom: 0; }
+
+  .inline-fields {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    gap: 8px;
+    align-items: end;
+  }
+
+  /* ─── SYSEX BUILDER ─── */
+  .hex-input {
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+  }
+
+  .sysex-preview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--cyan);
+    word-break: break-all;
+    line-height: 1.8;
+    min-height: 36px;
+    margin-bottom: 8px;
+    font-family: var(--mono);
+  }
+
+  .addr-fields {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .addr-fields input {
+    text-align: center;
+    padding: 6px 4px;
+    margin-bottom: 0;
+    font-size: 12px;
+  }
+
+  .addr-label {
+    text-align: center;
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+
+  /* ─── LOG AREA ─── */
+  .log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .log-header span {
+    font-family: var(--display);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .log-controls { display: flex; gap: 8px; }
+
+  .log-btn {
+    background: transparent;
+    border: 1px solid var(--border-hi);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all 0.15s;
+  }
+
+  .log-btn:hover { border-color: var(--amber-dim); color: var(--amber); }
+
+  #log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .log-entry {
+    display: grid;
+    grid-template-columns: 60px 60px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 8px 10px;
+    border-left: 2px solid transparent;
+    font-size: 12px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-4px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .log-entry.tx {
+    border-left-color: var(--amber-dim);
+    background: rgba(232, 160, 32, 0.03);
+  }
+
+  .log-entry.rx {
+    border-left-color: var(--green-dim);
+    background: rgba(61, 220, 106, 0.03);
+  }
+
+  .log-entry.info {
+    border-left-color: var(--cyan-dim);
+    background: rgba(32, 212, 200, 0.03);
+  }
+
+  .log-entry.error {
+    border-left-color: var(--red-dim);
+    background: rgba(232, 64, 64, 0.04);
+  }
+
+  .log-time {
+    color: var(--text-dim);
+    font-size: 10px;
+    padding-top: 1px;
+    white-space: nowrap;
+  }
+
+  .log-dir {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    padding-top: 1px;
+  }
+
+  .log-entry.tx  .log-dir { color: var(--amber); }
+  .log-entry.rx  .log-dir { color: var(--green); }
+  .log-entry.info .log-dir { color: var(--cyan); }
+  .log-entry.error .log-dir { color: var(--red); }
+
+  .log-body { display: flex; flex-direction: column; gap: 3px; }
+
+  .log-label {
+    font-size: 11px;
+    color: var(--text);
+    font-family: var(--display);
+    letter-spacing: 0.05em;
+  }
+
+  .log-hex {
+    color: var(--text-dim);
+    word-break: break-all;
+    line-height: 1.7;
+    font-size: 11px;
+  }
+
+  .log-decoded {
+    color: var(--cyan);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  /* Byte colouring in hex strings */
+  .b-header { color: #e87040; }
+  .b-addr   { color: #e8d040; }
+  .b-data   { color: var(--green); }
+  .b-chk    { color: #c040e8; }
+  .b-end    { color: #e87040; }
+
+  /* ─── RIGHT BOTTOM: stats bar ─── */
+  .stats-bar {
+    grid-column: 2;
+    display: flex;
+    gap: 24px;
+    padding: 8px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .stat span { color: var(--text); }
+
+  .log-area {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ─── CONNECT OVERLAY ─── */
+  #connect-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(13, 15, 14, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    flex-direction: column;
+    gap: 24px;
+    backdrop-filter: blur(2px);
+  }
+
+  .connect-box {
+    border: 1px solid var(--border-hi);
+    padding: 40px 48px;
+    text-align: center;
+    max-width: 380px;
+    background: var(--surface);
+    position: relative;
+  }
+
+  .connect-box::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 20px; right: 20px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  .connect-box h2 {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .connect-box p {
+    color: var(--text-dim);
+    line-height: 1.7;
+    font-size: 12px;
+    margin-bottom: 28px;
+  }
+
+  .connect-box .big-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: rgba(232, 160, 32, 0.1);
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .connect-box .big-btn:hover {
+    background: rgba(232, 160, 32, 0.2);
+    box-shadow: 0 0 20px rgba(232, 160, 32, 0.15);
+  }
+
+  .warning-note {
+    color: var(--text-dim);
+    font-size: 11px;
+    text-align: center;
+    letter-spacing: 0.05em;
+    max-width: 320px;
+    line-height: 1.6;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-hi); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--amber-dim); }
+
+  /* Tooltip */
+  [title] { cursor: help; }
+
+  .patch-num-display {
+    font-family: var(--display);
+    font-size: 28px;
+    color: var(--amber);
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .mode-display {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .device-state {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .state-box {
+    border: 1px solid var(--border);
+    padding: 8px;
+    text-align: center;
+  }
+
+  .state-box .val {
+    font-family: var(--display);
+    font-size: 16px;
+    color: var(--amber);
+    letter-spacing: 0.08em;
+  }
+
+  .state-box .lbl {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Connect overlay -->
+<div id="connect-overlay">
+  <div class="connect-box">
+    <h2>GR-55 Explorer</h2>
+    <p>Connect your GR-55 via USB, then grant MIDI access.<br>
+       SysEx permission is required for patch communication.</p>
+    <button class="big-btn" onclick="requestMidi()">Request MIDI Access</button>
+  </div>
+  <p class="warning-note">Requires Chrome or Edge. Firefox and Safari do not support the Web MIDI API with SysEx.</p>
+</div>
+
+<header>
+  <div class="logo">
+    <h1>GR-55 MIDI Explorer</h1>
+    <span class="sub">Protocol Analyser</span>
+  </div>
+  <div id="midi-status">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Not Connected</span>
+  </div>
+</header>
+
+<div class="workspace">
+
+  <!-- ─── LEFT PANEL ─── -->
+  <div class="left-panel">
+
+    <!-- Ports -->
+    <div class="panel-section">
+      <div class="section-label">MIDI Ports</div>
+      <div class="field">
+        <label>Output (TX → GR-55)</label>
+        <select id="output-select" onchange="selectOutput(this.value)">
+          <option value="">— Select Output —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Input (RX ← GR-55)</label>
+        <select id="input-select" onchange="selectInput(this.value)">
+          <option value="">— Select Input —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Device ID (hex)</label>
+        <input type="text" id="device-id" value="10" maxlength="2"
+               oninput="this.value=this.value.replace(/[^0-9a-fA-F]/g,'')"
+               title="Roland device ID — usually 10 (hex). Check GR-55: System > MIDI > Device ID">
+      </div>
+    </div>
+
+    <!-- Device State -->
+    <div class="panel-section">
+      <div class="section-label">Device State</div>
+      <div class="device-state">
+        <div class="state-box">
+          <div class="val" id="state-patch">—</div>
+          <div class="lbl">Patch #</div>
+        </div>
+        <div class="state-box">
+          <div class="val" id="state-mode">—</div>
+          <div class="lbl">Mode</div>
+        </div>
+        <div class="state-box" style="grid-column: 1 / 3;">
+          <div class="val" style="font-size:13px;letter-spacing:0.02em;" id="state-name">—</div>
+          <div class="lbl">Patch Name</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preset Queries -->
+    <div class="panel-section">
+      <div class="section-label">Preset Queries</div>
+
+      <button class="btn primary" onclick="queryIdentity()" id="btn-identity">
+        Universal Identity Request
+        <span class="addr">F0 7E</span>
+      </button>
+
+      <button class="btn" onclick="queryPatchNumber()" id="btn-pnum" disabled>
+        Current Patch Number
+        <span class="addr">01 00 00 00</span>
+      </button>
+
+      <button class="btn" onclick="queryMode()" id="btn-mode" disabled>
+        Guitar / Bass Mode
+        <span class="addr">18 00 00 00</span>
+      </button>
+
+      <button class="btn" onclick="queryPatchName()" id="btn-pname" disabled>
+        Current Patch Name
+        <span class="addr">18 00 00 01</span>
+      </button>
+
+      <button class="btn" onclick="queryPatchLevel()" id="btn-plevel" disabled>
+        Patch Common Level
+        <span class="addr">18 00 02 00</span>
+      </button>
+
+      <button class="btn" onclick="queryTempo()" id="btn-tempo" disabled>
+        Patch Tempo
+        <span class="addr">18 00 02 08</span>
+      </button>
+
+      <button class="btn" onclick="queryMfxType()" id="btn-mfx" disabled>
+        MFX Type
+        <span class="addr">18 00 06 00</span>
+      </button>
+
+      <button class="btn" onclick="queryAssign1()" id="btn-assign" disabled>
+        Assign 1 Block
+        <span class="addr">18 00 10 00</span>
+      </button>
+    </div>
+
+    <!-- Custom SysEx Builder -->
+    <div class="panel-section">
+      <div class="section-label">RQ1 Builder</div>
+      <div>
+        <div class="addr-label" style="text-align:left;margin-bottom:6px;font-size:10px;color:var(--text-dim)">Address bytes (hex)</div>
+        <div class="addr-fields">
+          <div>
+            <div class="addr-label">AA</div>
+            <input type="text" class="hex-input" id="addr1" value="18" maxlength="2"
+                   oninput="updateSysexPreview()">
+          </div>
+          <div>
+            <div class="addr-label">BB</div>
+            <input type="text" class="hex-input" id="addr2" value="00" maxlength="2"
+                   oninput="updateSysexPreview()">
+          </div>
+          <div>
+            <div class="addr-label">CC</div>
+            <input type="text" class="hex-input" id="addr3" value="00" maxlength="2"
+                   oninput="updateSysexPreview()">
+          </div>
+          <div>
+            <div class="addr-label">DD</div>
+            <input type="text" class="hex-input" id="addr4" value="00" maxlength="2"
+                   oninput="updateSysexPreview()">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Byte Count (decimal)</label>
+          <input type="number" id="req-size" value="1" min="1" max="256"
+                 oninput="updateSysexPreview()">
+        </div>
+
+        <div class="sysex-preview" id="sysex-preview">—</div>
+
+        <button class="btn primary" onclick="sendCustomRQ1()" id="btn-custom" disabled>
+          Send RQ1 (Data Request)
+        </button>
+
+        <div style="margin-top:10px;">
+          <div class="section-label" style="margin-bottom:8px;">Raw SysEx (hex bytes)</div>
+          <input type="text" class="hex-input" id="raw-sysex" placeholder="F0 41 10 00 00 53 11 ..."
+                 style="margin-bottom:6px;">
+          <button class="btn" onclick="sendRawSysex()" id="btn-raw" disabled>
+            Send Raw
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- ─── LOG AREA ─── -->
+  <div class="log-area">
+    <div class="log-header">
+      <span>Message Log</span>
+      <div class="log-controls">
+        <button class="log-btn" onclick="toggleAutoScroll()">⇩ Auto-scroll</button>
+        <button class="log-btn" onclick="clearLog()">✕ Clear</button>
+        <button class="log-btn" onclick="exportLog()">↓ Export</button>
+      </div>
+    </div>
+    <div id="log"></div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat">TX: <span id="stat-tx">0</span></div>
+    <div class="stat">RX: <span id="stat-rx">0</span></div>
+    <div class="stat">Bytes TX: <span id="stat-btx">0</span></div>
+    <div class="stat">Bytes RX: <span id="stat-brx">0</span></div>
+    <div class="stat">Last RX: <span id="stat-last">—</span></div>
+  </div>
+
+</div><!-- /workspace -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let midiAccess = null;
+let selectedOutput = null;
+let selectedInput  = null;
+let autoScroll = true;
+let stats = { tx: 0, rx: 0, btx: 0, brx: 0 };
+
+const ROLAND_ID  = 0x41;
+const GR55_MODEL = [0x00, 0x00, 0x53];
+const CMD_RQ1    = 0x11;
+const CMD_DT1    = 0x12;
+
+// ═══════════════════════════════════════════════════════════
+//  MIDI ACCESS
+// ═══════════════════════════════════════════════════════════
+async function requestMidi() {
+  try {
+    midiAccess = await navigator.requestMIDIAccess({ sysex: true });
+    document.getElementById('connect-overlay').style.display = 'none';
+    setStatus('connected', 'MIDI Access Granted');
+    populatePorts();
+    midiAccess.onstatechange = onStateChange;
+    log('info', 'MIDI Access', `Granted. ${midiAccess.outputs.size} output(s), ${midiAccess.inputs.size} input(s) found.`);
+  } catch(e) {
+    setStatus('error', 'Access Denied');
+    log('error', 'MIDI Error', e.message || 'Access denied or not supported.');
+  }
+}
+
+function onStateChange(e) {
+  log('info', 'Port Change', `${e.port.name} → ${e.port.state} (${e.port.type})`);
+  populatePorts();
+}
+
+function populatePorts() {
+  const outSel = document.getElementById('output-select');
+  const inSel  = document.getElementById('input-select');
+  const prevOut = outSel.value;
+  const prevIn  = inSel.value;
+
+  outSel.innerHTML = '<option value="">— Select Output —</option>';
+  inSel.innerHTML  = '<option value="">— Select Input —</option>';
+
+  for (const [id, port] of midiAccess.outputs) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = port.name;
+    if (id === prevOut) opt.selected = true;
+    outSel.appendChild(opt);
+  }
+
+  for (const [id, port] of midiAccess.inputs) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = port.name;
+    if (id === prevIn) opt.selected = true;
+    inSel.appendChild(opt);
+  }
+
+  // Auto-select GR-55 if found
+  for (const [id, port] of midiAccess.outputs) {
+    if (port.name.toUpperCase().includes('GR-55') || port.name.toUpperCase().includes('GR55')) {
+      outSel.value = id;
+      selectOutput(id);
+    }
+  }
+  for (const [id, port] of midiAccess.inputs) {
+    if (port.name.toUpperCase().includes('GR-55') || port.name.toUpperCase().includes('GR55')) {
+      inSel.value = id;
+      selectInput(id);
+    }
+  }
+}
+
+function selectOutput(id) {
+  selectedOutput = id ? midiAccess.outputs.get(id) : null;
+  enableQueryButtons(!!selectedOutput);
+  if (selectedOutput) log('info', 'Output', `Selected: ${selectedOutput.name}`);
+}
+
+function selectInput(id) {
+  if (selectedInput) {
+    const old = midiAccess.inputs.get(selectedInput.id);
+    if (old) old.onmidimessage = null;
+  }
+  selectedInput = id ? midiAccess.inputs.get(id) : null;
+  if (selectedInput) {
+    selectedInput.onmidimessage = onMidiMessage;
+    log('info', 'Input', `Listening: ${selectedInput.name}`);
+  }
+}
+
+function enableQueryButtons(enabled) {
+  document.querySelectorAll('.btn[disabled], .btn').forEach(b => {
+    if (b.id && b.id.startsWith('btn-') && b.id !== 'btn-identity') {
+      b.disabled = !enabled;
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ROLAND PROTOCOL HELPERS
+// ═══════════════════════════════════════════════════════════
+function getDeviceId() {
+  return parseInt(document.getElementById('device-id').value, 16) || 0x10;
+}
+
+function rolandChecksum(bytes) {
+  const sum = bytes.reduce((a, b) => a + b, 0);
+  return (128 - (sum % 128)) % 128;
+}
+
+function buildRQ1(addr4, addr3, addr2, addr1, size) {
+  const addrBytes = [addr4, addr3, addr2, addr1];
+  // Size as 4 bytes (Roland uses 4-byte size field)
+  const sizeBytes = [
+    (size >>> 24) & 0x7F,
+    (size >>> 16) & 0x7F,
+    (size >>>  8) & 0x7F,
+     size         & 0x7F
+  ];
+  const checksumData = [...addrBytes, ...sizeBytes];
+  const checksum = rolandChecksum(checksumData);
+  return [0xF0, ROLAND_ID, getDeviceId(), ...GR55_MODEL, CMD_RQ1,
+          ...addrBytes, ...sizeBytes, checksum, 0xF7];
+}
+
+function sendSysEx(bytes, label) {
+  if (!selectedOutput) { log('error', 'TX Error', 'No output port selected.'); return; }
+  try {
+    selectedOutput.send(bytes);
+    stats.tx++;
+    stats.btx += bytes.length;
+    updateStats();
+    log('tx', label || 'SysEx TX', null, bytes);
+  } catch(e) {
+    log('error', 'TX Error', e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INCOMING MESSAGES
+// ═══════════════════════════════════════════════════════════
+function onMidiMessage(event) {
+  const data = Array.from(event.data);
+  stats.rx++;
+  stats.brx += data.length;
+  document.getElementById('stat-last').textContent = new Date().toLocaleTimeString();
+  updateStats();
+
+  if (data[0] === 0xF0) {
+    handleSysEx(data);
+  } else {
+    // Non-SysEx (program change, CC, etc.)
+    const type = getMidiMsgType(data[0]);
+    log('rx', type, describeShortMsg(data), data);
+  }
+}
+
+function handleSysEx(data) {
+  // Universal identity response: F0 7E [devId] 06 02 ...
+  if (data[1] === 0x7E && data[3] === 0x06 && data[4] === 0x02) {
+    const manufacturer = data.slice(5, 8).map(h).join(' ');
+    const family       = data.slice(8, 10).map(h).join(' ');
+    const member       = data.slice(10, 12).map(h).join(' ');
+    const revision     = data.slice(12, 16).map(h).join(' ');
+    const decoded = `Manufacturer: ${manufacturer} | Family: ${family} | Member: ${member} | Revision: ${revision}`;
+    log('rx', 'Identity Response', decoded, data);
+    return;
+  }
+
+  // Roland DT1: F0 41 [devId] 00 00 53 12 [addr x4] [data...] [chk] F7
+  if (data[1] === ROLAND_ID && data[3] === 0x00 && data[4] === 0x00 && data[5] === 0x53 && data[6] === CMD_DT1) {
+    const addr  = (data[7] << 24) | (data[8] << 16) | (data[9] << 8) | data[10];
+    const payload = data.slice(11, data.length - 2); // strip checksum + F7
+    const addrStr = h(data[7]) + ' ' + h(data[8]) + ' ' + h(data[9]) + ' ' + h(data[10]);
+    let decoded = '';
+
+    // Decode known addresses
+    switch(addr) {
+      case 0x01000000: // Patch number
+        decoded = decodePatchNumber(payload);
+        break;
+      case 0x18000000: // Mode
+        decoded = payload[0] === 0 ? 'Guitar Mode' : 'Bass Mode';
+        document.getElementById('state-mode').textContent = payload[0] === 0 ? 'GTR' : 'BSS';
+        break;
+      case 0x18000001: // Patch name (16 bytes, first byte is dummy)
+        decoded = decodePatchName(payload);
+        break;
+      case 0x18000200: // Patch level
+        decoded = `Level: ${payload[0]} (0–200)`;
+        break;
+      case 0x18000208: // Tempo
+        decoded = decodeTempo(payload);
+        break;
+      case 0x18000600: // MFX type
+        decoded = `MFX Type: ${payload[0]} (${mfxTypeName(payload[0])})`;
+        break;
+      default:
+        decoded = `${payload.length} byte(s) of data`;
+    }
+
+    log('rx', `DT1 @ ${addrStr}`, decoded, data);
+    return;
+  }
+
+  // Unknown SysEx
+  log('rx', 'SysEx', `Unknown (${data.length} bytes)`, data);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  DECODE HELPERS
+// ═══════════════════════════════════════════════════════════
+function decodePatchNumber(payload) {
+  // GR-55 sends 2 bytes: bank * 128 + patch, but with the 1752-gap quirk
+  let num = (payload[0] << 8) | payload[1];
+  if (num > 2047) num -= 1751;
+  const bank    = Math.floor(num / 128);
+  const patchN  = num % 128;
+  const bankLetter = String.fromCharCode(65 + Math.floor(bank / 8));
+  const display = `${bankLetter}${(bank % 8) + 1}-${String(patchN + 1).padStart(2, '0')}`;
+  document.getElementById('state-patch').textContent = display;
+  return `Patch: ${display} (raw: ${num})`;
+}
+
+function decodePatchName(payload) {
+  // First byte returned by GR-55 before name is a dummy/junk byte
+  const nameBytes = payload.slice(1);
+  const name = nameBytes.map(b => String.fromCharCode(b)).join('').replace(/\0/g, '').trim();
+  document.getElementById('state-name').textContent = name || '—';
+  return `Name: "${name}"`;
+}
+
+function decodeTempo(payload) {
+  // Tempo is 2 nibbles: value = payload[0] * 16 + payload[1], range 40–250
+  if (payload.length >= 2) {
+    const bpm = payload[0] * 16 + payload[1];
+    return `Tempo: ${bpm} BPM`;
+  }
+  return `Tempo data: ${payload.map(h).join(' ')}`;
+}
+
+function mfxTypeName(n) {
+  const types = ['Equalizer','Spectrum','Enhancer','Humanizer','Overdrive','Distortion',
+    'Compressor','Limiter','Gate','Delay','Chorus','Flanger','Phaser','Tremolo','Auto Pan',
+    'Slicer','Rotary','VK Rotary','Hexa Chorus','Tremolo Chorus','Stereo Chorus',
+    'Space D','3D Chorus','Stereo Delay','Mod Delay','3 Tap Delay','4 Tap Delay',
+    'Tm Ctrl Delay','Reverb','Gated Reverb','2x2 Chorus','Sub Delay'];
+  return types[n] || `Type ${n}`;
+}
+
+function getMidiMsgType(status) {
+  const type = status >> 4;
+  const ch   = (status & 0x0F) + 1;
+  const names = {8:'Note Off',9:'Note On',10:'Aftertouch',11:'Control Change',
+                 12:'Program Change',13:'Channel Pressure',14:'Pitch Bend',15:'System'};
+  return `${names[type] || 'Unknown'} (Ch${ch})`;
+}
+
+function describeShortMsg(data) {
+  const type = data[0] >> 4;
+  if (type === 11) return `CC #${data[1]} = ${data[2]}`;
+  if (type === 12) return `Program: ${data[1]}`;
+  if (type === 14) {
+    const val = ((data[2] << 7) | data[1]) - 8192;
+    return `Pitch Bend: ${val}`;
+  }
+  return data.map(h).join(' ');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PRESET QUERIES
+// ═══════════════════════════════════════════════════════════
+function queryIdentity() {
+  const msg = [0xF0, 0x7E, 0x7F, 0x06, 0x01, 0xF7];
+  sendSysEx(msg, 'Universal Identity Request');
+}
+
+function queryPatchNumber() {
+  sendSysEx(buildRQ1(0x01, 0x00, 0x00, 0x00, 2), 'RQ1 Patch Number');
+}
+
+function queryMode() {
+  sendSysEx(buildRQ1(0x18, 0x00, 0x00, 0x00, 1), 'RQ1 Guitar/Bass Mode');
+}
+
+function queryPatchName() {
+  // Request 17 bytes — GR-55 prepends 1 dummy byte before the 16-char name
+  sendSysEx(buildRQ1(0x18, 0x00, 0x00, 0x01, 17), 'RQ1 Patch Name');
+}
+
+function queryPatchLevel() {
+  sendSysEx(buildRQ1(0x18, 0x00, 0x02, 0x00, 1), 'RQ1 Patch Level');
+}
+
+function queryTempo() {
+  sendSysEx(buildRQ1(0x18, 0x00, 0x02, 0x08, 2), 'RQ1 Patch Tempo');
+}
+
+function queryMfxType() {
+  sendSysEx(buildRQ1(0x18, 0x00, 0x06, 0x00, 1), 'RQ1 MFX Type');
+}
+
+function queryAssign1() {
+  // Read 8 bytes of assign 1 block
+  sendSysEx(buildRQ1(0x18, 0x00, 0x10, 0x00, 8), 'RQ1 Assign 1');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CUSTOM SYSEX
+// ═══════════════════════════════════════════════════════════
+function updateSysexPreview() {
+  const a1 = parseInt(document.getElementById('addr1').value, 16) || 0;
+  const a2 = parseInt(document.getElementById('addr2').value, 16) || 0;
+  const a3 = parseInt(document.getElementById('addr3').value, 16) || 0;
+  const a4 = parseInt(document.getElementById('addr4').value, 16) || 0;
+  const sz = parseInt(document.getElementById('req-size').value) || 1;
+  const bytes = buildRQ1(a1, a2, a3, a4, sz);
+  document.getElementById('sysex-preview').innerHTML = coloriseBytes(bytes, 'rq1');
+}
+
+function sendCustomRQ1() {
+  const a1 = parseInt(document.getElementById('addr1').value, 16) || 0;
+  const a2 = parseInt(document.getElementById('addr2').value, 16) || 0;
+  const a3 = parseInt(document.getElementById('addr3').value, 16) || 0;
+  const a4 = parseInt(document.getElementById('addr4').value, 16) || 0;
+  const sz = parseInt(document.getElementById('req-size').value) || 1;
+  const addr = `${h(a1)} ${h(a2)} ${h(a3)} ${h(a4)}`;
+  sendSysEx(buildRQ1(a1, a2, a3, a4, sz), `RQ1 @ ${addr} ×${sz}`);
+}
+
+function sendRawSysex() {
+  const raw = document.getElementById('raw-sysex').value.trim();
+  const bytes = raw.split(/[\s,]+/).filter(Boolean).map(s => parseInt(s, 16));
+  if (bytes.some(isNaN)) { log('error', 'Parse Error', 'Invalid hex in raw SysEx field.'); return; }
+  sendSysEx(bytes, 'Raw SysEx');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  LOG
+// ═══════════════════════════════════════════════════════════
+function log(dir, label, decoded, rawBytes) {
+  const container = document.getElementById('log');
+  const el = document.createElement('div');
+  el.className = `log-entry ${dir}`;
+
+  const now = new Date();
+  const ts  = now.toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false})
+              + '.' + String(now.getMilliseconds()).padStart(3,'0');
+
+  const dirLabel = { tx:'TX', rx:'RX', info:'INFO', error:'ERR' }[dir] || dir.toUpperCase();
+
+  let html = `<div class="log-time">${ts}</div>
+              <div class="log-dir">${dirLabel}</div>
+              <div class="log-body">
+                <div class="log-label">${escHtml(label)}</div>`;
+
+  if (rawBytes) {
+    const hexStr = rawBytes.map(h).join(' ');
+    const coloured = coloriseBytes(rawBytes, dir === 'tx' ? 'rq1' : 'dt1');
+    html += `<div class="log-hex">${coloured}</div>`;
+  }
+
+  if (decoded) {
+    html += `<div class="log-decoded">↳ ${escHtml(decoded)}</div>`;
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+  container.appendChild(el);
+
+  if (autoScroll) el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function coloriseBytes(bytes, type) {
+  if (!bytes || !bytes.length) return '';
+  // Colour scheme: header bytes | addr | data | checksum | F7
+  return bytes.map((b, i) => {
+    let cls = '';
+    if (i === 0 || i === bytes.length - 1) cls = 'b-end';       // F0 / F7
+    else if (i === 1 || i === 2)           cls = 'b-header';     // Roland ID, Device ID
+    else if (i === 3 || i === 4 || i === 5 || i === 6) cls = 'b-header'; // Model + cmd
+    else if (i >= 7 && i <= 10)            cls = 'b-addr';       // Address bytes
+    else if (i === bytes.length - 2)       cls = 'b-chk';        // Checksum
+    else                                   cls = 'b-data';       // Payload / size
+    return `<span class="${cls}">${h(b)}</span>`;
+  }).join(' ');
+}
+
+function clearLog() {
+  document.getElementById('log').innerHTML = '';
+  stats = { tx: 0, rx: 0, btx: 0, brx: 0 };
+  updateStats();
+}
+
+function toggleAutoScroll() {
+  autoScroll = !autoScroll;
+  const btn = document.querySelector('.log-btn');
+  btn.style.color = autoScroll ? 'var(--amber)' : '';
+}
+
+function exportLog() {
+  const entries = document.querySelectorAll('.log-entry');
+  let text = 'GR-55 MIDI Explorer Log\n' + new Date().toISOString() + '\n\n';
+  entries.forEach(e => {
+    const time  = e.querySelector('.log-time')?.textContent || '';
+    const dir   = e.querySelector('.log-dir')?.textContent  || '';
+    const label = e.querySelector('.log-label')?.textContent || '';
+    const hex   = e.querySelector('.log-hex')?.textContent  || '';
+    const dec   = e.querySelector('.log-decoded')?.textContent || '';
+    text += `[${time}] ${dir} ${label}\n`;
+    if (hex) text += `  ${hex.replace(/\s+/g, ' ')}\n`;
+    if (dec) text += `  ${dec}\n`;
+    text += '\n';
+  });
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `gr55-log-${Date.now()}.txt`;
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UTIL
+// ═══════════════════════════════════════════════════════════
+function h(byte) {
+  return byte.toString(16).toUpperCase().padStart(2, '0');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function setStatus(state, text) {
+  const dot  = document.getElementById('status-dot');
+  const span = document.getElementById('status-text');
+  dot.className = 'status-dot ' + state;
+  span.textContent = text;
+}
+
+function updateStats() {
+  document.getElementById('stat-tx').textContent  = stats.tx;
+  document.getElementById('stat-rx').textContent  = stats.rx;
+  document.getElementById('stat-btx').textContent = stats.btx;
+  document.getElementById('stat-brx').textContent = stats.brx;
+}
+
+// ─── Init ───
+updateSysexPreview();
+
+// Check if Web MIDI is available at all
+if (!navigator.requestMIDIAccess) {
+  document.querySelector('.connect-box p').textContent =
+    'Web MIDI API not available. Please use Chrome or Edge.';
+  document.querySelector('.connect-box .big-btn').disabled = true;
+}
+</script>
+</body>
+</html>
