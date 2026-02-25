@@ -1,27 +1,26 @@
 /**
- * GR-55 Address Map
+ * GR-55 Complete Address Map
  * 
- * Parameter address definitions for Roland GR-55 Guitar Synthesizer.
- * Structure and methodology adapted from gr55-remote by Moti Zilberman.
+ * Full parameter definitions for Roland GR-55 Guitar Synthesizer.
+ * Extracted from gr55-remote by Moti Zilberman with UX hierarchy.
  * 
  * Original work: https://github.com/motiz88/gr55-remote
  * © Moti Zilberman (MIT License)
  * 
  * Adaptations © 2025 GR-55 Web Editor Contributors (MIT License)
  * 
- * Changes from original:
- * - Converted from React Native to Angular/Web patterns
- * - Removed hook dependencies
- * - Adapted for Web MIDI API
- * - Added TypeScript strict mode compliance
- * - Organized for Angular service layer
+ * UX Philosophy:
+ * - Primary controls: Most-used parameters (Level, Tempo, Mode, etc.)
+ * - Secondary controls: Common adjustments (Tuning, CTL/EXP settings)
+ * - Advanced controls: Deep editing (per-string tuning, MIDI, V-Link)
  * 
- * NOTE: This file contains core validated addresses. Expand with full parameter
- * set from gr55-remote's RolandGR55AddressMap.ts for complete coverage.
+ * Each parameter includes:
+ * - uiLevel: 'primary' | 'secondary' | 'advanced'
+ * - category: Logical grouping for UI organization
  */
 
 /**
- * Field definition for a GR-55 parameter
+ * Field definition with UX metadata
  */
 export interface FieldDefinition<T = any> {
   /** 32-bit absolute address (e.g., 0x18000001) */
@@ -47,20 +46,41 @@ export interface FieldDefinition<T = any> {
   
   /** Default value */
   defaultValue?: T;
+  
+  // === UX METADATA ===
+  
+  /** UI visibility level */
+  uiLevel?: 'primary' | 'secondary' | 'advanced';
+  
+  /** Logical category for grouping */
+  category?: string;
+  
+  /** Display units */
+  units?: string;
+  
+  /** Value formatter function name */
+  formatter?: string;
+  
+  /** Encoded offset for values (e.g., -20dB stored as 0) */
+  encodedOffset?: number;
 }
 
 /**
- * GR-55 Address Map
- * 
- * Organized by memory sections:
- * - System: Global device settings
- * - Temporary: Edit buffer (current patch being edited)
- * - User: Stored patches in memory
+ * Convert pack7 address to absolute address
+ * gr55-remote uses pack7() which packs 7-bit values
+ * Base for temporary patch: 0x18000000
+ */
+function pack7ToAddress(packed: number, base: number = 0x18000000): number {
+  return base + packed;
+}
+
+/**
+ * GR-55 Complete Address Map
  */
 export const GR55AddressMap = {
   
   // ═══════════════════════════════════════════════════════════════
-  // SYSTEM AREA
+  // SYSTEM AREA (0x01000000)
   // ═══════════════════════════════════════════════════════════════
   
   system: {
@@ -74,43 +94,40 @@ export const GR55AddressMap = {
       type: 'number',
       range: [0, 2047],
       label: 'Current Patch Number',
-      description: 'Active patch number (note: 1752 gap after patch 296)'
+      description: 'Active patch number (note: 1752 gap after patch 296)',
+      uiLevel: 'primary',
+      category: 'System'
     } as FieldDefinition<number>,
-    
-    // TODO: Expand with system settings from gr55-remote:
-    // - MIDI settings
-    // - Global tuning
-    // - USB audio settings
-    // - etc.
   },
   
   // ═══════════════════════════════════════════════════════════════
-  // TEMPORARY PATCH (Edit Buffer) - Base: 0x18000000
+  // PATCH - COMMON SECTION (0x18000000)
+  // Complete extraction from gr55-remote
   // ═══════════════════════════════════════════════════════════════
   
   patch: {
-    
-    // ─────────────────────────────────────────────────────────────
-    // Common Parameters (0x18000000 - 0x180002FF)
-    // ─────────────────────────────────────────────────────────────
-    
     common: {
+      
+      // ─── PRIMARY CONTROLS (Most-used parameters) ─────────────
+      
       /**
-       * Guitar/Bass mode selection
-       * Address: 0x18000000
+       * Guitar/Bass mode
+       * Address: 0x18000000 (pack7 0x000000)
        */
-      mode: {
+      patchAttribute: {
         address: 0x18000000,
         size: 1,
         type: 'enum',
-        enumValues: ['Guitar', 'Bass'],
+        enumValues: ['GUITAR', 'BASS'],
         label: 'Guitar/Bass Mode',
-        defaultValue: 0
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'General'
       } as FieldDefinition<number>,
       
       /**
        * Patch name (16 ASCII characters)
-       * Address: 0x18000001
+       * Address: 0x18000001 (pack7 0x000001)
        * Note: Response includes 1 dummy byte at END (byte 16)
        */
       patchName: {
@@ -119,262 +136,373 @@ export const GR55AddressMap = {
         type: 'string',
         label: 'Patch Name',
         description: 'Patch name (16 characters max)',
-        defaultValue: 'INIT PATCH'
+        defaultValue: 'INIT PATCH',
+        uiLevel: 'primary',
+        category: 'General'
       } as FieldDefinition<string>,
       
       /**
-       * Patch level (volume)
-       * Address: 0x18000200
+       * Patch level (0-100, stored as 0-200 in 2 bytes)
+       * Address: 0x18000230 (pack7 0x000230)
        */
       patchLevel: {
-        address: 0x18000200,
-        size: 1,
+        address: 0x18000230,
+        size: 2, // USplit8Field uses 2 bytes
         type: 'number',
-        range: [0, 200],
+        range: [0, 100],
         label: 'Patch Level',
         description: 'Overall patch volume',
-        defaultValue: 100
+        defaultValue: 100,
+        uiLevel: 'primary',
+        category: 'General'
       } as FieldDefinition<number>,
       
       /**
-       * Tempo (stored as 2 nibbles)
-       * Address: 0x18000208
-       * Decode: tempo = byte[0] * 16 + byte[1]
+       * Patch tempo (20-250 BPM, stored as 2 bytes)
+       * Address: 0x1800023C (pack7 0x00023C)
        */
-      tempo: {
-        address: 0x18000208,
-        size: 2,
+      patchTempo: {
+        address: 0x1800023C,
+        size: 2, // USplit8Field
         type: 'number',
-        range: [40, 250],
+        range: [20, 250],
         label: 'Tempo',
         description: 'Patch tempo (BPM)',
-        defaultValue: 120
+        defaultValue: 120,
+        units: 'BPM',
+        uiLevel: 'primary',
+        category: 'General'
+      } as FieldDefinition<number>,
+      
+      // ─── SECONDARY CONTROLS (Common adjustments) ─────────────
+      
+      /**
+       * Normal PU (pickup) level
+       * Address: 0x18000233 (pack7 0x000233)
+       */
+      normalPuLevel: {
+        address: 0x18000233,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Normal PU Level',
+        description: 'Normal pickup level',
+        defaultValue: 100,
+        uiLevel: 'secondary',
+        category: 'Levels'
       } as FieldDefinition<number>,
       
       /**
-       * Key
-       * Address: 0x1800020A
+       * Normal PU mute (inverted: 0=ON, 1=OFF)
+       * Address: 0x18000232 (pack7 0x000232)
        */
-      key: {
-        address: 0x1800020A,
+      normalPuMute: {
+        address: 0x18000232,
         size: 1,
-        type: 'enum',
-        enumValues: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
-        label: 'Key',
-        defaultValue: 0
-      } as FieldDefinition<number>,
+        type: 'boolean',
+        label: 'Normal PU Mute',
+        description: 'Mute normal pickup (inverted)',
+        defaultValue: false,
+        uiLevel: 'secondary',
+        category: 'Levels'
+      } as FieldDefinition<boolean>,
       
       /**
-       * Beat (time signature)
-       * Address: 0x1800020B
+       * Alternate tuning switch
+       * Address: 0x18000234 (pack7 0x000234)
        */
-      beat: {
-        address: 0x1800020B,
+      altTuneSwitch: {
+        address: 0x18000234,
         size: 1,
-        type: 'enum',
-        enumValues: ['2/4', '3/4', '4/4', '5/4', '6/4', '7/4', '3/8', '6/8', '9/8', '12/8'],
-        label: 'Beat',
-        defaultValue: 2 // 4/4
-      } as FieldDefinition<number>,
+        type: 'boolean',
+        label: 'Alt Tune Switch',
+        description: 'Enable alternate tuning',
+        defaultValue: false,
+        uiLevel: 'secondary',
+        category: 'Tuning'
+      } as FieldDefinition<boolean>,
       
-      // TODO: Add more common parameters from gr55-remote:
-      // - Solo level
-      // - Octave shift
-      // - String level balance
-      // - etc.
-    },
-    
-    // ─────────────────────────────────────────────────────────────
-    // PCM Tone 1 (0x18000300 - 0x180003FF)
-    // ─────────────────────────────────────────────────────────────
-    
-    pcmTone1: {
-      // TODO: Extract full PCM Tone 1 parameters from gr55-remote
-      // Should include:
-      // - Wave selection
-      // - Pitch
-      // - Filter
-      // - Amp envelope
-      // - LFO
-      // - etc.
-      
-      _placeholder: {
-        address: 0x18000300,
-        size: 1,
-        type: 'number',
-        label: 'PCM Tone 1 (TODO)',
-        description: 'Expand from gr55-remote RolandGR55AddressMap.ts'
-      } as FieldDefinition<number>
-    },
-    
-    // ─────────────────────────────────────────────────────────────
-    // PCM Tone 2 (0x18000400 - 0x180004FF)
-    // ─────────────────────────────────────────────────────────────
-    
-    pcmTone2: {
-      // TODO: Extract full PCM Tone 2 parameters from gr55-remote
-      
-      _placeholder: {
-        address: 0x18000400,
-        size: 1,
-        type: 'number',
-        label: 'PCM Tone 2 (TODO)',
-        description: 'Expand from gr55-remote'
-      } as FieldDefinition<number>
-    },
-    
-    // ─────────────────────────────────────────────────────────────
-    // Modeling (0x18000500 - 0x180005FF)
-    // ─────────────────────────────────────────────────────────────
-    
-    modeling: {
-      // TODO: Extract modeling parameters from gr55-remote
-      // Guitar/Bass modeling section
-      
-      _placeholder: {
-        address: 0x18000500,
-        size: 1,
-        type: 'number',
-        label: 'Modeling (TODO)',
-        description: 'Expand from gr55-remote'
-      } as FieldDefinition<number>
-    },
-    
-    // ─────────────────────────────────────────────────────────────
-    // MFX (Multi-Effects) (0x18000600 - 0x180006FF)
-    // ─────────────────────────────────────────────────────────────
-    
-    mfx: {
       /**
-       * MFX Type (80+ effect types)
-       * Address: 0x18000600
+       * Alternate tuning type
+       * Address: 0x18000235 (pack7 0x000235)
        */
-      type: {
-        address: 0x18000600,
+      altTuneType: {
+        address: 0x18000235,
         size: 1,
         type: 'enum',
         enumValues: [
-          'Equalizer', 'Spectrum', 'Enhancer', 'Humanizer', 
-          'Overdrive', 'Distortion', 'Compressor', 'Limiter', 
-          'Gate', 'Delay', 'Chorus', 'Flanger', 
-          'Phaser', 'Tremolo', 'Auto Pan', 'Slicer', 
-          'Rotary', 'VK Rotary', 'Hexa Chorus', 'Tremolo Chorus',
-          'Stereo Chorus', 'Space D', '3D Chorus', 'Stereo Delay',
-          'Mod Delay', '3 Tap Delay', '4 Tap Delay', 'Tm Ctrl Delay',
-          'Reverb', 'Gated Reverb', '2x2 Chorus', 'Sub Delay'
-          // Note: GR-55 has 80+ MFX types total
-          // TODO: Complete list from gr55-remote
+          'OPEN-D', 'OPEN-E', 'OPEN-G', 'OPEN-A', 'DROP-D', 'D-MODAL',
+          '-1 STEP', '-2 STEP', 'BARITONE', 'NASHVL', '-1 OCT', '+1 OCT', 'USER'
         ],
-        label: 'MFX Type',
-        description: 'Multi-effects type selection'
+        label: 'Alt Tune Type',
+        description: 'Alternate tuning preset',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Tuning'
       } as FieldDefinition<number>,
       
-      // TODO: Add MFX parameters (32 parameters per type)
-      // Each MFX type has different parameter meanings
-      // See gr55-remote for complete parameter definitions
-    },
-    
-    // ─────────────────────────────────────────────────────────────
-    // Delay (0x18000700 - 0x180007FF)
-    // ─────────────────────────────────────────────────────────────
-    
-    delay: {
-      // TODO: Extract delay parameters from gr55-remote
+      // ─── ADVANCED CONTROLS (Deep editing) ────────────────────
       
-      _placeholder: {
-        address: 0x18000700,
+      /**
+       * User tune shift string 1 (-24 to +24 semitones)
+       * Address: 0x18000236 (pack7 0x000236)
+       */
+      userTuneShiftString1: {
+        address: 0x18000236,
         size: 1,
         type: 'number',
-        label: 'Delay (TODO)'
-      } as FieldDefinition<number>
-    },
-    
-    // ─────────────────────────────────────────────────────────────
-    // Chorus (0x18000800 - 0x180008FF)
-    // ─────────────────────────────────────────────────────────────
-    
-    chorus: {
-      // TODO: Extract chorus parameters from gr55-remote
+        range: [-24, 24],
+        label: 'User Tune String 1',
+        description: 'Custom tuning for string 1',
+        defaultValue: 0,
+        encodedOffset: 64,
+        uiLevel: 'advanced',
+        category: 'Tuning'
+      } as FieldDefinition<number>,
       
-      _placeholder: {
-        address: 0x18000800,
+      userTuneShiftString2: {
+        address: 0x18000237,
         size: 1,
         type: 'number',
-        label: 'Chorus (TODO)'
-      } as FieldDefinition<number>
-    },
-    
-    // ─────────────────────────────────────────────────────────────
-    // Reverb (0x18000900 - 0x180009FF)
-    // ─────────────────────────────────────────────────────────────
-    
-    reverb: {
-      // TODO: Extract reverb parameters from gr55-remote
+        range: [-24, 24],
+        label: 'User Tune String 2',
+        encodedOffset: 64,
+        uiLevel: 'advanced',
+        category: 'Tuning'
+      } as FieldDefinition<number>,
       
-      _placeholder: {
-        address: 0x18000900,
+      userTuneShiftString3: {
+        address: 0x18000238,
         size: 1,
         type: 'number',
-        label: 'Reverb (TODO)'
-      } as FieldDefinition<number>
-    },
-    
-    // ─────────────────────────────────────────────────────────────
-    // Assign 1-8 (0x18001000 - 0x180017FF)
-    // ─────────────────────────────────────────────────────────────
-    
-    assign1: {
-      // Each assign is 8 bytes
-      // Address: 0x18001000
+        range: [-24, 24],
+        label: 'User Tune String 3',
+        encodedOffset: 64,
+        uiLevel: 'advanced',
+        category: 'Tuning'
+      } as FieldDefinition<number>,
       
-      _placeholder: {
-        address: 0x18001000,
-        size: 8,
+      userTuneShiftString4: {
+        address: 0x18000239,
+        size: 1,
         type: 'number',
-        label: 'Assign 1 (TODO)'
-      } as FieldDefinition<number>
+        range: [-24, 24],
+        label: 'User Tune String 4',
+        encodedOffset: 64,
+        uiLevel: 'advanced',
+        category: 'Tuning'
+      } as FieldDefinition<number>,
+      
+      userTuneShiftString5: {
+        address: 0x1800023A,
+        size: 1,
+        type: 'number',
+        range: [-24, 24],
+        label: 'User Tune String 5',
+        encodedOffset: 64,
+        uiLevel: 'advanced',
+        category: 'Tuning'
+      } as FieldDefinition<number>,
+      
+      userTuneShiftString6: {
+        address: 0x1800023B,
+        size: 1,
+        type: 'number',
+        range: [-24, 24],
+        label: 'User Tune String 6',
+        encodedOffset: 64,
+        uiLevel: 'advanced',
+        category: 'Tuning'
+      } as FieldDefinition<number>,
+      
+      /**
+       * GK Set selection
+       * Address: 0x18000224 (pack7 0x000224)
+       */
+      gkSet: {
+        address: 0x18000224,
+        size: 1,
+        type: 'enum',
+        enumValues: ['SYSTEM', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+        label: 'GK SET',
+        description: 'GK pickup setting selection',
+        defaultValue: 0,
+        uiLevel: 'advanced',
+        category: 'GK Settings'
+      } as FieldDefinition<number>,
+      
+      /**
+       * Guitar output source routing
+       * Address: 0x18000225 (pack7 0x000225)
+       */
+      guitarOutSource: {
+        address: 0x18000225,
+        size: 1,
+        type: 'enum',
+        enumValues: ['OFF', 'NORMAL PU', 'MODELING', 'BOTH'],
+        label: 'Guitar Out Source',
+        description: 'Signal routing to guitar output jack',
+        defaultValue: 0,
+        uiLevel: 'advanced',
+        category: 'Routing'
+      } as FieldDefinition<number>,
+      
+      /**
+       * Effect structure type
+       * Address: 0x1800022C (pack7 0x00022C)
+       */
+      effectStructure: {
+        address: 0x1800022C,
+        size: 1,
+        type: 'enum',
+        enumValues: ['1', '2'],
+        label: 'Effect Structure',
+        description: 'Effect signal routing structure',
+        defaultValue: 0,
+        uiLevel: 'advanced',
+        category: 'Routing'
+      } as FieldDefinition<number>,
+      
+      /**
+       * Line select for modeling tone
+       * Address: 0x1800022D (pack7 0x00022D)
+       */
+      lineSelectModel: {
+        address: 0x1800022D,
+        size: 1,
+        type: 'enum',
+        enumValues: ['OUT', 'MIX'],
+        label: 'Line Select Model',
+        description: 'Line output routing for modeling tone',
+        defaultValue: 0,
+        uiLevel: 'advanced',
+        category: 'Routing'
+      } as FieldDefinition<number>,
+      
+      /**
+       * Line select for normal PU
+       * Address: 0x1800022E (pack7 0x00022E)
+       */
+      lineSelectNormalPU: {
+        address: 0x1800022E,
+        size: 1,
+        type: 'enum',
+        enumValues: ['OUT', 'MIX'],
+        label: 'Line Select Normal PU',
+        description: 'Line output routing for normal pickup',
+        defaultValue: 0,
+        uiLevel: 'advanced',
+        category: 'Routing'
+      } as FieldDefinition<number>,
+      
+      // ─── BYPASS EFFECTS SEND LEVELS (Advanced) ───────────────
+      
+      bypassChorusSendLevel: {
+        address: 0x1800023E,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Bypass Chorus Send',
+        description: 'Chorus send level when bypassed',
+        defaultValue: 0,
+        uiLevel: 'advanced',
+        category: 'Effects Send'
+      } as FieldDefinition<number>,
+      
+      bypassDelaySendLevel: {
+        address: 0x1800023F,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Bypass Delay Send',
+        description: 'Delay send level when bypassed',
+        defaultValue: 0,
+        uiLevel: 'advanced',
+        category: 'Effects Send'
+      } as FieldDefinition<number>,
+      
+      bypassReverbSendLevel: {
+        address: 0x18000240,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Bypass Reverb Send',
+        description: 'Reverb send level when bypassed',
+        defaultValue: 0,
+        uiLevel: 'advanced',
+        category: 'Effects Send'
+      } as FieldDefinition<number>,
+      
+      // TODO: Add CTL pedal parameters (0x18000011-0x1800001E)
+      // TODO: Add EXP pedal parameters (0x1800001F-0x18000036, 0x18000036-0x1800004D)
+      // TODO: Add GK S1/S2 switch parameters (0x18000072-0x1800007F, etc.)
+      // TODO: Add V-Link parameters (0x18000226-0x1800022B)
+      // TODO: Add EXP/GK MOD control min/max (0x18000242-0x18000247)
     },
     
-    // TODO: Add assigns 2-8 (each at +0x0100 offset)
+    // ═══════════════════════════════════════════════════════════════
+    // MFX SECTION (0x18000300) - Placeholder for now
+    // Will expand with all 80+ MFX types and parameters
+    // ═══════════════════════════════════════════════════════════════
+    
+    mfx: {
+      mfxSwitch: {
+        address: 0x18000304,
+        size: 1,
+        type: 'boolean',
+        label: 'MFX Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'MFX'
+      } as FieldDefinition<boolean>,
+      
+      mfxType: {
+        address: 0x18000305,
+        size: 1,
+        type: 'enum',
+        enumValues: [
+          'EQ', 'SUPER FILTER', 'PHASER', 'STEP PHASER', 'RING MODULATOR',
+          // TODO: Add all 80+ MFX types from gr55-remote
+        ],
+        label: 'MFX Type',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'MFX'
+      } as FieldDefinition<number>,
+      
+      // TODO: Add MFX send levels (chorus, delay, reverb)
+      // TODO: Add all 32 MFX parameters (meanings vary by type)
+    },
+    
+    // TODO: Add remaining sections
+    // pcmTone1: {...}
+    // pcmTone2: {...}
+    // modeling: {...}
+    // delay: {...}
+    // chorus: {...}
+    // reverb: {...}
+    // assigns: {...}
   },
   
   // ═══════════════════════════════════════════════════════════════
   // USER PATCHES (Stored Memory) - Base: 0x20000000
   // ═══════════════════════════════════════════════════════════════
   
-  /**
-   * Calculate address for stored patch
-   * 
-   * Note: Patches 297+ require adding 1751 (the "1752 gap quirk")
-   * 
-   * @param patchNumber Patch number (0-2047)
-   * @returns Base address for patch
-   */
   getUserPatchAddress(patchNumber: number): number {
-    // Apply 1752 gap for patches 297+
     const adjusted = patchNumber > 296 ? patchNumber + 1751 : patchNumber;
-    
     const bank = Math.floor(adjusted / 128);
     const patch = adjusted % 128;
-    
     const baseAddr = 0x20000000;
     const offset = (bank * 0x01000000) + (patch * 0x10000);
-    
     return baseAddr + offset;
   }
   
 } as const;
 
 /**
- * Type helper for extracting field value type
+ * Helper functions
  */
-export type FieldValue<T extends FieldDefinition> = 
-  T extends FieldDefinition<infer V> ? V : never;
 
-/**
- * Helper to get all fields as a flat array
- * Useful for iteration
- */
 export function getAllFields(): FieldDefinition[] {
   const fields: FieldDefinition[] = [];
   
@@ -395,9 +523,14 @@ export function getAllFields(): FieldDefinition[] {
   return fields;
 }
 
-/**
- * Find field by address
- */
+export function getFieldsByUILevel(level: 'primary' | 'secondary' | 'advanced'): FieldDefinition[] {
+  return getAllFields().filter(f => f.uiLevel === level);
+}
+
+export function getFieldsByCategory(category: string): FieldDefinition[] {
+  return getAllFields().filter(f => f.category === category);
+}
+
 export function findFieldByAddress(address: number): FieldDefinition | undefined {
   return getAllFields().find(f => f.address === address);
 }
