@@ -10,13 +10,24 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KnobComponent } from '../../shared/components/knob/knob.component';
+import { SliderComponent } from '../../shared/components/slider/slider.component';
+import { DropdownComponent } from '../../shared/components/dropdown/dropdown.component';
+import { LedComponent } from '../../shared/components/led/led.component';
+import { ParameterLabelComponent } from '../../shared/components/parameter-label/parameter-label.component';
 import { MidiIoService, Gr55ProtocolService } from '../../core/midi';
 import { GR55AddressMap } from '../../data/gr55-address-map';
 
 @Component({
   selector: 'app-component-demo',
   standalone: true,
-  imports: [CommonModule, KnobComponent],
+  imports: [
+    CommonModule, 
+    KnobComponent, 
+    SliderComponent, 
+    DropdownComponent, 
+    LedComponent, 
+    ParameterLabelComponent
+  ],
   template: `
     <div class="demo-container">
       <h1>Component Demo</h1>
@@ -93,6 +104,162 @@ import { GR55AddressMap } from '../../data/gr55-address-map';
                 <small>For testing UI</small>
               </div>
             </div>
+          </div>
+        </section>
+        
+        <!-- Slider Demos -->
+        <section class="demo-section">
+          <h2>Slider Component</h2>
+          <p class="section-desc">
+            Horizontal and vertical faders. Click track to jump, drag thumb to adjust.
+          </p>
+          
+          <div class="sliders-grid">
+            <!-- Horizontal Slider - Patch Level -->
+            <div class="slider-wrapper">
+              <app-slider
+                [value]="patchLevel()"
+                [min]="0"
+                [max]="200"
+                [label]="'Level (H)'"
+                [color]="'amber'"
+                [orientation]="'horizontal'"
+                [width]="200"
+                (valueChange)="onLevelChange($event)">
+              </app-slider>
+              <div class="slider-info">
+                <small>Horizontal fader</small>
+              </div>
+            </div>
+            
+            <!-- Vertical Slider - Tempo -->
+            <div class="slider-wrapper">
+              <app-slider
+                [value]="tempo()"
+                [min]="40"
+                [max]="250"
+                [label]="'Tempo (V)'"
+                [units]="'BPM'"
+                [color]="'green'"
+                [orientation]="'vertical'"
+                [height]="150"
+                (valueChange)="onTempoChange($event)">
+              </app-slider>
+              <div class="slider-info">
+                <small>Vertical fader</small>
+              </div>
+            </div>
+            
+            <!-- Demo Slider - Local Only -->
+            <div class="slider-wrapper">
+              <app-slider
+                [value]="demoValue()"
+                [min]="0"
+                [max]="127"
+                [label]="'Demo (H)'"
+                [color]="'cyan'"
+                [orientation]="'horizontal'"
+                [width]="200"
+                (valueChange)="demoValue.set($event)">
+              </app-slider>
+              <div class="slider-info">
+                <small>Local only</small>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Dropdown Demo -->
+        <section class="demo-section">
+          <h2>Dropdown Component</h2>
+          <p class="section-desc">
+            Enum value selector for parameters like MFX type, mode, etc.
+          </p>
+          
+          <div class="controls-grid">
+            <app-dropdown
+              [value]="mode() === 'GUITAR' ? 0 : 1"
+              [options]="['Guitar', 'Bass']"
+              [label]="'Guitar/Bass Mode'"
+              [color]="'amber'"
+              (valueChange)="onModeChange($event)">
+            </app-dropdown>
+            
+            <app-dropdown
+              [value]="demoDropdown()"
+              [options]="['Option 1', 'Option 2', 'Option 3', 'Option 4']"
+              [label]="'Demo Dropdown'"
+              [color]="'cyan'"
+              (valueChange)="demoDropdown.set($event)">
+            </app-dropdown>
+          </div>
+        </section>
+        
+        <!-- LED Demo -->
+        <section class="demo-section">
+          <h2>LED Indicator</h2>
+          <p class="section-desc">
+            On/off status indicator. Click to toggle (when clickable).
+          </p>
+          
+          <div class="controls-grid">
+            <app-led
+              [isOn]="isConnected()"
+              [label]="'MIDI Connected'"
+              [color]="'green'"
+              [size]="14">
+            </app-led>
+            
+            <app-led
+              [isOn]="demoLed()"
+              [label]="'Demo LED (Click)'"
+              [color]="'amber'"
+              [size]="14"
+              [clickable]="true"
+              (toggle)="demoLed.set($event)">
+            </app-led>
+            
+            <app-led
+              [isOn]="false"
+              [label]="'Effect Off'"
+              [color]="'red'"
+              [size]="14">
+            </app-led>
+          </div>
+        </section>
+        
+        <!-- Parameter Label Demo -->
+        <section class="demo-section">
+          <h2>Parameter Label</h2>
+          <p class="section-desc">
+            Read-only parameter display. Used in info panels and summaries.
+          </p>
+          
+          <div class="params-panel">
+            <app-parameter-label
+              [label]="'Patch Name'"
+              [value]="patchName()"
+              [color]="'default'">
+            </app-parameter-label>
+            
+            <app-parameter-label
+              [label]="'Mode'"
+              [value]="mode()"
+              [color]="'amber'">
+            </app-parameter-label>
+            
+            <app-parameter-label
+              [label]="'Level'"
+              [value]="patchLevel()"
+              [color]="'green'">
+            </app-parameter-label>
+            
+            <app-parameter-label
+              [label]="'Tempo'"
+              [value]="tempo()"
+              [units]="' BPM'"
+              [color]="'cyan'">
+            </app-parameter-label>
           </div>
         </section>
         
@@ -239,7 +406,30 @@ import { GR55AddressMap } from '../../data/gr55-address-map';
       margin-bottom: 32px;
     }
     
-    .knob-wrapper {
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      margin-bottom: 32px;
+      align-items: start;
+    }
+    
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .params-panel {
+      background: #131715;
+      border: 1px solid #1e2820;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+    
+    .knob-wrapper,
+    .slider-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -249,14 +439,16 @@ import { GR55AddressMap } from '../../data/gr55-address-map';
       padding: 24px;
     }
     
-    .knob-info {
+    .knob-info,
+    .slider-info {
       display: flex;
       flex-direction: column;
       gap: 4px;
       text-align: center;
     }
     
-    .knob-info small {
+    .knob-info small,
+    .slider-info small {
       font-size: 0.75rem;
       color: #6c757d;
       letter-spacing: 0.05em;
@@ -334,6 +526,8 @@ export class ComponentDemoComponent implements OnInit {
   
   // Demo value (local only, no MIDI)
   demoValue = signal(64);
+  demoDropdown = signal(0);
+  demoLed = signal(false);
   
   ngOnInit() {
     // Auto-load patch data if already connected
@@ -405,6 +599,23 @@ export class ComponentDemoComponent implements OnInit {
         // Revert on error
         this.gr55.getTempo()
           .subscribe(bpm => this.tempo.set(bpm));
+      }
+    });
+  }
+  
+  onModeChange(newMode: number) {
+    const mode = newMode === 0 ? 'guitar' : 'bass';
+    
+    // Optimistic update
+    this.mode.set(mode.toUpperCase());
+    
+    // Write to GR-55
+    this.gr55.setMode(mode).subscribe({
+      error: (err) => {
+        console.error('Failed to write mode:', err);
+        // Revert on error
+        this.gr55.getMode()
+          .subscribe(m => this.mode.set(m.toUpperCase()));
       }
     });
   }

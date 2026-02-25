@@ -1,0 +1,91 @@
+:host {
+  display: inline-block;
+}
+
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  user-select: none;
+  min-width: 150px;
+}
+
+.dropdown-container.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dropdown-label {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.dropdown-select-wrapper {
+  position: relative;
+}
+
+.dropdown-select {
+  width: 100%;
+  background: #131715;
+  border: 2px solid currentColor;
+  color: currentColor;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 8px 32px 8px 12px;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.dropdown-select:hover:not(:disabled) {
+  background: rgba(200, 212, 192, 0.05);
+  box-shadow: 0 0 8px rgba(232, 160, 32, 0.2);
+}
+
+.dropdown-select:focus {
+  box-shadow: 0 0 12px currentColor;
+}
+
+.dropdown-select:disabled {
+  cursor: not-allowed;
+}
+
+.dropdown-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: currentColor;
+  font-size: 10px;
+}
+
+/* Color themes */
+.dropdown-amber {
+  color: #e8a020;
+}
+
+.dropdown-green {
+  color: #3ddc6a;
+}
+
+.dropdown-cyan {
+  color: #30c0c0;
+}
+
+.dropdown-red {
+  color: #e84040;
+}
+
+/* Option styling (browser-dependent) */
+.dropdown-select option {
+  background: #0d0f0e;
+  color: #c8d4c0;
+  padding: 8px;
+}

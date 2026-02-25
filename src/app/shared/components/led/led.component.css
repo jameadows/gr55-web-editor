@@ -1,0 +1,78 @@
+:host {
+  display: inline-block;
+}
+
+.led-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.led-container.clickable {
+  cursor: pointer;
+}
+
+.led-indicator {
+  border-radius: 50%;
+  background: #2a2a2a;
+  border: 2px solid currentColor;
+  opacity: 0.3;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.led-indicator.on {
+  opacity: 1;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+  animation: pulse 2s infinite;
+}
+
+/* Pulsing animation for active LED */
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1;
+    box-shadow: 0 0 12px currentColor;
+  }
+  50% { 
+    opacity: 0.7;
+    box-shadow: 0 0 8px currentColor;
+  }
+}
+
+.led-label {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #c8d4c0;
+  text-transform: uppercase;
+}
+
+/* Color themes */
+.led-amber {
+  color: #e8a020;
+}
+
+.led-green {
+  color: #3ddc6a;
+}
+
+.led-cyan {
+  color: #30c0c0;
+}
+
+.led-red {
+  color: #e84040;
+}
+
+/* Hover effect for clickable LEDs */
+.led-container.clickable:hover .led-indicator {
+  opacity: 0.5;
+}
+
+.led-container.clickable:hover .led-indicator.on {
+  opacity: 1;
+  transform: scale(1.1);
+}

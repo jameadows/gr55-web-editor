@@ -1,0 +1,197 @@
+:host {
+  display: inline-block;
+}
+
+.slider-container {
+  display: flex;
+  gap: 8px;
+  user-select: none;
+  position: relative;
+}
+
+/* Horizontal layout */
+.slider-horizontal {
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Vertical layout */
+.slider-vertical {
+  flex-direction: row;
+  align-items: center;
+}
+
+/* Disabled state */
+.slider-container.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Track area (clickable region) */
+.slider-track-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.slider-horizontal .slider-track-area {
+  width: 100%;
+  height: 20px;
+  justify-content: center;
+}
+
+.slider-vertical .slider-track-area {
+  height: 100%;
+  width: 20px;
+  justify-content: center;
+}
+
+.slider-container.disabled .slider-track-area {
+  cursor: not-allowed;
+}
+
+/* Background track */
+.slider-track {
+  background: rgba(200, 212, 192, 0.1);
+  border: 1px solid rgba(200, 212, 192, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.slider-horizontal .slider-track {
+  border-radius: 2px;
+}
+
+.slider-vertical .slider-track {
+  border-radius: 2px;
+}
+
+/* Fill (shows current value) */
+.slider-fill {
+  background: currentColor;
+  opacity: 0.6;
+  transition: all 0.1s ease-out;
+}
+
+.slider-horizontal .slider-fill {
+  height: 100%;
+}
+
+.slider-vertical .slider-fill {
+  width: 100%;
+}
+
+/* Thumb */
+.slider-thumb {
+  position: absolute;
+  cursor: grab;
+  transition: transform 0.05s ease-out;
+  z-index: 2;
+}
+
+.slider-horizontal .slider-thumb {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin-left: 0;
+}
+
+.slider-vertical .slider-thumb {
+  left: 50%;
+  transform: translate(-50%, 50%);
+  margin-bottom: 0;
+}
+
+.slider-thumb:active {
+  cursor: grabbing;
+}
+
+.slider-container.disabled .slider-thumb {
+  cursor: not-allowed;
+}
+
+/* Thumb inner circle */
+.slider-thumb-inner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-panel, #131715);
+  border: 2px solid currentColor;
+  transition: all 0.2s;
+}
+
+.slider-thumb:hover .slider-thumb-inner {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px currentColor;
+}
+
+.slider-thumb:active .slider-thumb-inner {
+  transform: scale(1.2);
+  box-shadow: 0 0 12px currentColor;
+}
+
+.slider-container.disabled .slider-thumb-inner {
+  opacity: 0.5;
+}
+
+/* Value display */
+.slider-value {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: currentColor;
+  min-width: 50px;
+  text-align: center;
+}
+
+.slider-vertical .slider-value {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Label */
+.slider-label {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slider-vertical .slider-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Color themes */
+.slider-amber {
+  color: #e8a020;
+}
+
+.slider-green {
+  color: #3ddc6a;
+}
+
+.slider-cyan {
+  color: #30c0c0;
+}
+
+.slider-red {
+  color: #e84040;
+}
+
+/* Hover effect on track */
+.slider-track-area:hover .slider-track {
+  border-color: rgba(200, 212, 192, 0.4);
+}
+
+/* Active fill brightness */
+.slider-thumb:active ~ .slider-track .slider-fill {
+  opacity: 0.8;
+}

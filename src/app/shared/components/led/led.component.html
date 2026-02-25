@@ -1,0 +1,16 @@
+<div 
+  class="led-container"
+  [class]="colorClass()"
+  [class.clickable]="clickable"
+  (click)="onToggle()">
+  
+  <div 
+    class="led-indicator"
+    [class.on]="isOn"
+    [ngStyle]="sizeStyle()">
+  </div>
+  
+  @if (label) {
+    <span class="led-label">{{ label }}</span>
+  }
+</div>

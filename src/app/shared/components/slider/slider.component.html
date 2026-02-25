@@ -1,0 +1,36 @@
+<div 
+  class="slider-container"
+  [class]="orientationClass() + ' ' + colorClass()"
+  [class.disabled]="disabled"
+  [ngStyle]="containerStyle()">
+  
+  <!-- Track area (clickable) -->
+  <div 
+    #track
+    class="slider-track-area"
+    (click)="onTrackClick($event)"
+    (wheel)="onWheel($event)">
+    
+    <!-- Background track -->
+    <div class="slider-track" [ngStyle]="trackStyle()">
+      <!-- Fill (shows current value) -->
+      <div class="slider-fill" [ngStyle]="fillStyle()"></div>
+    </div>
+    
+    <!-- Draggable thumb -->
+    <div 
+      class="slider-thumb"
+      [ngStyle]="thumbStyle()"
+      (mousedown)="onMouseDown($event)">
+      <div class="slider-thumb-inner"></div>
+    </div>
+  </div>
+  
+  <!-- Value display -->
+  <div class="slider-value">{{ displayValue() }}</div>
+  
+  <!-- Label -->
+  @if (label) {
+    <div class="slider-label">{{ label }}</div>
+  }
+</div>
