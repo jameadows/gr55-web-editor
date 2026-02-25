@@ -396,11 +396,72 @@
     }
     
     @if (activeTab() === 'modeling') {
-      <div class="tab-panel placeholder">
+      <div class="tab-panel">
         <h2>Modeling</h2>
-        <p class="placeholder-text">
-          Modeling editor will be implemented in Phase 5.
-        </p>
+        
+        <!-- PRIMARY CONTROLS -->
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <!-- Mute Switch (inverted: false=ON, true=OFF) -->
+            <div class="control-group">
+              <app-led
+                [isOn]="!modelingMuteSwitch()"
+                [label]="'Modeling On'"
+                [color]="'green'"
+                [size]="16"
+                [clickable]="true"
+                (toggle)="onModelingMuteChange(!$event)">
+              </app-led>
+            </div>
+            
+            <!-- Category Selection -->
+            <div class="control-group">
+              <app-dropdown
+                [value]="activeModelingCategory()"
+                [options]="modelingCategoryOptions()"
+                [label]="'Category'"
+                [color]="'amber'"
+                (valueChange)="onModelingCategoryChange($event)">
+              </app-dropdown>
+            </div>
+            
+            <!-- Tone Selection (context-sensitive based on category) -->
+            <div class="control-group">
+              <app-dropdown
+                [value]="activeModelingTone()"
+                [options]="modelingToneOptions()"
+                [label]="'Tone'"
+                [color]="'amber'"
+                (valueChange)="onModelingToneChange($event)">
+              </app-dropdown>
+            </div>
+            
+            <!-- Level -->
+            <div class="control-group">
+              <app-knob
+                [value]="modelingLevel()"
+                [min]="0"
+                [max]="100"
+                [label]="'Level'"
+                [color]="'green'"
+                [size]="100"
+                (valueChange)="onModelingLevelChange($event)">
+              </app-knob>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Note about mode-dependent parameters -->
+        <section class="controls-section secondary">
+          <div class="section-note">
+            <strong>Note:</strong> Category and tone options change based on Guitar/Bass mode (Common tab).
+            <br>
+            Guitar mode: E.GTR, AC, E.BASS, SYNTH
+            <br>
+            Bass mode: E.BASS, SYNTH, E.GTR
+          </div>
+        </section>
       </div>
     }
     

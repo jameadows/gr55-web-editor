@@ -145,6 +145,76 @@ export class PatchEditorComponent implements OnInit {
   pcm2CoarseTune = signal(0);
   pcm2FineTune = signal(0);
   
+  // Modeling
+  modelingCategoryGuitar = signal(0);
+  modelingToneEGtrGuitar = signal(0);
+  modelingToneAcGuitar = signal(0);
+  modelingToneEBassGuitar = signal(0);
+  modelingToneSynthGuitar = signal(0);
+  modelingCategoryBass = signal(0);
+  modelingToneEBassBass = signal(0);
+  modelingToneEGtrBass = signal(0);
+  modelingToneSynthBass = signal(0);
+  modelingLevel = signal(100);
+  modelingMuteSwitch = signal(false);
+  
+  // Computed - active modeling category and tone based on guitar/bass mode
+  activeModelingCategory = computed(() => {
+    return this.patchAttribute() === 0 ? this.modelingCategoryGuitar() : this.modelingCategoryBass();
+  });
+  
+  activeModelingTone = computed(() => {
+    const isGuitar = this.patchAttribute() === 0;
+    const category = isGuitar ? this.modelingCategoryGuitar() : this.modelingCategoryBass();
+    
+    if (isGuitar) {
+      switch (category) {
+        case 0: return this.modelingToneEGtrGuitar(); // E.GTR
+        case 1: return this.modelingToneAcGuitar(); // AC
+        case 2: return this.modelingToneEBassGuitar(); // E.BASS
+        case 3: return this.modelingToneSynthGuitar(); // SYNTH
+        default: return 0;
+      }
+    } else {
+      switch (category) {
+        case 0: return this.modelingToneEBassBass(); // E.BASS
+        case 1: return this.modelingToneSynthBass(); // SYNTH
+        case 2: return this.modelingToneEGtrBass(); // E.GTR
+        default: return 0;
+      }
+    }
+  });
+  
+  // Category options based on guitar/bass mode
+  modelingCategoryOptions = computed(() => {
+    return this.patchAttribute() === 0 
+      ? ['E.GTR', 'AC', 'E.BASS', 'SYNTH']
+      : ['E.BASS', 'SYNTH', 'E.GTR'];
+  });
+  
+  // Tone options based on selected category and guitar/bass mode
+  modelingToneOptions = computed(() => {
+    const isGuitar = this.patchAttribute() === 0;
+    const category = isGuitar ? this.modelingCategoryGuitar() : this.modelingCategoryBass();
+    
+    if (isGuitar) {
+      switch (category) {
+        case 0: return ['CLA-ST', 'MOD-ST', 'H&H-ST', 'TE', 'LP', 'P-90', 'LIPS', 'RICK', '335', 'L4'];
+        case 1: return ['STEEL', 'NYLON', 'SITAR', 'BANJO', 'RESO'];
+        case 2: return ['JB', 'PB'];
+        case 3: return ['ANALOG GR', 'WAVE SYNTH', 'FILTER BASS', 'CRYSTAL', 'ORGAN', 'BRASS'];
+        default: return [];
+      }
+    } else {
+      switch (category) {
+        case 0: return ['VINT JB', 'JB', 'VINT PB', 'PB', 'M-MAN', 'RICK', 'T-BIRD', 'ACTIVE', 'VIOLIN'];
+        case 1: return ['ANALOG GR', 'WAVE SYNTH', 'FILTER BASS', 'CRYSTAL', 'ORGAN', 'BRASS'];
+        case 2: return ['ST', 'LP'];
+        default: return [];
+      }
+    }
+  });
+  
   // ═══════════════════════════════════════════════════════════
   // LIFECYCLE
   // ═══════════════════════════════════════════════════════════
@@ -195,6 +265,9 @@ export class PatchEditorComponent implements OnInit {
     // Load PCM Tone sections
     this.loadPcm1Parameters();
     this.loadPcm2Parameters();
+    
+    // Load Modeling section
+    this.loadModelingParameters();
   }
   
   private loadCommonParameters() {
@@ -789,6 +862,190 @@ export class PatchEditorComponent implements OnInit {
       error: (e) => {
         console.error('Failed to write PCM2 fine tune:', e);
         this.loadPcm2Parameters();
+      }
+    });
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // MODELING SECTION
+  // ═══════════════════════════════════════════════════════════
+  
+  private loadModelingParameters() {
+    const map = GR55AddressMap.patch.modeling;
+    
+    // Load all category and tone fields (active ones determined by guitar/bass mode)
+    this.gr55.readParameter(map.toneCategoryGuitar).subscribe({
+      next: (v) => this.modelingCategoryGuitar.set(v),
+      error: (e) => console.error('Failed to read modeling category (guitar):', e)
+    });
+    
+    this.gr55.readParameter(map.toneNumberEGtrGuitar).subscribe({
+      next: (v) => this.modelingToneEGtrGuitar.set(v),
+      error: (e) => console.error('Failed to read modeling tone E.GTR (guitar):', e)
+    });
+    
+    this.gr55.readParameter(map.toneNumberAcGuitar).subscribe({
+      next: (v) => this.modelingToneAcGuitar.set(v),
+      error: (e) => console.error('Failed to read modeling tone AC:', e)
+    });
+    
+    this.gr55.readParameter(map.toneNumberEBassGuitar).subscribe({
+      next: (v) => this.modelingToneEBassGuitar.set(v),
+      error: (e) => console.error('Failed to read modeling tone E.BASS (guitar):', e)
+    });
+    
+    this.gr55.readParameter(map.toneNumberSynthGuitar).subscribe({
+      next: (v) => this.modelingToneSynthGuitar.set(v),
+      error: (e) => console.error('Failed to read modeling tone SYNTH (guitar):', e)
+    });
+    
+    this.gr55.readParameter(map.toneCategoryBass).subscribe({
+      next: (v) => this.modelingCategoryBass.set(v),
+      error: (e) => console.error('Failed to read modeling category (bass):', e)
+    });
+    
+    this.gr55.readParameter(map.toneNumberEBassBass).subscribe({
+      next: (v) => this.modelingToneEBassBass.set(v),
+      error: (e) => console.error('Failed to read modeling tone E.BASS (bass):', e)
+    });
+    
+    this.gr55.readParameter(map.toneNumberEGtrBass).subscribe({
+      next: (v) => this.modelingToneEGtrBass.set(v),
+      error: (e) => console.error('Failed to read modeling tone E.GTR (bass):', e)
+    });
+    
+    this.gr55.readParameter(map.toneNumberSynthBass).subscribe({
+      next: (v) => this.modelingToneSynthBass.set(v),
+      error: (e) => console.error('Failed to read modeling tone SYNTH (bass):', e)
+    });
+    
+    this.gr55.readParameter(map.level).subscribe({
+      next: (v) => this.modelingLevel.set(v),
+      error: (e) => console.error('Failed to read modeling level:', e)
+    });
+    
+    this.gr55.readParameter(map.muteSwitch).subscribe({
+      next: (v) => this.modelingMuteSwitch.set(v),
+      error: (e) => console.error('Failed to read modeling mute:', e)
+    });
+  }
+  
+  onModelingCategoryChange(newCategory: number) {
+    const map = GR55AddressMap.patch.modeling;
+    const isGuitar = this.patchAttribute() === 0;
+    
+    if (isGuitar) {
+      this.modelingCategoryGuitar.set(newCategory);
+      this.gr55.writeParameter(map.toneCategoryGuitar, newCategory).subscribe({
+        error: (e) => {
+          console.error('Failed to write modeling category (guitar):', e);
+          this.loadModelingParameters();
+        }
+      });
+    } else {
+      this.modelingCategoryBass.set(newCategory);
+      this.gr55.writeParameter(map.toneCategoryBass, newCategory).subscribe({
+        error: (e) => {
+          console.error('Failed to write modeling category (bass):', e);
+          this.loadModelingParameters();
+        }
+      });
+    }
+  }
+  
+  onModelingToneChange(newTone: number) {
+    const map = GR55AddressMap.patch.modeling;
+    const isGuitar = this.patchAttribute() === 0;
+    const category = isGuitar ? this.modelingCategoryGuitar() : this.modelingCategoryBass();
+    
+    if (isGuitar) {
+      switch (category) {
+        case 0: // E.GTR
+          this.modelingToneEGtrGuitar.set(newTone);
+          this.gr55.writeParameter(map.toneNumberEGtrGuitar, newTone).subscribe({
+            error: (e) => {
+              console.error('Failed to write modeling tone E.GTR:', e);
+              this.loadModelingParameters();
+            }
+          });
+          break;
+        case 1: // AC
+          this.modelingToneAcGuitar.set(newTone);
+          this.gr55.writeParameter(map.toneNumberAcGuitar, newTone).subscribe({
+            error: (e) => {
+              console.error('Failed to write modeling tone AC:', e);
+              this.loadModelingParameters();
+            }
+          });
+          break;
+        case 2: // E.BASS
+          this.modelingToneEBassGuitar.set(newTone);
+          this.gr55.writeParameter(map.toneNumberEBassGuitar, newTone).subscribe({
+            error: (e) => {
+              console.error('Failed to write modeling tone E.BASS (guitar):', e);
+              this.loadModelingParameters();
+            }
+          });
+          break;
+        case 3: // SYNTH
+          this.modelingToneSynthGuitar.set(newTone);
+          this.gr55.writeParameter(map.toneNumberSynthGuitar, newTone).subscribe({
+            error: (e) => {
+              console.error('Failed to write modeling tone SYNTH (guitar):', e);
+              this.loadModelingParameters();
+            }
+          });
+          break;
+      }
+    } else {
+      switch (category) {
+        case 0: // E.BASS
+          this.modelingToneEBassBass.set(newTone);
+          this.gr55.writeParameter(map.toneNumberEBassBass, newTone).subscribe({
+            error: (e) => {
+              console.error('Failed to write modeling tone E.BASS (bass):', e);
+              this.loadModelingParameters();
+            }
+          });
+          break;
+        case 1: // SYNTH
+          this.modelingToneSynthBass.set(newTone);
+          this.gr55.writeParameter(map.toneNumberSynthBass, newTone).subscribe({
+            error: (e) => {
+              console.error('Failed to write modeling tone SYNTH (bass):', e);
+              this.loadModelingParameters();
+            }
+          });
+          break;
+        case 2: // E.GTR
+          this.modelingToneEGtrBass.set(newTone);
+          this.gr55.writeParameter(map.toneNumberEGtrBass, newTone).subscribe({
+            error: (e) => {
+              console.error('Failed to write modeling tone E.GTR (bass):', e);
+              this.loadModelingParameters();
+            }
+          });
+          break;
+      }
+    }
+  }
+  
+  onModelingMuteChange(muted: boolean) {
+    this.modelingMuteSwitch.set(muted);
+    this.gr55.writeParameter(GR55AddressMap.patch.modeling.muteSwitch, muted).subscribe({
+      error: (e) => {
+        console.error('Failed to write modeling mute:', e);
+        this.loadModelingParameters();
+      }
+    });
+  }
+  
+  onModelingLevelChange(newLevel: number) {
+    this.modelingLevel.set(newLevel);
+    this.gr55.writeParameter(GR55AddressMap.patch.modeling.level, newLevel).subscribe({
+      error: (e) => {
+        console.error('Failed to write modeling level:', e);
+        this.loadModelingParameters();
       }
     });
   }

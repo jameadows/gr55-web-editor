@@ -656,7 +656,143 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
     },
     
-    // modeling: {...}
+    // ═══════════════════════════════════════════════════════════════
+    // MODELING TONE SECTION (0x18001000-0x1800100A)
+    // From gr55-remote PatchModelingToneStruct
+    // Note: Category and tone number fields depend on guitar/bass mode
+    // ═══════════════════════════════════════════════════════════════
+    
+    modeling: {
+      toneCategoryGuitar: {
+        address: 0x18001000,
+        size: 1,
+        type: 'enum',
+        enumValues: ['E.GTR', 'AC', 'E.BASS', 'SYNTH'],
+        label: 'Category (Guitar Mode)',
+        description: 'Modeling category when in Guitar mode',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      toneNumberEGtrGuitar: {
+        address: 0x18001001,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CLA-ST', 'MOD-ST', 'H&H-ST', 'TE', 'LP', 'P-90', 'LIPS', 'RICK', '335', 'L4'],
+        label: 'E.GTR Type',
+        description: 'Electric guitar model (when category = E.GTR)',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      toneNumberAcGuitar: {
+        address: 0x18001002,
+        size: 1,
+        type: 'enum',
+        enumValues: ['STEEL', 'NYLON', 'SITAR', 'BANJO', 'RESO'],
+        label: 'Acoustic Type',
+        description: 'Acoustic model (when category = AC)',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      toneNumberEBassGuitar: {
+        address: 0x18001003,
+        size: 1,
+        type: 'enum',
+        enumValues: ['JB', 'PB'],
+        label: 'E.BASS Type',
+        description: 'Bass model in guitar mode (when category = E.BASS)',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      toneNumberSynthGuitar: {
+        address: 0x18001004,
+        size: 1,
+        type: 'enum',
+        enumValues: ['ANALOG GR', 'WAVE SYNTH', 'FILTER BASS', 'CRYSTAL', 'ORGAN', 'BRASS'],
+        label: 'Synth Type',
+        description: 'Synth model (when category = SYNTH)',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      toneCategoryBass: {
+        address: 0x18001005,
+        size: 1,
+        type: 'enum',
+        enumValues: ['E.BASS', 'SYNTH', 'E.GTR'],
+        label: 'Category (Bass Mode)',
+        description: 'Modeling category when in Bass mode',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      toneNumberEBassBass: {
+        address: 0x18001006,
+        size: 1,
+        type: 'enum',
+        enumValues: ['VINT JB', 'JB', 'VINT PB', 'PB', 'M-MAN', 'RICK', 'T-BIRD', 'ACTIVE', 'VIOLIN'],
+        label: 'E.BASS Type',
+        description: 'Bass model in bass mode (when category = E.BASS)',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      toneNumberEGtrBass: {
+        address: 0x18001007,
+        size: 1,
+        type: 'enum',
+        enumValues: ['ST', 'LP'],
+        label: 'E.GTR Type',
+        description: 'Guitar model in bass mode (when category = E.GTR)',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      toneNumberSynthBass: {
+        address: 0x18001008,
+        size: 1,
+        type: 'enum',
+        enumValues: ['ANALOG GR', 'WAVE SYNTH', 'FILTER BASS', 'CRYSTAL', 'ORGAN', 'BRASS'],
+        label: 'Synth Type',
+        description: 'Synth model in bass mode (when category = SYNTH)',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      level: {
+        address: 0x18001009,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Level',
+        defaultValue: 100,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<number>,
+      
+      muteSwitch: {
+        address: 0x1800100A,
+        size: 1,
+        type: 'boolean',
+        label: 'Mute Switch',
+        description: 'Mute modeling tone (inverted: 0=ON, 1=OFF)',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Modeling'
+      } as FieldDefinition<boolean>,
+    },
     
     // ═══════════════════════════════════════════════════════════════
     // DELAY SECTION (0x18000605-0x1800060B)
