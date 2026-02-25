@@ -419,7 +419,40 @@ export class HomeComponent {
     this.connectionError.set(null);
 
     try {
-      await this.midiIo.connect();
+      // Request MIDI access
+      await this.midiIo.requestAccess();
+      
+      // Refresh port list
+      this.midiIo.refreshPorts();
+      
+      // Auto-select GR-55 if found
+      const outputs = this.midiIo.outputPorts();
+      const inputs = this.midiIo.inputPorts();
+      
+      const gr55Output = outputs.find(p => 
+        p.name.toLowerCase().includes('gr-55') || 
+        p.name.toLowerCase().includes('gr55')
+      );
+      
+      const gr55Input = inputs.find(p => 
+        p.name.toLowerCase().includes('gr-55') || 
+        p.name.toLowerCase().includes('gr55')
+      );
+      
+      if (!gr55Output || !gr55Input) {
+        // If GR-55 not found, just select first available ports
+        if (outputs.length > 0 && inputs.length > 0) {
+          this.midiIo.selectOutput(outputs[0].id);
+          this.midiIo.selectInput(inputs[0].id);
+        } else {
+          throw new Error('No MIDI ports found. Make sure your GR-55 is connected via USB.');
+        }
+      } else {
+        // GR-55 found - select it
+        this.midiIo.selectOutput(gr55Output.id);
+        this.midiIo.selectInput(gr55Input.id);
+      }
+      
       // Connection successful - navigate to editor
       setTimeout(() => {
         this.router.navigate(['/editor']);
@@ -427,7 +460,7 @@ export class HomeComponent {
     } catch (error: any) {
       console.error('Connection failed:', error);
       this.connectionError.set(
-        error.message || 'Failed to connect to GR-55. Make sure it\'s connected via USB and powered on.'
+        error.message || 'Failed to connect to MIDI. Make sure your GR-55 is connected via USB and try again.'
       );
     } finally {
       this.isConnecting.set(false);
