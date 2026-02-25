@@ -35,6 +35,15 @@ import { CommonModule } from '@angular/common';
             <li class="nav-item">
               <a 
                 class="nav-link" 
+                routerLink="/editor" 
+                routerLinkActive="active"
+                (click)="navbarCollapsed = true">
+                Editor
+              </a>
+            </li>
+            <li class="nav-item">
+              <a 
+                class="nav-link" 
                 routerLink="/demo" 
                 routerLinkActive="active"
                 (click)="navbarCollapsed = true">

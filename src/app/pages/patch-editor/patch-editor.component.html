@@ -1,0 +1,243 @@
+<div class="editor-container">
+  <!-- Header -->
+  <header class="editor-header">
+    <h1>GR-55 Patch Editor</h1>
+    <div class="header-actions">
+      <app-led
+        [isOn]="isConnected()"
+        [label]="'MIDI'"
+        [color]="'green'"
+        [size]="12">
+      </app-led>
+      <span class="patch-name-display">{{ patchName() }}</span>
+    </div>
+  </header>
+  
+  <!-- Tab Navigation -->
+  <nav class="tab-nav">
+    @for (tab of tabs; track tab.id) {
+      <button
+        class="tab-button"
+        [class.active]="activeTab() === tab.id"
+        (click)="selectTab(tab.id)">
+        {{ tab.label }}
+      </button>
+    }
+  </nav>
+  
+  <!-- Tab Content -->
+  <div class="tab-content">
+    
+    <!-- COMMON TAB -->
+    @if (activeTab() === 'common') {
+      <div class="tab-panel">
+        <h2>Common</h2>
+        
+        <!-- PRIMARY CONTROLS (Always Visible) -->
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <!-- Mode -->
+            <div class="control-group">
+              <app-dropdown
+                [value]="patchAttribute()"
+                [options]="['Guitar', 'Bass']"
+                [label]="'Mode'"
+                [color]="'amber'"
+                (valueChange)="onModeChange($event)">
+              </app-dropdown>
+            </div>
+            
+            <!-- Patch Level -->
+            <div class="control-group">
+              <app-knob
+                [value]="patchLevel()"
+                [min]="0"
+                [max]="100"
+                [label]="'Patch Level'"
+                [color]="'amber'"
+                [size]="100"
+                (valueChange)="onLevelChange($event)">
+              </app-knob>
+            </div>
+            
+            <!-- Tempo -->
+            <div class="control-group">
+              <app-knob
+                [value]="patchTempo()"
+                [min]="20"
+                [max]="250"
+                [label]="'Tempo'"
+                [units]="'BPM'"
+                [color]="'green'"
+                [size]="100"
+                (valueChange)="onTempoChange($event)">
+              </app-knob>
+            </div>
+          </div>
+        </section>
+        
+        <!-- SECONDARY CONTROLS (Expandable) -->
+        <section class="controls-section secondary" [class.collapsed]="!showSecondaryControls()">
+          <h3 (click)="toggleSecondary()" class="collapsible-header">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Common Adjustments
+          </h3>
+          
+          @if (showSecondaryControls()) {
+            <div class="controls-grid">
+              <!-- Normal PU Level -->
+              <div class="control-group">
+                <app-slider
+                  [value]="normalPuLevel()"
+                  [min]="0"
+                  [max]="100"
+                  [label]="'Normal PU Level'"
+                  [color]="'cyan'"
+                  [orientation]="'horizontal'"
+                  [width]="200"
+                  (valueChange)="onNormalPuLevelChange($event)">
+                </app-slider>
+              </div>
+              
+              <!-- Alt Tuning -->
+              <div class="control-group tuning-group">
+                <div class="tuning-controls">
+                  <app-led
+                    [isOn]="altTuneSwitch()"
+                    [label]="'Alt Tune'"
+                    [color]="'amber'"
+                    [size]="14"
+                    [clickable]="true"
+                    (toggle)="onAltTuneSwitchChange($event)">
+                  </app-led>
+                  
+                  @if (altTuneSwitch()) {
+                    <app-dropdown
+                      [value]="altTuneType()"
+                      [options]="[
+                        'OPEN-D', 'OPEN-E', 'OPEN-G', 'OPEN-A',
+                        'DROP-D', 'D-MODAL', '-1 STEP', '-2 STEP',
+                        'BARITONE', 'NASHVL', '-1 OCT', '+1 OCT', 'USER'
+                      ]"
+                      [label]="'Tuning Type'"
+                      [color]="'cyan'"
+                      (valueChange)="onAltTuneTypeChange($event)">
+                    </app-dropdown>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+        
+        <!-- ADVANCED CONTROLS (Collapsible) -->
+        <section class="controls-section advanced" [class.collapsed]="!showAdvancedControls()">
+          <h3 (click)="toggleAdvanced()" class="collapsible-header">
+            <span class="toggle-icon">{{ showAdvancedControls() ? '▼' : '▶' }}</span>
+            Advanced Settings
+          </h3>
+          
+          @if (showAdvancedControls()) {
+            <div class="advanced-content">
+              <p class="section-note">
+                Per-string tuning, routing, and GK settings available in this section.
+                <br>
+                <em>Full parameters will be added in Phase 5.</em>
+              </p>
+              
+              <!-- Placeholder for future advanced controls -->
+              <div class="controls-grid">
+                <app-parameter-label
+                  [label]="'GK Set'"
+                  [value]="gkSet() === 0 ? 'SYSTEM' : gkSet().toString()"
+                  [color]="'default'">
+                </app-parameter-label>
+              </div>
+            </div>
+          }
+        </section>
+      </div>
+    }
+    
+    <!-- OTHER TABS (Placeholders for now) -->
+    @if (activeTab() === 'pcm1') {
+      <div class="tab-panel placeholder">
+        <h2>PCM Tone 1</h2>
+        <p class="placeholder-text">
+          PCM Tone 1 editor will be implemented in Phase 5.
+          <br>
+          Essential parameters extracted and ready to use.
+        </p>
+      </div>
+    }
+    
+    @if (activeTab() === 'pcm2') {
+      <div class="tab-panel placeholder">
+        <h2>PCM Tone 2</h2>
+        <p class="placeholder-text">
+          PCM Tone 2 editor will be implemented in Phase 5.
+        </p>
+      </div>
+    }
+    
+    @if (activeTab() === 'modeling') {
+      <div class="tab-panel placeholder">
+        <h2>Modeling</h2>
+        <p class="placeholder-text">
+          Modeling editor will be implemented in Phase 5.
+        </p>
+      </div>
+    }
+    
+    @if (activeTab() === 'mfx') {
+      <div class="tab-panel placeholder">
+        <h2>Multi-Effects (MFX)</h2>
+        <p class="placeholder-text">
+          MFX editor will be implemented in Phase 5.
+          <br>
+          80+ effect types with specialized UIs.
+        </p>
+      </div>
+    }
+    
+    @if (activeTab() === 'delay') {
+      <div class="tab-panel placeholder">
+        <h2>Delay</h2>
+        <p class="placeholder-text">
+          Delay editor will be implemented in Phase 5.
+        </p>
+      </div>
+    }
+    
+    @if (activeTab() === 'chorus') {
+      <div class="tab-panel placeholder">
+        <h2>Chorus</h2>
+        <p class="placeholder-text">
+          Chorus editor will be implemented in Phase 5.
+        </p>
+      </div>
+    }
+    
+    @if (activeTab() === 'reverb') {
+      <div class="tab-panel placeholder">
+        <h2>Reverb</h2>
+        <p class="placeholder-text">
+          Reverb editor will be implemented in Phase 5.
+        </p>
+      </div>
+    }
+    
+    @if (activeTab() === 'assigns') {
+      <div class="tab-panel placeholder">
+        <h2>Assigns</h2>
+        <p class="placeholder-text">
+          Assign editor will be implemented in Phase 5+.
+          <br>
+          8 assignable control blocks.
+        </p>
+      </div>
+    }
+    
+  </div>
+</div>

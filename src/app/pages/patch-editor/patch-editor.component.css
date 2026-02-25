@@ -1,0 +1,260 @@
+.editor-container {
+  min-height: 100vh;
+  background: #0d0f0e;
+  color: #c8d4c0;
+  font-family: 'Courier New', monospace;
+}
+
+/* Header */
+.editor-header {
+  background: #131715;
+  border-bottom: 2px solid #e8a020;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editor-header h1 {
+  font-size: 1.8rem;
+  color: #e8a020;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.patch-name-display {
+  font-size: 1.2rem;
+  color: #3ddc6a;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Tab Navigation */
+.tab-nav {
+  background: #131715;
+  border-bottom: 1px solid #1e2820;
+  padding: 0 40px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.tab-button {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #6c757d;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 16px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  color: #c8d4c0;
+  background: rgba(200, 212, 192, 0.05);
+}
+
+.tab-button.active {
+  color: #e8a020;
+  border-bottom-color: #e8a020;
+  background: rgba(232, 160, 32, 0.05);
+}
+
+/* Tab Content */
+.tab-content {
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tab-panel h2 {
+  font-size: 1.5rem;
+  color: #e8a020;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #1e2820;
+}
+
+/* Control Sections */
+.controls-section {
+  margin-bottom: 48px;
+  background: #131715;
+  border: 1px solid #1e2820;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.controls-section h3 {
+  font-size: 1.1rem;
+  color: #c8d4c0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.collapsible-header {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.collapsible-header:hover {
+  color: #e8a020;
+}
+
+.toggle-icon {
+  font-size: 0.8rem;
+  width: 16px;
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.controls-section.collapsed {
+  padding: 16px 24px;
+}
+
+.controls-section.collapsed .controls-grid,
+.controls-section.collapsed .advanced-content {
+  display: none;
+}
+
+/* Primary Section (always visible) */
+.controls-section.primary {
+  background: #1a1f1c;
+  border: 2px solid #e8a020;
+}
+
+.controls-section.primary h3 {
+  color: #e8a020;
+}
+
+/* Secondary Section (expandable) */
+.controls-section.secondary {
+  border-color: #30c0c0;
+}
+
+.controls-section.secondary h3 {
+  color: #30c0c0;
+}
+
+/* Advanced Section (collapsible) */
+.controls-section.advanced {
+  border-color: #6c757d;
+  border-style: dashed;
+}
+
+.controls-section.advanced h3 {
+  color: #6c757d;
+}
+
+/* Controls Grid */
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 32px;
+  align-items: start;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tuning-group {
+  background: rgba(48, 192, 192, 0.05);
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.tuning-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Advanced Content */
+.advanced-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-note {
+  background: rgba(232, 160, 32, 0.1);
+  border-left: 4px solid #e8a020;
+  padding: 16px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.section-note em {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Placeholder Panels */
+.tab-panel.placeholder {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-text {
+  font-size: 1.1rem;
+  color: #6c757d;
+  text-align: center;
+  line-height: 1.8;
+  max-width: 600px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+  
+  .tab-content {
+    padding: 20px;
+  }
+  
+  .controls-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-nav {
+    padding: 0 20px;
+  }
+}
