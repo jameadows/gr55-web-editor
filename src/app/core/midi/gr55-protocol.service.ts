@@ -128,13 +128,13 @@ export class Gr55ProtocolService {
   /**
    * Get patch name
    * 
-   * Note: Response includes 1 dummy byte which is stripped.
+   * Note: Response includes 1 dummy byte at the END (byte 16).
    */
   getPatchName(): Observable<string> {
     return this.sysex.request(0x18000001, 17).pipe(
       map(data => {
-        // Skip first dummy byte, take 16 name bytes
-        const nameBytes = data.slice(1, 17);
+        // Take first 16 bytes (actual name), skip last dummy byte
+        const nameBytes = data.slice(0, 16);
         // Convert to string, remove null padding
         return nameBytes
           .map(b => String.fromCharCode(b))
@@ -154,13 +154,13 @@ export class Gr55ProtocolService {
     // Truncate to 16 chars
     const truncated = name.substring(0, 16);
     
-    // Convert to bytes, pad with nulls
+    // Convert to bytes, pad with nulls, add dummy byte at end
     const data = new Array(17).fill(0);
-    data[0] = 0; // Dummy byte
     
     for (let i = 0; i < truncated.length; i++) {
-      data[i + 1] = truncated.charCodeAt(i);
+      data[i] = truncated.charCodeAt(i);
     }
+    // Dummy byte at position 16 (already 0 from fill)
     
     return from(this.sysex.write(0x18000001, data));
   }

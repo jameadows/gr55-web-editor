@@ -111,11 +111,11 @@ export const GR55AddressMap = {
       /**
        * Patch name (16 ASCII characters)
        * Address: 0x18000001
-       * Note: Response includes 1 dummy byte prefix (17 bytes total)
+       * Note: Response includes 1 dummy byte at END (byte 16)
        */
       patchName: {
         address: 0x18000001,
-        size: 17, // 1 dummy + 16 name bytes
+        size: 17, // 16 name bytes + 1 dummy at end
         type: 'string',
         label: 'Patch Name',
         description: 'Patch name (16 characters max)',
