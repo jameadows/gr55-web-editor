@@ -148,7 +148,11 @@ export class MidiIoService {
   selectOutput(portId: string): void {
     if (!this.midiAccess) return;
     
-    const port = this.midiAccess.outputs.get(portId);
+    let port: MIDIOutput | undefined;
+    this.midiAccess.outputs.forEach((p) => {
+      if (p.id === portId) port = p;
+    });
+    
     if (!port) {
       throw new MIDIError(
         `Output port not found: ${portId}`,
@@ -166,7 +170,11 @@ export class MidiIoService {
   selectInput(portId: string): void {
     if (!this.midiAccess) return;
     
-    const port = this.midiAccess.inputs.get(portId);
+    let port: MIDIInput | undefined;
+    this.midiAccess.inputs.forEach((p) => {
+      if (p.id === portId) port = p;
+    });
+    
     if (!port) {
       throw new MIDIError(
         `Input port not found: ${portId}`,
@@ -267,6 +275,8 @@ export class MidiIoService {
    * Handle incoming MIDI messages
    */
   private handleMIDIMessage(event: MIDIMessageEvent): void {
+    if (!event.data) return; // Guard against null
+    
     const data = Array.from(event.data) as number[]; // TypeScript strict mode
     
     const message: MIDIMessage = {

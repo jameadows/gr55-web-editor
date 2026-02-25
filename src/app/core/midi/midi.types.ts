@@ -18,7 +18,7 @@ export interface MIDIPortInfo {
   id: string;
   name: string;
   manufacturer: string;
-  state: MIDIPortState;
+  state: 'disconnected' | 'connected';
   type: 'input' | 'output';
 }
 

@@ -297,19 +297,19 @@ export class Gr55ProtocolService {
         }
         
         // Multi-byte: MSB first
-        const bytes: number[] = [];
+        const numBytes: number[] = [];
         for (let i = field.size - 1; i >= 0; i--) {
-          bytes.unshift((clamped >>> (i * 7)) & 0x7F);
+          numBytes.unshift((clamped >>> (i * 7)) & 0x7F);
         }
-        return bytes;
+        return numBytes;
         
       case 'string':
         const str = value as unknown as string;
-        const bytes = new Array(field.size).fill(0);
+        const strBytes = new Array(field.size).fill(0);
         for (let i = 0; i < Math.min(str.length, field.size); i++) {
-          bytes[i] = str.charCodeAt(i) & 0x7F;
+          strBytes[i] = str.charCodeAt(i) & 0x7F;
         }
-        return bytes;
+        return strBytes;
         
       case 'enum':
         return [(value as unknown as number) & 0x7F];
