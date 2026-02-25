@@ -257,8 +257,14 @@ export class Gr55ProtocolService {
         return num as T;
         
       case 'string':
+        // Special case: Patch name has 17 bytes but only first 16 are the name
+        // (byte 16 is a dummy byte)
+        let stringData = data;
+        if (field.label === 'Patch Name' && data.length === 17) {
+          stringData = data.slice(0, 16);
+        }
         // Convert bytes to ASCII string
-        return data
+        return stringData
           .map(b => String.fromCharCode(b))
           .join('')
           .replace(/\0/g, '')
