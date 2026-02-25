@@ -475,8 +475,187 @@ export const GR55AddressMap = {
     },
     
     // TODO: Add remaining sections
-    // pcmTone1: {...}
-    // pcmTone2: {...}
+    
+    // ═══════════════════════════════════════════════════════════════
+    // PCM TONE 1 SECTION (0x18002000-0x18002016)
+    // From gr55-remote PatchPCMToneStruct
+    // ═══════════════════════════════════════════════════════════════
+    
+    pcmTone1: {
+      toneSelect: {
+        address: 0x18002000,
+        size: 3, // PCM tone select field (special encoding)
+        type: 'number',
+        range: [0, 895],
+        label: 'PCM Tone Number',
+        description: '896 PCM tones available',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      
+      muteSwitch: {
+        address: 0x18002003,
+        size: 1,
+        type: 'boolean',
+        label: 'Mute Switch',
+        description: 'Mute PCM Tone 1 (inverted: 0=ON, 1=OFF)',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'PCM Tone 1'
+      } as FieldDefinition<boolean>,
+      
+      partLevel: {
+        address: 0x18002004,
+        size: 1,
+        type: 'number',
+        range: [0, 127],
+        label: 'Level',
+        defaultValue: 127,
+        uiLevel: 'primary',
+        category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      
+      partOctaveShift: {
+        address: 0x18002005,
+        size: 1,
+        type: 'number',
+        range: [-3, 3],
+        label: 'Octave Shift',
+        defaultValue: 0,
+        encodedOffset: 64,
+        uiLevel: 'secondary',
+        category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      
+      partPan: {
+        address: 0x18002009,
+        size: 1,
+        type: 'number',
+        range: [0, 127], // 0=L64, 64=CENTER, 127=R63
+        label: 'Pan',
+        defaultValue: 64,
+        uiLevel: 'secondary',
+        category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      
+      partCoarseTune: {
+        address: 0x1800200A,
+        size: 1,
+        type: 'number',
+        range: [-24, 24],
+        label: 'Coarse Tune',
+        description: 'Coarse pitch adjustment (semitones)',
+        defaultValue: 0,
+        encodedOffset: 64,
+        uiLevel: 'secondary',
+        category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      
+      partFineTune: {
+        address: 0x1800200B,
+        size: 1,
+        type: 'number',
+        range: [-50, 50],
+        label: 'Fine Tune',
+        description: 'Fine pitch adjustment (cents)',
+        defaultValue: 0,
+        encodedOffset: 64,
+        uiLevel: 'secondary',
+        category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+    },
+    
+    // ═══════════════════════════════════════════════════════════════
+    // PCM TONE 2 SECTION (0x18002100-0x18002116)
+    // Same structure as PCM Tone 1, different base address
+    // ═══════════════════════════════════════════════════════════════
+    
+    pcmTone2: {
+      toneSelect: {
+        address: 0x18002100,
+        size: 3,
+        type: 'number',
+        range: [0, 895],
+        label: 'PCM Tone Number',
+        description: '896 PCM tones available',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      
+      muteSwitch: {
+        address: 0x18002103,
+        size: 1,
+        type: 'boolean',
+        label: 'Mute Switch',
+        description: 'Mute PCM Tone 2 (inverted: 0=ON, 1=OFF)',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'PCM Tone 2'
+      } as FieldDefinition<boolean>,
+      
+      partLevel: {
+        address: 0x18002104,
+        size: 1,
+        type: 'number',
+        range: [0, 127],
+        label: 'Level',
+        defaultValue: 127,
+        uiLevel: 'primary',
+        category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      
+      partOctaveShift: {
+        address: 0x18002105,
+        size: 1,
+        type: 'number',
+        range: [-3, 3],
+        label: 'Octave Shift',
+        defaultValue: 0,
+        encodedOffset: 64,
+        uiLevel: 'secondary',
+        category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      
+      partPan: {
+        address: 0x18002109,
+        size: 1,
+        type: 'number',
+        range: [0, 127],
+        label: 'Pan',
+        defaultValue: 64,
+        uiLevel: 'secondary',
+        category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      
+      partCoarseTune: {
+        address: 0x1800210A,
+        size: 1,
+        type: 'number',
+        range: [-24, 24],
+        label: 'Coarse Tune',
+        description: 'Coarse pitch adjustment (semitones)',
+        defaultValue: 0,
+        encodedOffset: 64,
+        uiLevel: 'secondary',
+        category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      
+      partFineTune: {
+        address: 0x1800210B,
+        size: 1,
+        type: 'number',
+        range: [-50, 50],
+        label: 'Fine Tune',
+        description: 'Fine pitch adjustment (cents)',
+        defaultValue: 0,
+        encodedOffset: 64,
+        uiLevel: 'secondary',
+        category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+    },
+    
     // modeling: {...}
     
     // ═══════════════════════════════════════════════════════════════

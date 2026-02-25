@@ -162,22 +162,236 @@
     
     <!-- OTHER TABS (Placeholders for now) -->
     @if (activeTab() === 'pcm1') {
-      <div class="tab-panel placeholder">
+      <div class="tab-panel">
         <h2>PCM Tone 1</h2>
-        <p class="placeholder-text">
-          PCM Tone 1 editor will be implemented in Phase 5.
-          <br>
-          Essential parameters extracted and ready to use.
-        </p>
+        
+        <!-- PRIMARY CONTROLS -->
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <!-- Mute Switch (inverted: false=ON, true=OFF) -->
+            <div class="control-group">
+              <app-led
+                [isOn]="!pcm1MuteSwitch()"
+                [label]="'PCM 1 On'"
+                [color]="'green'"
+                [size]="16"
+                [clickable]="true"
+                (toggle)="onPcm1MuteChange(!$event)">
+              </app-led>
+            </div>
+            
+            <!-- Tone Selection (0-895) -->
+            <div class="control-group">
+              <app-slider
+                [value]="pcm1ToneSelect()"
+                [min]="0"
+                [max]="895"
+                [label]="'Tone Number'"
+                [color]="'amber'"
+                [orientation]="'horizontal'"
+                [width]="250"
+                (valueChange)="onPcm1ToneSelectChange($event)">
+              </app-slider>
+            </div>
+            
+            <!-- Level -->
+            <div class="control-group">
+              <app-knob
+                [value]="pcm1Level()"
+                [min]="0"
+                [max]="127"
+                [label]="'Level'"
+                [color]="'green'"
+                [size]="100"
+                (valueChange)="onPcm1LevelChange($event)">
+              </app-knob>
+            </div>
+          </div>
+        </section>
+        
+        <!-- SECONDARY CONTROLS -->
+        <section class="controls-section secondary" [class.collapsed]="!showSecondaryControls()">
+          <h3 (click)="toggleSecondary()" class="collapsible-header">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Tone Parameters
+          </h3>
+          
+          @if (showSecondaryControls()) {
+            <div class="controls-grid">
+              <!-- Octave Shift -->
+              <div class="control-group">
+                <app-knob
+                  [value]="pcm1OctaveShift()"
+                  [min]="-3"
+                  [max]="3"
+                  [label]="'Octave Shift'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onPcm1OctaveChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- Pan -->
+              <div class="control-group">
+                <app-knob
+                  [value]="pcm1Pan()"
+                  [min]="0"
+                  [max]="127"
+                  [label]="'Pan'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onPcm1PanChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- Coarse Tune -->
+              <div class="control-group">
+                <app-slider
+                  [value]="pcm1CoarseTune()"
+                  [min]="-24"
+                  [max]="24"
+                  [label]="'Coarse Tune'"
+                  [color]="'cyan'"
+                  [orientation]="'horizontal'"
+                  [width]="200"
+                  (valueChange)="onPcm1CoarseTuneChange($event)">
+                </app-slider>
+              </div>
+              
+              <!-- Fine Tune -->
+              <div class="control-group">
+                <app-slider
+                  [value]="pcm1FineTune()"
+                  [min]="-50"
+                  [max]="50"
+                  [label]="'Fine Tune'"
+                  [color]="'cyan'"
+                  [orientation]="'horizontal'"
+                  [width]="200"
+                  (valueChange)="onPcm1FineTuneChange($event)">
+                </app-slider>
+              </div>
+            </div>
+          }
+        </section>
       </div>
     }
     
     @if (activeTab() === 'pcm2') {
-      <div class="tab-panel placeholder">
+      <div class="tab-panel">
         <h2>PCM Tone 2</h2>
-        <p class="placeholder-text">
-          PCM Tone 2 editor will be implemented in Phase 5.
-        </p>
+        
+        <!-- PRIMARY CONTROLS -->
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <!-- Mute Switch (inverted: false=ON, true=OFF) -->
+            <div class="control-group">
+              <app-led
+                [isOn]="!pcm2MuteSwitch()"
+                [label]="'PCM 2 On'"
+                [color]="'green'"
+                [size]="16"
+                [clickable]="true"
+                (toggle)="onPcm2MuteChange(!$event)">
+              </app-led>
+            </div>
+            
+            <!-- Tone Selection (0-895) -->
+            <div class="control-group">
+              <app-slider
+                [value]="pcm2ToneSelect()"
+                [min]="0"
+                [max]="895"
+                [label]="'Tone Number'"
+                [color]="'amber'"
+                [orientation]="'horizontal'"
+                [width]="250"
+                (valueChange)="onPcm2ToneSelectChange($event)">
+              </app-slider>
+            </div>
+            
+            <!-- Level -->
+            <div class="control-group">
+              <app-knob
+                [value]="pcm2Level()"
+                [min]="0"
+                [max]="127"
+                [label]="'Level'"
+                [color]="'green'"
+                [size]="100"
+                (valueChange)="onPcm2LevelChange($event)">
+              </app-knob>
+            </div>
+          </div>
+        </section>
+        
+        <!-- SECONDARY CONTROLS -->
+        <section class="controls-section secondary" [class.collapsed]="!showSecondaryControls()">
+          <h3 (click)="toggleSecondary()" class="collapsible-header">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Tone Parameters
+          </h3>
+          
+          @if (showSecondaryControls()) {
+            <div class="controls-grid">
+              <!-- Octave Shift -->
+              <div class="control-group">
+                <app-knob
+                  [value]="pcm2OctaveShift()"
+                  [min]="-3"
+                  [max]="3"
+                  [label]="'Octave Shift'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onPcm2OctaveChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- Pan -->
+              <div class="control-group">
+                <app-knob
+                  [value]="pcm2Pan()"
+                  [min]="0"
+                  [max]="127"
+                  [label]="'Pan'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onPcm2PanChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- Coarse Tune -->
+              <div class="control-group">
+                <app-slider
+                  [value]="pcm2CoarseTune()"
+                  [min]="-24"
+                  [max]="24"
+                  [label]="'Coarse Tune'"
+                  [color]="'cyan'"
+                  [orientation]="'horizontal'"
+                  [width]="200"
+                  (valueChange)="onPcm2CoarseTuneChange($event)">
+                </app-slider>
+              </div>
+              
+              <!-- Fine Tune -->
+              <div class="control-group">
+                <app-slider
+                  [value]="pcm2FineTune()"
+                  [min]="-50"
+                  [max]="50"
+                  [label]="'Fine Tune'"
+                  [color]="'cyan'"
+                  [orientation]="'horizontal'"
+                  [width]="200"
+                  (valueChange)="onPcm2FineTuneChange($event)">
+                </app-slider>
+              </div>
+            </div>
+          }
+        </section>
       </div>
     }
     

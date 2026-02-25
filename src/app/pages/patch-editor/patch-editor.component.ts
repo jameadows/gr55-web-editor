@@ -127,6 +127,24 @@ export class PatchEditorComponent implements OnInit {
   reverbHighCut = signal(10);
   reverbEffectLevel = signal(100);
   
+  // PCM Tone 1
+  pcm1ToneSelect = signal(0);
+  pcm1MuteSwitch = signal(false);
+  pcm1Level = signal(127);
+  pcm1OctaveShift = signal(0);
+  pcm1Pan = signal(64);
+  pcm1CoarseTune = signal(0);
+  pcm1FineTune = signal(0);
+  
+  // PCM Tone 2
+  pcm2ToneSelect = signal(0);
+  pcm2MuteSwitch = signal(false);
+  pcm2Level = signal(127);
+  pcm2OctaveShift = signal(0);
+  pcm2Pan = signal(64);
+  pcm2CoarseTune = signal(0);
+  pcm2FineTune = signal(0);
+  
   // ═══════════════════════════════════════════════════════════
   // LIFECYCLE
   // ═══════════════════════════════════════════════════════════
@@ -173,6 +191,10 @@ export class PatchEditorComponent implements OnInit {
     this.loadDelayParameters();
     this.loadChorusParameters();
     this.loadReverbParameters();
+    
+    // Load PCM Tone sections
+    this.loadPcm1Parameters();
+    this.loadPcm2Parameters();
   }
   
   private loadCommonParameters() {
@@ -541,6 +563,232 @@ export class PatchEditorComponent implements OnInit {
       error: (e) => {
         console.error('Failed to write reverb level:', e);
         this.loadReverbParameters();
+      }
+    });
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // PCM TONE 1 SECTION
+  // ═══════════════════════════════════════════════════════════
+  
+  private loadPcm1Parameters() {
+    const map = GR55AddressMap.patch.pcmTone1;
+    
+    this.gr55.readParameter(map.toneSelect).subscribe({
+      next: (v) => this.pcm1ToneSelect.set(v),
+      error: (e) => console.error('Failed to read PCM1 tone select:', e)
+    });
+    
+    this.gr55.readParameter(map.muteSwitch).subscribe({
+      next: (v) => this.pcm1MuteSwitch.set(v),
+      error: (e) => console.error('Failed to read PCM1 mute:', e)
+    });
+    
+    this.gr55.readParameter(map.partLevel).subscribe({
+      next: (v) => this.pcm1Level.set(v),
+      error: (e) => console.error('Failed to read PCM1 level:', e)
+    });
+    
+    this.gr55.readParameter(map.partOctaveShift).subscribe({
+      next: (v) => this.pcm1OctaveShift.set(v),
+      error: (e) => console.error('Failed to read PCM1 octave:', e)
+    });
+    
+    this.gr55.readParameter(map.partPan).subscribe({
+      next: (v) => this.pcm1Pan.set(v),
+      error: (e) => console.error('Failed to read PCM1 pan:', e)
+    });
+    
+    this.gr55.readParameter(map.partCoarseTune).subscribe({
+      next: (v) => this.pcm1CoarseTune.set(v),
+      error: (e) => console.error('Failed to read PCM1 coarse tune:', e)
+    });
+    
+    this.gr55.readParameter(map.partFineTune).subscribe({
+      next: (v) => this.pcm1FineTune.set(v),
+      error: (e) => console.error('Failed to read PCM1 fine tune:', e)
+    });
+  }
+  
+  onPcm1ToneSelectChange(newTone: number) {
+    this.pcm1ToneSelect.set(newTone);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone1.toneSelect, newTone).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM1 tone select:', e);
+        this.loadPcm1Parameters();
+      }
+    });
+  }
+  
+  onPcm1MuteChange(muted: boolean) {
+    this.pcm1MuteSwitch.set(muted);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone1.muteSwitch, muted).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM1 mute:', e);
+        this.loadPcm1Parameters();
+      }
+    });
+  }
+  
+  onPcm1LevelChange(newLevel: number) {
+    this.pcm1Level.set(newLevel);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone1.partLevel, newLevel).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM1 level:', e);
+        this.loadPcm1Parameters();
+      }
+    });
+  }
+  
+  onPcm1OctaveChange(newOctave: number) {
+    this.pcm1OctaveShift.set(newOctave);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone1.partOctaveShift, newOctave).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM1 octave:', e);
+        this.loadPcm1Parameters();
+      }
+    });
+  }
+  
+  onPcm1PanChange(newPan: number) {
+    this.pcm1Pan.set(newPan);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone1.partPan, newPan).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM1 pan:', e);
+        this.loadPcm1Parameters();
+      }
+    });
+  }
+  
+  onPcm1CoarseTuneChange(newTune: number) {
+    this.pcm1CoarseTune.set(newTune);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone1.partCoarseTune, newTune).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM1 coarse tune:', e);
+        this.loadPcm1Parameters();
+      }
+    });
+  }
+  
+  onPcm1FineTuneChange(newTune: number) {
+    this.pcm1FineTune.set(newTune);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone1.partFineTune, newTune).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM1 fine tune:', e);
+        this.loadPcm1Parameters();
+      }
+    });
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // PCM TONE 2 SECTION
+  // ═══════════════════════════════════════════════════════════
+  
+  private loadPcm2Parameters() {
+    const map = GR55AddressMap.patch.pcmTone2;
+    
+    this.gr55.readParameter(map.toneSelect).subscribe({
+      next: (v) => this.pcm2ToneSelect.set(v),
+      error: (e) => console.error('Failed to read PCM2 tone select:', e)
+    });
+    
+    this.gr55.readParameter(map.muteSwitch).subscribe({
+      next: (v) => this.pcm2MuteSwitch.set(v),
+      error: (e) => console.error('Failed to read PCM2 mute:', e)
+    });
+    
+    this.gr55.readParameter(map.partLevel).subscribe({
+      next: (v) => this.pcm2Level.set(v),
+      error: (e) => console.error('Failed to read PCM2 level:', e)
+    });
+    
+    this.gr55.readParameter(map.partOctaveShift).subscribe({
+      next: (v) => this.pcm2OctaveShift.set(v),
+      error: (e) => console.error('Failed to read PCM2 octave:', e)
+    });
+    
+    this.gr55.readParameter(map.partPan).subscribe({
+      next: (v) => this.pcm2Pan.set(v),
+      error: (e) => console.error('Failed to read PCM2 pan:', e)
+    });
+    
+    this.gr55.readParameter(map.partCoarseTune).subscribe({
+      next: (v) => this.pcm2CoarseTune.set(v),
+      error: (e) => console.error('Failed to read PCM2 coarse tune:', e)
+    });
+    
+    this.gr55.readParameter(map.partFineTune).subscribe({
+      next: (v) => this.pcm2FineTune.set(v),
+      error: (e) => console.error('Failed to read PCM2 fine tune:', e)
+    });
+  }
+  
+  onPcm2ToneSelectChange(newTone: number) {
+    this.pcm2ToneSelect.set(newTone);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone2.toneSelect, newTone).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM2 tone select:', e);
+        this.loadPcm2Parameters();
+      }
+    });
+  }
+  
+  onPcm2MuteChange(muted: boolean) {
+    this.pcm2MuteSwitch.set(muted);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone2.muteSwitch, muted).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM2 mute:', e);
+        this.loadPcm2Parameters();
+      }
+    });
+  }
+  
+  onPcm2LevelChange(newLevel: number) {
+    this.pcm2Level.set(newLevel);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone2.partLevel, newLevel).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM2 level:', e);
+        this.loadPcm2Parameters();
+      }
+    });
+  }
+  
+  onPcm2OctaveChange(newOctave: number) {
+    this.pcm2OctaveShift.set(newOctave);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone2.partOctaveShift, newOctave).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM2 octave:', e);
+        this.loadPcm2Parameters();
+      }
+    });
+  }
+  
+  onPcm2PanChange(newPan: number) {
+    this.pcm2Pan.set(newPan);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone2.partPan, newPan).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM2 pan:', e);
+        this.loadPcm2Parameters();
+      }
+    });
+  }
+  
+  onPcm2CoarseTuneChange(newTune: number) {
+    this.pcm2CoarseTune.set(newTune);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone2.partCoarseTune, newTune).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM2 coarse tune:', e);
+        this.loadPcm2Parameters();
+      }
+    });
+  }
+  
+  onPcm2FineTuneChange(newTune: number) {
+    this.pcm2FineTune.set(newTune);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone2.partFineTune, newTune).subscribe({
+      error: (e) => {
+        console.error('Failed to write PCM2 fine tune:', e);
+        this.loadPcm2Parameters();
       }
     });
   }
