@@ -478,9 +478,196 @@ export const GR55AddressMap = {
     // pcmTone1: {...}
     // pcmTone2: {...}
     // modeling: {...}
-    // delay: {...}
-    // chorus: {...}
-    // reverb: {...}
+    
+    // ═══════════════════════════════════════════════════════════════
+    // DELAY SECTION (0x18000605-0x1800060B)
+    // From gr55-remote sendsAndEq section
+    // ═══════════════════════════════════════════════════════════════
+    
+    delay: {
+      delaySwitch: {
+        address: 0x18000605,
+        size: 1,
+        type: 'boolean',
+        label: 'Delay Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Delay'
+      } as FieldDefinition<boolean>,
+      
+      delayType: {
+        address: 0x18000606,
+        size: 1,
+        type: 'enum',
+        enumValues: ['SINGLE', 'PAN', 'REVERSE', 'ANALOG', 'TAPE', 'MODULATE', 'HICUT'],
+        label: 'Delay Type',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Delay'
+      } as FieldDefinition<number>,
+      
+      delayTime: {
+        address: 0x18000607,
+        size: 2, // USplit12Field
+        type: 'number',
+        range: [0, 3413],
+        label: 'Delay Time',
+        description: 'Delay time (0-3400ms, or note values)',
+        defaultValue: 500,
+        uiLevel: 'secondary',
+        category: 'Delay'
+      } as FieldDefinition<number>,
+      
+      delayFeedback: {
+        address: 0x1800060A,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Delay Feedback',
+        defaultValue: 30,
+        uiLevel: 'secondary',
+        category: 'Delay'
+      } as FieldDefinition<number>,
+      
+      delayEffectLevel: {
+        address: 0x1800060B,
+        size: 1,
+        type: 'number',
+        range: [0, 120],
+        label: 'Delay Level',
+        defaultValue: 100,
+        uiLevel: 'secondary',
+        category: 'Delay'
+      } as FieldDefinition<number>,
+    },
+    
+    // ═══════════════════════════════════════════════════════════════
+    // CHORUS SECTION (0x18000600-0x18000604)
+    // From gr55-remote sendsAndEq section
+    // ═══════════════════════════════════════════════════════════════
+    
+    chorus: {
+      chorusSwitch: {
+        address: 0x18000600,
+        size: 1,
+        type: 'boolean',
+        label: 'Chorus Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Chorus'
+      } as FieldDefinition<boolean>,
+      
+      chorusType: {
+        address: 0x18000601,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MONO', 'STEREO', 'MONO MILD', 'STEREO MILD'],
+        label: 'Chorus Type',
+        defaultValue: 1,
+        uiLevel: 'primary',
+        category: 'Chorus'
+      } as FieldDefinition<number>,
+      
+      chorusRate: {
+        address: 0x18000602,
+        size: 1,
+        type: 'number',
+        range: [0, 113],
+        label: 'Chorus Rate',
+        description: 'Chorus rate (0-100, or note values)',
+        defaultValue: 50,
+        uiLevel: 'secondary',
+        category: 'Chorus'
+      } as FieldDefinition<number>,
+      
+      chorusDepth: {
+        address: 0x18000603,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Chorus Depth',
+        defaultValue: 50,
+        uiLevel: 'secondary',
+        category: 'Chorus'
+      } as FieldDefinition<number>,
+      
+      chorusEffectLevel: {
+        address: 0x18000604,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Chorus Level',
+        defaultValue: 100,
+        uiLevel: 'secondary',
+        category: 'Chorus'
+      } as FieldDefinition<number>,
+    },
+    
+    // ═══════════════════════════════════════════════════════════════
+    // REVERB SECTION (0x1800060C-0x18000610)
+    // From gr55-remote sendsAndEq section
+    // ═══════════════════════════════════════════════════════════════
+    
+    reverb: {
+      reverbSwitch: {
+        address: 0x1800060C,
+        size: 1,
+        type: 'boolean',
+        label: 'Reverb Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Reverb'
+      } as FieldDefinition<boolean>,
+      
+      reverbType: {
+        address: 0x1800060D,
+        size: 1,
+        type: 'enum',
+        enumValues: ['AMBIENCE', 'ROOM', 'HALL1', 'HALL2', 'PLATE'],
+        label: 'Reverb Type',
+        defaultValue: 1,
+        uiLevel: 'primary',
+        category: 'Reverb'
+      } as FieldDefinition<number>,
+      
+      reverbTime: {
+        address: 0x1800060E,
+        size: 1,
+        type: 'number',
+        range: [1, 100], // 0.1-10.0s (stored as 1-100)
+        label: 'Reverb Time',
+        description: 'Reverb time (0.1-10.0 seconds)',
+        defaultValue: 30,
+        units: 's',
+        uiLevel: 'secondary',
+        category: 'Reverb'
+      } as FieldDefinition<number>,
+      
+      reverbHighCut: {
+        address: 0x1800060F,
+        size: 1,
+        type: 'enum',
+        enumValues: ['700', '1000', '1400', '2000', '3000', '4000', '5000', '6300', '8000', '11000', 'FLAT'],
+        label: 'Reverb High Cut',
+        description: 'High frequency cutoff',
+        defaultValue: 10, // FLAT
+        units: 'Hz',
+        uiLevel: 'secondary',
+        category: 'Reverb'
+      } as FieldDefinition<number>,
+      
+      reverbEffectLevel: {
+        address: 0x18000610,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Reverb Level',
+        defaultValue: 100,
+        uiLevel: 'secondary',
+        category: 'Reverb'
+      } as FieldDefinition<number>,
+    },
+    
     // assigns: {...}
   },
   

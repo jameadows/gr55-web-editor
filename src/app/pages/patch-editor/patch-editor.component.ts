@@ -106,6 +106,27 @@ export class PatchEditorComponent implements OnInit {
   // Computed
   mode = computed(() => this.patchAttribute() === 0 ? 'Guitar' : 'Bass');
   
+  // Delay
+  delaySwitch = signal(false);
+  delayType = signal(0);
+  delayTime = signal(500);
+  delayFeedback = signal(30);
+  delayEffectLevel = signal(100);
+  
+  // Chorus
+  chorusSwitch = signal(false);
+  chorusType = signal(1);
+  chorusRate = signal(50);
+  chorusDepth = signal(50);
+  chorusEffectLevel = signal(100);
+  
+  // Reverb
+  reverbSwitch = signal(false);
+  reverbType = signal(1);
+  reverbTime = signal(30);
+  reverbHighCut = signal(10);
+  reverbEffectLevel = signal(100);
+  
   // ═══════════════════════════════════════════════════════════
   // LIFECYCLE
   // ═══════════════════════════════════════════════════════════
@@ -147,6 +168,11 @@ export class PatchEditorComponent implements OnInit {
   loadPatch() {
     // Load Common section parameters
     this.loadCommonParameters();
+    
+    // Load Effects sections
+    this.loadDelayParameters();
+    this.loadChorusParameters();
+    this.loadReverbParameters();
   }
   
   private loadCommonParameters() {
@@ -266,6 +292,255 @@ export class PatchEditorComponent implements OnInit {
       error: (e) => {
         console.error('Failed to write alt tune type:', e);
         this.loadCommonParameters();
+      }
+    });
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // DELAY SECTION
+  // ═══════════════════════════════════════════════════════════
+  
+  private loadDelayParameters() {
+    const map = GR55AddressMap.patch.delay;
+    
+    this.gr55.readParameter(map.delaySwitch).subscribe({
+      next: (v) => this.delaySwitch.set(v),
+      error: (e) => console.error('Failed to read delay switch:', e)
+    });
+    
+    this.gr55.readParameter(map.delayType).subscribe({
+      next: (v) => this.delayType.set(v),
+      error: (e) => console.error('Failed to read delay type:', e)
+    });
+    
+    this.gr55.readParameter(map.delayTime).subscribe({
+      next: (v) => this.delayTime.set(v),
+      error: (e) => console.error('Failed to read delay time:', e)
+    });
+    
+    this.gr55.readParameter(map.delayFeedback).subscribe({
+      next: (v) => this.delayFeedback.set(v),
+      error: (e) => console.error('Failed to read delay feedback:', e)
+    });
+    
+    this.gr55.readParameter(map.delayEffectLevel).subscribe({
+      next: (v) => this.delayEffectLevel.set(v),
+      error: (e) => console.error('Failed to read delay level:', e)
+    });
+  }
+  
+  onDelaySwitchChange(enabled: boolean) {
+    this.delaySwitch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.delay.delaySwitch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write delay switch:', e);
+        this.loadDelayParameters();
+      }
+    });
+  }
+  
+  onDelayTypeChange(newType: number) {
+    this.delayType.set(newType);
+    this.gr55.writeParameter(GR55AddressMap.patch.delay.delayType, newType).subscribe({
+      error: (e) => {
+        console.error('Failed to write delay type:', e);
+        this.loadDelayParameters();
+      }
+    });
+  }
+  
+  onDelayTimeChange(newTime: number) {
+    this.delayTime.set(newTime);
+    this.gr55.writeParameter(GR55AddressMap.patch.delay.delayTime, newTime).subscribe({
+      error: (e) => {
+        console.error('Failed to write delay time:', e);
+        this.loadDelayParameters();
+      }
+    });
+  }
+  
+  onDelayFeedbackChange(newFeedback: number) {
+    this.delayFeedback.set(newFeedback);
+    this.gr55.writeParameter(GR55AddressMap.patch.delay.delayFeedback, newFeedback).subscribe({
+      error: (e) => {
+        console.error('Failed to write delay feedback:', e);
+        this.loadDelayParameters();
+      }
+    });
+  }
+  
+  onDelayLevelChange(newLevel: number) {
+    this.delayEffectLevel.set(newLevel);
+    this.gr55.writeParameter(GR55AddressMap.patch.delay.delayEffectLevel, newLevel).subscribe({
+      error: (e) => {
+        console.error('Failed to write delay level:', e);
+        this.loadDelayParameters();
+      }
+    });
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // CHORUS SECTION
+  // ═══════════════════════════════════════════════════════════
+  
+  private loadChorusParameters() {
+    const map = GR55AddressMap.patch.chorus;
+    
+    this.gr55.readParameter(map.chorusSwitch).subscribe({
+      next: (v) => this.chorusSwitch.set(v),
+      error: (e) => console.error('Failed to read chorus switch:', e)
+    });
+    
+    this.gr55.readParameter(map.chorusType).subscribe({
+      next: (v) => this.chorusType.set(v),
+      error: (e) => console.error('Failed to read chorus type:', e)
+    });
+    
+    this.gr55.readParameter(map.chorusRate).subscribe({
+      next: (v) => this.chorusRate.set(v),
+      error: (e) => console.error('Failed to read chorus rate:', e)
+    });
+    
+    this.gr55.readParameter(map.chorusDepth).subscribe({
+      next: (v) => this.chorusDepth.set(v),
+      error: (e) => console.error('Failed to read chorus depth:', e)
+    });
+    
+    this.gr55.readParameter(map.chorusEffectLevel).subscribe({
+      next: (v) => this.chorusEffectLevel.set(v),
+      error: (e) => console.error('Failed to read chorus level:', e)
+    });
+  }
+  
+  onChorusSwitchChange(enabled: boolean) {
+    this.chorusSwitch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.chorus.chorusSwitch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write chorus switch:', e);
+        this.loadChorusParameters();
+      }
+    });
+  }
+  
+  onChorusTypeChange(newType: number) {
+    this.chorusType.set(newType);
+    this.gr55.writeParameter(GR55AddressMap.patch.chorus.chorusType, newType).subscribe({
+      error: (e) => {
+        console.error('Failed to write chorus type:', e);
+        this.loadChorusParameters();
+      }
+    });
+  }
+  
+  onChorusRateChange(newRate: number) {
+    this.chorusRate.set(newRate);
+    this.gr55.writeParameter(GR55AddressMap.patch.chorus.chorusRate, newRate).subscribe({
+      error: (e) => {
+        console.error('Failed to write chorus rate:', e);
+        this.loadChorusParameters();
+      }
+    });
+  }
+  
+  onChorusDepthChange(newDepth: number) {
+    this.chorusDepth.set(newDepth);
+    this.gr55.writeParameter(GR55AddressMap.patch.chorus.chorusDepth, newDepth).subscribe({
+      error: (e) => {
+        console.error('Failed to write chorus depth:', e);
+        this.loadChorusParameters();
+      }
+    });
+  }
+  
+  onChorusLevelChange(newLevel: number) {
+    this.chorusEffectLevel.set(newLevel);
+    this.gr55.writeParameter(GR55AddressMap.patch.chorus.chorusEffectLevel, newLevel).subscribe({
+      error: (e) => {
+        console.error('Failed to write chorus level:', e);
+        this.loadChorusParameters();
+      }
+    });
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // REVERB SECTION
+  // ═══════════════════════════════════════════════════════════
+  
+  private loadReverbParameters() {
+    const map = GR55AddressMap.patch.reverb;
+    
+    this.gr55.readParameter(map.reverbSwitch).subscribe({
+      next: (v) => this.reverbSwitch.set(v),
+      error: (e) => console.error('Failed to read reverb switch:', e)
+    });
+    
+    this.gr55.readParameter(map.reverbType).subscribe({
+      next: (v) => this.reverbType.set(v),
+      error: (e) => console.error('Failed to read reverb type:', e)
+    });
+    
+    this.gr55.readParameter(map.reverbTime).subscribe({
+      next: (v) => this.reverbTime.set(v),
+      error: (e) => console.error('Failed to read reverb time:', e)
+    });
+    
+    this.gr55.readParameter(map.reverbHighCut).subscribe({
+      next: (v) => this.reverbHighCut.set(v),
+      error: (e) => console.error('Failed to read reverb high cut:', e)
+    });
+    
+    this.gr55.readParameter(map.reverbEffectLevel).subscribe({
+      next: (v) => this.reverbEffectLevel.set(v),
+      error: (e) => console.error('Failed to read reverb level:', e)
+    });
+  }
+  
+  onReverbSwitchChange(enabled: boolean) {
+    this.reverbSwitch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.reverb.reverbSwitch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write reverb switch:', e);
+        this.loadReverbParameters();
+      }
+    });
+  }
+  
+  onReverbTypeChange(newType: number) {
+    this.reverbType.set(newType);
+    this.gr55.writeParameter(GR55AddressMap.patch.reverb.reverbType, newType).subscribe({
+      error: (e) => {
+        console.error('Failed to write reverb type:', e);
+        this.loadReverbParameters();
+      }
+    });
+  }
+  
+  onReverbTimeChange(newTime: number) {
+    this.reverbTime.set(newTime);
+    this.gr55.writeParameter(GR55AddressMap.patch.reverb.reverbTime, newTime).subscribe({
+      error: (e) => {
+        console.error('Failed to write reverb time:', e);
+        this.loadReverbParameters();
+      }
+    });
+  }
+  
+  onReverbHighCutChange(newHighCut: number) {
+    this.reverbHighCut.set(newHighCut);
+    this.gr55.writeParameter(GR55AddressMap.patch.reverb.reverbHighCut, newHighCut).subscribe({
+      error: (e) => {
+        console.error('Failed to write reverb high cut:', e);
+        this.loadReverbParameters();
+      }
+    });
+  }
+  
+  onReverbLevelChange(newLevel: number) {
+    this.reverbEffectLevel.set(newLevel);
+    this.gr55.writeParameter(GR55AddressMap.patch.reverb.reverbEffectLevel, newLevel).subscribe({
+      error: (e) => {
+        console.error('Failed to write reverb level:', e);
+        this.loadReverbParameters();
       }
     });
   }

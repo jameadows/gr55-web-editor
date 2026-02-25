@@ -202,29 +202,259 @@
     }
     
     @if (activeTab() === 'delay') {
-      <div class="tab-panel placeholder">
+      <div class="tab-panel">
         <h2>Delay</h2>
-        <p class="placeholder-text">
-          Delay editor will be implemented in Phase 5.
-        </p>
+        
+        <!-- PRIMARY CONTROLS -->
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <!-- On/Off Switch -->
+            <div class="control-group">
+              <app-led
+                [isOn]="delaySwitch()"
+                [label]="'Delay On'"
+                [color]="'green'"
+                [size]="16"
+                [clickable]="true"
+                (toggle)="onDelaySwitchChange($event)">
+              </app-led>
+            </div>
+            
+            <!-- Type -->
+            <div class="control-group">
+              <app-dropdown
+                [value]="delayType()"
+                [options]="['SINGLE', 'PAN', 'REVERSE', 'ANALOG', 'TAPE', 'MODULATE', 'HICUT']"
+                [label]="'Delay Type'"
+                [color]="'amber'"
+                (valueChange)="onDelayTypeChange($event)">
+              </app-dropdown>
+            </div>
+            
+            <!-- Level -->
+            <div class="control-group">
+              <app-knob
+                [value]="delayEffectLevel()"
+                [min]="0"
+                [max]="120"
+                [label]="'Level'"
+                [color]="'green'"
+                [size]="100"
+                (valueChange)="onDelayLevelChange($event)">
+              </app-knob>
+            </div>
+          </div>
+        </section>
+        
+        <!-- SECONDARY CONTROLS -->
+        <section class="controls-section secondary" [class.collapsed]="!showSecondaryControls()">
+          <h3 (click)="toggleSecondary()" class="collapsible-header">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Delay Parameters
+          </h3>
+          
+          @if (showSecondaryControls()) {
+            <div class="controls-grid">
+              <!-- Delay Time -->
+              <div class="control-group">
+                <app-knob
+                  [value]="delayTime()"
+                  [min]="0"
+                  [max]="3400"
+                  [label]="'Time'"
+                  [units]="'ms'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onDelayTimeChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- Feedback -->
+              <div class="control-group">
+                <app-knob
+                  [value]="delayFeedback()"
+                  [min]="0"
+                  [max]="100"
+                  [label]="'Feedback'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onDelayFeedbackChange($event)">
+                </app-knob>
+              </div>
+            </div>
+          }
+        </section>
       </div>
     }
     
     @if (activeTab() === 'chorus') {
-      <div class="tab-panel placeholder">
+      <div class="tab-panel">
         <h2>Chorus</h2>
-        <p class="placeholder-text">
-          Chorus editor will be implemented in Phase 5.
-        </p>
+        
+        <!-- PRIMARY CONTROLS -->
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <!-- On/Off Switch -->
+            <div class="control-group">
+              <app-led
+                [isOn]="chorusSwitch()"
+                [label]="'Chorus On'"
+                [color]="'green'"
+                [size]="16"
+                [clickable]="true"
+                (toggle)="onChorusSwitchChange($event)">
+              </app-led>
+            </div>
+            
+            <!-- Type -->
+            <div class="control-group">
+              <app-dropdown
+                [value]="chorusType()"
+                [options]="['MONO', 'STEREO', 'MONO MILD', 'STEREO MILD']"
+                [label]="'Chorus Type'"
+                [color]="'amber'"
+                (valueChange)="onChorusTypeChange($event)">
+              </app-dropdown>
+            </div>
+            
+            <!-- Level -->
+            <div class="control-group">
+              <app-knob
+                [value]="chorusEffectLevel()"
+                [min]="0"
+                [max]="100"
+                [label]="'Level'"
+                [color]="'green'"
+                [size]="100"
+                (valueChange)="onChorusLevelChange($event)">
+              </app-knob>
+            </div>
+          </div>
+        </section>
+        
+        <!-- SECONDARY CONTROLS -->
+        <section class="controls-section secondary" [class.collapsed]="!showSecondaryControls()">
+          <h3 (click)="toggleSecondary()" class="collapsible-header">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Chorus Parameters
+          </h3>
+          
+          @if (showSecondaryControls()) {
+            <div class="controls-grid">
+              <!-- Rate -->
+              <div class="control-group">
+                <app-knob
+                  [value]="chorusRate()"
+                  [min]="0"
+                  [max]="113"
+                  [label]="'Rate'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onChorusRateChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- Depth -->
+              <div class="control-group">
+                <app-knob
+                  [value]="chorusDepth()"
+                  [min]="0"
+                  [max]="100"
+                  [label]="'Depth'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onChorusDepthChange($event)">
+                </app-knob>
+              </div>
+            </div>
+          }
+        </section>
       </div>
     }
     
     @if (activeTab() === 'reverb') {
-      <div class="tab-panel placeholder">
+      <div class="tab-panel">
         <h2>Reverb</h2>
-        <p class="placeholder-text">
-          Reverb editor will be implemented in Phase 5.
-        </p>
+        
+        <!-- PRIMARY CONTROLS -->
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <!-- On/Off Switch -->
+            <div class="control-group">
+              <app-led
+                [isOn]="reverbSwitch()"
+                [label]="'Reverb On'"
+                [color]="'green'"
+                [size]="16"
+                [clickable]="true"
+                (toggle)="onReverbSwitchChange($event)">
+              </app-led>
+            </div>
+            
+            <!-- Type -->
+            <div class="control-group">
+              <app-dropdown
+                [value]="reverbType()"
+                [options]="['AMBIENCE', 'ROOM', 'HALL1', 'HALL2', 'PLATE']"
+                [label]="'Reverb Type'"
+                [color]="'amber'"
+                (valueChange)="onReverbTypeChange($event)">
+              </app-dropdown>
+            </div>
+            
+            <!-- Level -->
+            <div class="control-group">
+              <app-knob
+                [value]="reverbEffectLevel()"
+                [min]="0"
+                [max]="100"
+                [label]="'Level'"
+                [color]="'green'"
+                [size]="100"
+                (valueChange)="onReverbLevelChange($event)">
+              </app-knob>
+            </div>
+          </div>
+        </section>
+        
+        <!-- SECONDARY CONTROLS -->
+        <section class="controls-section secondary" [class.collapsed]="!showSecondaryControls()">
+          <h3 (click)="toggleSecondary()" class="collapsible-header">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Reverb Parameters
+          </h3>
+          
+          @if (showSecondaryControls()) {
+            <div class="controls-grid">
+              <!-- Time -->
+              <div class="control-group">
+                <app-knob
+                  [value]="reverbTime()"
+                  [min]="1"
+                  [max]="100"
+                  [label]="'Time'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onReverbTimeChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- High Cut -->
+              <div class="control-group">
+                <app-dropdown
+                  [value]="reverbHighCut()"
+                  [options]="['700 Hz', '1000 Hz', '1400 Hz', '2000 Hz', '3000 Hz', '4000 Hz', '5000 Hz', '6300 Hz', '8000 Hz', '11000 Hz', 'FLAT']"
+                  [label]="'High Cut'"
+                  [color]="'cyan'"
+                  (valueChange)="onReverbHighCutChange($event)">
+                </app-dropdown>
+              </div>
+            </div>
+          }
+        </section>
       </div>
     }
     
