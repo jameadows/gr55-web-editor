@@ -150,7 +150,8 @@ export class PatchLibraryService {
           const name = filename || `gr55-patch-${Date.now()}.syx`;
           
           // Create blob and download
-          const blob = new Blob([sysexData], { type: 'application/octet-stream' });
+          // Use .buffer to get ArrayBuffer for Blob constructor
+          const blob = new Blob([sysexData.buffer], { type: 'application/octet-stream' });
           const url = URL.createObjectURL(blob);
           
           const link = document.createElement('a');
