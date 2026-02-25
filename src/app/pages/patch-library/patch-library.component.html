@@ -1,0 +1,149 @@
+<div class="library-container">
+  <!-- CONNECTION PROMPT (when not connected) -->
+  @if (!isConnected()) {
+    <div class="connection-prompt">
+      <div class="connection-prompt-content">
+        <h2>⚠️ MIDI Not Connected</h2>
+        <p>Please connect to your GR-55 to access the patch library.</p>
+        <div class="connection-actions">
+          <a routerLink="/" class="btn-primary">Go to Home</a>
+        </div>
+      </div>
+    </div>
+  }
+  
+  <!-- LIBRARY (when connected) -->
+  @if (isConnected()) {
+    <!-- Header -->
+    <header class="library-header">
+      <h1>📁 Patch Library</h1>
+      <div class="header-actions">
+        <a routerLink="/editor" class="btn-secondary">Back to Editor</a>
+      </div>
+    </header>
+    
+    <!-- Current Patch Panel -->
+    <section class="current-patch-panel">
+      <h2>Current Patch</h2>
+      <div class="current-patch-display">
+        <div class="patch-info">
+          <div class="patch-number">Patch {{ currentPatchNumber() + 1 }}</div>
+          <div class="patch-name">{{ currentPatchName() }}</div>
+        </div>
+        <div class="patch-actions">
+          <button 
+            class="btn-primary" 
+            (click)="editCurrentPatch()"
+            [disabled]="isLoading()">
+            ✏️ Edit Patch
+          </button>
+          <button 
+            class="btn-primary" 
+            (click)="saveCurrentPatch()"
+            [disabled]="isLoading()">
+            💾 Save to File
+          </button>
+          <label class="btn-primary file-input-label" [class.disabled]="isLoading()">
+            📂 Load from File
+            <input 
+              type="file" 
+              accept=".syx"
+              (change)="onFileSelected($event)"
+              [disabled]="isLoading()"
+              class="file-input">
+          </label>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Patch Browser -->
+    <section class="patch-browser">
+      <div class="browser-header">
+        <h2>Browse Patches (297 Total)</h2>
+        <div class="search-box">
+          <input 
+            type="text"
+            placeholder="Search patches..."
+            [(ngModel)]="searchQuery"
+            class="search-input">
+          @if (searchQuery()) {
+            <button class="clear-search" (click)="clearSearch()">✕</button>
+          }
+        </div>
+      </div>
+      
+      <!-- Loading Indicator -->
+      @if (isLoading()) {
+        <div class="loading-indicator">
+          <div class="spinner"></div>
+          <p>Loading...</p>
+        </div>
+      }
+      
+      <!-- Patch List -->
+      @if (!isLoading()) {
+        <div class="patch-grid">
+          @for (patch of filteredPatches(); track patch.number) {
+            <div 
+              class="patch-card"
+              [class.selected]="selectedPatch()?.number === patch.number"
+              [class.current]="patch.number === currentPatchNumber()"
+              (click)="onPatchClick(patch)">
+              <div class="patch-card-header">
+                <span class="patch-location">{{ patch.displayName }}</span>
+                @if (patch.number === currentPatchNumber()) {
+                  <span class="current-badge">CURRENT</span>
+                }
+              </div>
+              <div class="patch-card-name">
+                {{ patch.name || '(Empty)' }}
+              </div>
+            </div>
+          }
+        </div>
+        
+        <!-- No Results -->
+        @if (filteredPatches().length === 0) {
+          <div class="no-results">
+            <p>No patches found matching "{{ searchQuery() }}"</p>
+            <button class="btn-secondary" (click)="clearSearch()">Clear Search</button>
+          </div>
+        }
+      }
+    </section>
+    
+    <!-- Selected Patch Panel -->
+    @if (selectedPatch() && !isLoading()) {
+      <section class="selected-patch-panel">
+        <h3>Selected: {{ selectedPatch()?.displayName }}</h3>
+        <div class="selected-patch-actions">
+          <button 
+            class="btn-primary btn-lg"
+            (click)="loadSelectedPatch()">
+            Load Patch & Edit
+          </button>
+          <button 
+            class="btn-secondary"
+            (click)="selectedPatch.set(null)">
+            Cancel
+          </button>
+        </div>
+        <p class="hint">
+          Click "Load Patch & Edit" to load this patch and open the editor.
+        </p>
+      </section>
+    }
+    
+    <!-- Help Section -->
+    <section class="help-section">
+      <h3>How to Use</h3>
+      <ul>
+        <li><strong>Browse:</strong> Click any patch to select it</li>
+        <li><strong>Load:</strong> Click "Load Patch & Edit" to load and edit</li>
+        <li><strong>Save:</strong> Click "Save to File" to export current patch</li>
+        <li><strong>Import:</strong> Click "Load from File" to import .syx files</li>
+        <li><strong>Search:</strong> Type in the search box to filter patches</li>
+      </ul>
+    </section>
+  }
+</div>

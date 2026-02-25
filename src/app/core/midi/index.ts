@@ -11,3 +11,4 @@ export * from './midi.types';
 export * from './midi-io.service';
 export * from './sysex.service';
 export * from './gr55-protocol.service';
+export * from './patch-library.service';
