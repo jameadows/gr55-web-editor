@@ -158,6 +158,13 @@ export class PatchEditorComponent implements OnInit {
   modelingLevel = signal(100);
   modelingMuteSwitch = signal(false);
   
+  // MFX
+  mfxSwitch = signal(false);
+  mfxType = signal(0);
+  mfxChorusSend = signal(0);
+  mfxDelaySend = signal(0);
+  mfxReverbSend = signal(0);
+  
   // Computed - active modeling category and tone based on guitar/bass mode
   activeModelingCategory = computed(() => {
     return this.patchAttribute() === 0 ? this.modelingCategoryGuitar() : this.modelingCategoryBass();
@@ -268,6 +275,9 @@ export class PatchEditorComponent implements OnInit {
     
     // Load Modeling section
     this.loadModelingParameters();
+    
+    // Load MFX section
+    this.loadMfxParameters();
   }
   
   private loadCommonParameters() {
@@ -1046,6 +1056,89 @@ export class PatchEditorComponent implements OnInit {
       error: (e) => {
         console.error('Failed to write modeling level:', e);
         this.loadModelingParameters();
+      }
+    });
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // MFX SECTION
+  // ═══════════════════════════════════════════════════════════
+  
+  private loadMfxParameters() {
+    const map = GR55AddressMap.patch.mfx;
+    
+    this.gr55.readParameter(map.mfxSwitch).subscribe({
+      next: (v) => this.mfxSwitch.set(v),
+      error: (e) => console.error('Failed to read MFX switch:', e)
+    });
+    
+    this.gr55.readParameter(map.mfxType).subscribe({
+      next: (v) => this.mfxType.set(v),
+      error: (e) => console.error('Failed to read MFX type:', e)
+    });
+    
+    this.gr55.readParameter(map.mfxChorusSendLevel).subscribe({
+      next: (v) => this.mfxChorusSend.set(v),
+      error: (e) => console.error('Failed to read MFX chorus send:', e)
+    });
+    
+    this.gr55.readParameter(map.mfxDelaySendLevel).subscribe({
+      next: (v) => this.mfxDelaySend.set(v),
+      error: (e) => console.error('Failed to read MFX delay send:', e)
+    });
+    
+    this.gr55.readParameter(map.mfxReverbSendLevel).subscribe({
+      next: (v) => this.mfxReverbSend.set(v),
+      error: (e) => console.error('Failed to read MFX reverb send:', e)
+    });
+  }
+  
+  onMfxSwitchChange(enabled: boolean) {
+    this.mfxSwitch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.mfx.mfxSwitch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write MFX switch:', e);
+        this.loadMfxParameters();
+      }
+    });
+  }
+  
+  onMfxTypeChange(newType: number) {
+    this.mfxType.set(newType);
+    this.gr55.writeParameter(GR55AddressMap.patch.mfx.mfxType, newType).subscribe({
+      error: (e) => {
+        console.error('Failed to write MFX type:', e);
+        this.loadMfxParameters();
+      }
+    });
+  }
+  
+  onMfxChorusSendChange(newSend: number) {
+    this.mfxChorusSend.set(newSend);
+    this.gr55.writeParameter(GR55AddressMap.patch.mfx.mfxChorusSendLevel, newSend).subscribe({
+      error: (e) => {
+        console.error('Failed to write MFX chorus send:', e);
+        this.loadMfxParameters();
+      }
+    });
+  }
+  
+  onMfxDelaySendChange(newSend: number) {
+    this.mfxDelaySend.set(newSend);
+    this.gr55.writeParameter(GR55AddressMap.patch.mfx.mfxDelaySendLevel, newSend).subscribe({
+      error: (e) => {
+        console.error('Failed to write MFX delay send:', e);
+        this.loadMfxParameters();
+      }
+    });
+  }
+  
+  onMfxReverbSendChange(newSend: number) {
+    this.mfxReverbSend.set(newSend);
+    this.gr55.writeParameter(GR55AddressMap.patch.mfx.mfxReverbSendLevel, newSend).subscribe({
+      error: (e) => {
+        console.error('Failed to write MFX reverb send:', e);
+        this.loadMfxParameters();
       }
     });
   }

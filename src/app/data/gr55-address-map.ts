@@ -446,6 +446,42 @@ export const GR55AddressMap = {
     // ═══════════════════════════════════════════════════════════════
     
     mfx: {
+      mfxChorusSendLevel: {
+        address: 0x18000300,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Chorus Send',
+        description: 'MFX send level to Chorus',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'MFX'
+      } as FieldDefinition<number>,
+      
+      mfxDelaySendLevel: {
+        address: 0x18000301,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Delay Send',
+        description: 'MFX send level to Delay',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'MFX'
+      } as FieldDefinition<number>,
+      
+      mfxReverbSendLevel: {
+        address: 0x18000302,
+        size: 1,
+        type: 'number',
+        range: [0, 100],
+        label: 'Reverb Send',
+        description: 'MFX send level to Reverb',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'MFX'
+      } as FieldDefinition<number>,
+      
       mfxSwitch: {
         address: 0x18000304,
         size: 1,
@@ -462,16 +498,19 @@ export const GR55AddressMap = {
         type: 'enum',
         enumValues: [
           'EQ', 'SUPER FILTER', 'PHASER', 'STEP PHASER', 'RING MODULATOR',
-          // TODO: Add all 80+ MFX types from gr55-remote
+          'TREMOLO', 'AUTO PAN', 'SLICER', 'VK ROTARY', 'HEXA-CHORUS',
+          'SPACE-D', 'FLANGER', 'STEP FLANGER', 'GUITAR AMP SIM', 'COMPRESSOR',
+          'LIMITER', '3TAP PAN DELAY', 'TIME CTRL DELAY', 'LOFI COMPRESS', 'PITCH SHIFTER'
         ],
         label: 'MFX Type',
+        description: '20 multi-effect types available',
         defaultValue: 0,
         uiLevel: 'primary',
         category: 'MFX'
       } as FieldDefinition<number>,
       
-      // TODO: Add MFX send levels (chorus, delay, reverb)
-      // TODO: Add all 32 MFX parameters (meanings vary by type)
+      // TODO: Add all 32 MFX parameters (meanings vary by effect type)
+      // These will be added in Phase 6+ with specialized UI per effect
     },
     
     // TODO: Add remaining sections

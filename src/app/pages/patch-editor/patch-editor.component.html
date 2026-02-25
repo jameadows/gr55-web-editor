@@ -466,13 +466,102 @@
     }
     
     @if (activeTab() === 'mfx') {
-      <div class="tab-panel placeholder">
+      <div class="tab-panel">
         <h2>Multi-Effects (MFX)</h2>
-        <p class="placeholder-text">
-          MFX editor will be implemented in Phase 5.
-          <br>
-          80+ effect types with specialized UIs.
-        </p>
+        
+        <!-- PRIMARY CONTROLS -->
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <!-- MFX On/Off -->
+            <div class="control-group">
+              <app-led
+                [isOn]="mfxSwitch()"
+                [label]="'MFX On'"
+                [color]="'green'"
+                [size]="16"
+                [clickable]="true"
+                (toggle)="onMfxSwitchChange($event)">
+              </app-led>
+            </div>
+            
+            <!-- MFX Type Selection -->
+            <div class="control-group">
+              <app-dropdown
+                [value]="mfxType()"
+                [options]="[
+                  'EQ', 'SUPER FILTER', 'PHASER', 'STEP PHASER', 'RING MODULATOR',
+                  'TREMOLO', 'AUTO PAN', 'SLICER', 'VK ROTARY', 'HEXA-CHORUS',
+                  'SPACE-D', 'FLANGER', 'STEP FLANGER', 'GUITAR AMP SIM', 'COMPRESSOR',
+                  'LIMITER', '3TAP PAN DELAY', 'TIME CTRL DELAY', 'LOFI COMPRESS', 'PITCH SHIFTER'
+                ]"
+                [label]="'MFX Type'"
+                [color]="'amber'"
+                (valueChange)="onMfxTypeChange($event)">
+              </app-dropdown>
+            </div>
+          </div>
+        </section>
+        
+        <!-- SECONDARY CONTROLS -->
+        <section class="controls-section secondary" [class.collapsed]="!showSecondaryControls()">
+          <h3 (click)="toggleSecondary()" class="collapsible-header">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Effect Send Levels
+          </h3>
+          
+          @if (showSecondaryControls()) {
+            <div class="controls-grid">
+              <!-- Chorus Send -->
+              <div class="control-group">
+                <app-knob
+                  [value]="mfxChorusSend()"
+                  [min]="0"
+                  [max]="100"
+                  [label]="'Chorus Send'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onMfxChorusSendChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- Delay Send -->
+              <div class="control-group">
+                <app-knob
+                  [value]="mfxDelaySend()"
+                  [min]="0"
+                  [max]="100"
+                  [label]="'Delay Send'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onMfxDelaySendChange($event)">
+                </app-knob>
+              </div>
+              
+              <!-- Reverb Send -->
+              <div class="control-group">
+                <app-knob
+                  [value]="mfxReverbSend()"
+                  [min]="0"
+                  [max]="100"
+                  [label]="'Reverb Send'"
+                  [color]="'cyan'"
+                  [size]="100"
+                  (valueChange)="onMfxReverbSendChange($event)">
+                </app-knob>
+              </div>
+            </div>
+            
+            <!-- Note about advanced parameters -->
+            <div class="section-note">
+              <strong>MFX Deep Editing:</strong> Each MFX type has 32 unique parameters.
+              <br>
+              Specialized editors for each effect type will be added in Phase 6+.
+              <br>
+              <em>Examples: EQ bands, filter cutoff/resonance, phaser rate/depth, compressor threshold/ratio, etc.</em>
+            </div>
+          }
+        </section>
       </div>
     }
     
