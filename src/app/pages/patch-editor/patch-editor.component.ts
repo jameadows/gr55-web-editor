@@ -9,7 +9,7 @@
 
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { KnobComponent } from '../../shared/components/knob/knob.component';
 import { SliderComponent } from '../../shared/components/slider/slider.component';
 import { DropdownComponent } from '../../shared/components/dropdown/dropdown.component';
@@ -31,6 +31,7 @@ interface Tab {
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     KnobComponent,
     SliderComponent,
     DropdownComponent,
@@ -75,6 +76,7 @@ export class PatchEditorComponent implements OnInit {
   
   showSecondaryControls = signal(true);
   showAdvancedControls = signal(false);
+  showConnectionPrompt = computed(() => !this.isConnected());
   
   // ═══════════════════════════════════════════════════════════
   // PATCH PARAMETERS (from GR-55)
@@ -227,17 +229,11 @@ export class PatchEditorComponent implements OnInit {
   // ═══════════════════════════════════════════════════════════
   
   ngOnInit() {
-    // Check connection
-    if (!this.isConnected()) {
-      // Redirect to home with message
-      this.router.navigate(['/'], { 
-        queryParams: { message: 'Please connect to GR-55 first' } 
-      });
-      return;
+    // Load patch parameters if connected
+    if (this.isConnected()) {
+      this.loadPatch();
     }
-    
-    // Load current patch parameters
-    this.loadPatch();
+    // If not connected, showConnectionPrompt will display
   }
   
   // ═══════════════════════════════════════════════════════════

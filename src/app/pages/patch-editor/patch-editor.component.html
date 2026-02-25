@@ -1,4 +1,25 @@
 <div class="editor-container">
+  <!-- CONNECTION PROMPT (when not connected) -->
+  @if (showConnectionPrompt()) {
+    <div class="connection-prompt">
+      <div class="connection-prompt-content">
+        <h2>⚠️ MIDI Not Connected</h2>
+        <p>Please connect to your GR-55 to use the patch editor.</p>
+        <ol>
+          <li>Connect your GR-55 via USB</li>
+          <li>Go to <a routerLink="/">Home</a> and click "Connect to GR-55"</li>
+          <li>Select your GR-55 MIDI device</li>
+          <li>Return here to edit patches</li>
+        </ol>
+        <div class="connection-actions">
+          <a routerLink="/" class="btn-primary">Go to Home</a>
+        </div>
+      </div>
+    </div>
+  }
+  
+  <!-- EDITOR (when connected) -->
+  @if (!showConnectionPrompt()) {
   <!-- Header -->
   <header class="editor-header">
     <h1>GR-55 Patch Editor</h1>
@@ -834,4 +855,5 @@
     }
     
   </div>
+  } <!-- End connection check -->
 </div>
