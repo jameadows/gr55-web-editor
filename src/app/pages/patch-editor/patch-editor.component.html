@@ -460,6 +460,7 @@
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
+                tooltip="Enable/disable modeling. Click to toggle guitar/bass/synth models on/off."
                 (toggle)="onModelingMuteChange(!$event)">
               </app-led>
             </div>
@@ -471,6 +472,7 @@
                 [options]="modelingCategoryOptions()"
                 [label]="'Category'"
                 [color]="'amber'"
+                tooltip="Model category (E.GTR, AC, E.BASS, SYNTH). Categories change based on Guitar/Bass mode."
                 (valueChange)="onModelingCategoryChange($event)">
               </app-dropdown>
             </div>
@@ -482,6 +484,7 @@
                 [options]="modelingToneOptions()"
                 [label]="'Tone'"
                 [color]="'amber'"
+                tooltip="Specific model within category. Choose from 40+ guitar, bass, acoustic, and synth models."
                 (valueChange)="onModelingToneChange($event)">
               </app-dropdown>
             </div>
@@ -495,6 +498,7 @@
                 [label]="'Level'"
                 [color]="'green'"
                 [size]="100"
+                tooltip="Modeling output level (0-100). Balance with PCM tones when layering sounds."
                 (valueChange)="onModelingLevelChange($event)">
               </app-knob>
             </div>
@@ -530,6 +534,7 @@
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
+                tooltip="Enable/disable Multi-Effects (MFX). Click to toggle effects processor on/off."
                 (toggle)="onMfxSwitchChange($event)">
               </app-led>
             </div>
@@ -546,6 +551,7 @@
                 ]"
                 [label]="'MFX Type'"
                 [color]="'amber'"
+                tooltip="Multi-effect type (20 types available). Choose from filters, phasers, flangers, compressors, and more."
                 (valueChange)="onMfxTypeChange($event)">
               </app-dropdown>
             </div>
@@ -570,6 +576,7 @@
                   [label]="'Chorus Send'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Send level to Chorus (0-100). Controls how much MFX output goes to chorus effect."
                   (valueChange)="onMfxChorusSendChange($event)">
                 </app-knob>
               </div>
@@ -583,6 +590,7 @@
                   [label]="'Delay Send'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Send level to Delay (0-100). Controls how much MFX output goes to delay effect."
                   (valueChange)="onMfxDelaySendChange($event)">
                 </app-knob>
               </div>
@@ -596,6 +604,7 @@
                   [label]="'Reverb Send'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Send level to Reverb (0-100). Controls how much MFX output goes to reverb effect."
                   (valueChange)="onMfxReverbSendChange($event)">
                 </app-knob>
               </div>
@@ -630,6 +639,7 @@
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
+                tooltip="Enable/disable Delay effect. Click to toggle delay on/off."
                 (toggle)="onDelaySwitchChange($event)">
               </app-led>
             </div>
@@ -641,6 +651,7 @@
                 [options]="['SINGLE', 'PAN', 'REVERSE', 'ANALOG', 'TAPE', 'MODULATE', 'HICUT']"
                 [label]="'Delay Type'"
                 [color]="'amber'"
+                tooltip="Delay mode selection. Choose from single, stereo, ping-pong, and other delay types."
                 (valueChange)="onDelayTypeChange($event)">
               </app-dropdown>
             </div>
@@ -654,6 +665,7 @@
                 [label]="'Level'"
                 [color]="'green'"
                 [size]="100"
+                tooltip="Delay effect output level (0-120). Mix between dry and delayed signal."
                 (valueChange)="onDelayLevelChange($event)">
               </app-knob>
             </div>
@@ -679,6 +691,7 @@
                   [units]="'ms'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Delay time in milliseconds (0-3400ms). Longer values create distinct echoes."
                   (valueChange)="onDelayTimeChange($event)">
                 </app-knob>
               </div>
@@ -692,6 +705,7 @@
                   [label]="'Feedback'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Delay feedback amount (0-100). Higher values create more repeats."
                   (valueChange)="onDelayFeedbackChange($event)">
                 </app-knob>
               </div>
@@ -717,6 +731,7 @@
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
+                tooltip="Enable/disable Chorus effect. Click to toggle chorus on/off."
                 (toggle)="onChorusSwitchChange($event)">
               </app-led>
             </div>
@@ -728,6 +743,7 @@
                 [options]="['MONO', 'STEREO', 'MONO MILD', 'STEREO MILD']"
                 [label]="'Chorus Type'"
                 [color]="'amber'"
+                tooltip="Chorus type selection. Choose from mono, stereo, and mild variations."
                 (valueChange)="onChorusTypeChange($event)">
               </app-dropdown>
             </div>
@@ -741,6 +757,7 @@
                 [label]="'Level'"
                 [color]="'green'"
                 [size]="100"
+                tooltip="Chorus effect output level (0-100). Mix between dry and chorus signal."
                 (valueChange)="onChorusLevelChange($event)">
               </app-knob>
             </div>
@@ -765,6 +782,7 @@
                   [label]="'Rate'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Chorus modulation rate (0-113). Controls speed of the chorus sweep."
                   (valueChange)="onChorusRateChange($event)">
                 </app-knob>
               </div>
@@ -778,6 +796,7 @@
                   [label]="'Depth'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Chorus modulation depth (0-100). Controls intensity of the chorus effect."
                   (valueChange)="onChorusDepthChange($event)">
                 </app-knob>
               </div>
@@ -803,6 +822,7 @@
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
+                tooltip="Enable/disable Reverb effect. Click to toggle reverb on/off."
                 (toggle)="onReverbSwitchChange($event)">
               </app-led>
             </div>
@@ -814,6 +834,7 @@
                 [options]="['AMBIENCE', 'ROOM', 'HALL1', 'HALL2', 'PLATE']"
                 [label]="'Reverb Type'"
                 [color]="'amber'"
+                tooltip="Reverb type (Room, Hall, Plate, etc.). Choose reverb algorithm and virtual space."
                 (valueChange)="onReverbTypeChange($event)">
               </app-dropdown>
             </div>
@@ -827,6 +848,7 @@
                 [label]="'Level'"
                 [color]="'green'"
                 [size]="100"
+                tooltip="Reverb effect output level (0-100). Mix between dry and reverb signal."
                 (valueChange)="onReverbLevelChange($event)">
               </app-knob>
             </div>
@@ -851,6 +873,7 @@
                   [label]="'Time'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Reverb decay time (1-100). Longer values create larger virtual spaces."
                   (valueChange)="onReverbTimeChange($event)">
                 </app-knob>
               </div>
@@ -862,6 +885,7 @@
                   [options]="['700 Hz', '1000 Hz', '1400 Hz', '2000 Hz', '3000 Hz', '4000 Hz', '5000 Hz', '6300 Hz', '8000 Hz', '11000 Hz', 'FLAT']"
                   [label]="'High Cut'"
                   [color]="'cyan'"
+                  tooltip="Reverb high frequency filter (700Hz-FLAT). Darker settings for vintage sound, brighter for modern."
                   (valueChange)="onReverbHighCutChange($event)">
                 </app-dropdown>
               </div>
@@ -887,6 +911,7 @@
                 label="CTL Status"
                 [isOn]="ctlStatus()"
                 [clickable]="true"
+                tooltip="Enable/disable CTL pedal function. Click to toggle CTL pedal on/off."
                 (valueChange)="onCtlStatusChange($event)">
               </app-led>
             </div>
@@ -900,6 +925,7 @@
                            'AUDIO PLAYER PLAY/STOP', 'AUDIO PLAYER SONG INC',
                            'AUDIO PLAYER SONG DEC', 'AUDIO PLAYER SW', 'V-LINK SW',
                            'LED MOMENT', 'LED TOGGLE']"
+                tooltip="CTL pedal function (17 options). Choose HOLD, TAP TEMPO, effect switches, and more."
                 (valueChange)="onCtlFunctionChange($event)">
               </app-dropdown>
             </div>
@@ -916,6 +942,7 @@
                   label="Assign 1"
                   [isOn]="assign1Switch()"
                   [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 1. Click to toggle this assignable control on/off."
                   (valueChange)="onAssign1SwitchChange($event)">
                 </app-led>
               </div>
@@ -925,6 +952,7 @@
                   label="Source"
                   [value]="assign1Source()"
                   [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 1 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
                   (valueChange)="onAssign1SourceChange($event)">
                 </app-dropdown>
               </div>
@@ -955,6 +983,7 @@
                   label="Assign 2"
                   [isOn]="assign2Switch()"
                   [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 2. Click to toggle this assignable control on/off."
                   (valueChange)="onAssign2SwitchChange($event)">
                 </app-led>
               </div>
@@ -986,6 +1015,7 @@
                   label="Assign 3"
                   [isOn]="assign3Switch()"
                   [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 3. Click to toggle this assignable control on/off."
                   (valueChange)="onAssign3SwitchChange($event)">
                 </app-led>
               </div>
@@ -1015,6 +1045,7 @@
                   label="Assign 4"
                   [isOn]="assign4Switch()"
                   [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 4. Click to toggle this assignable control on/off."
                   (valueChange)="onAssign4SwitchChange($event)">
                 </app-led>
               </div>
@@ -1044,6 +1075,7 @@
                   label="Assign 5"
                   [isOn]="assign5Switch()"
                   [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 5. Click to toggle this assignable control on/off."
                   (valueChange)="onAssign5SwitchChange($event)">
                 </app-led>
               </div>
@@ -1053,6 +1085,7 @@
                   label="Source"
                   [value]="assign5Source()"
                   [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 5 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
                   (valueChange)="onAssign5SourceChange($event)">
                 </app-dropdown>
               </div>
@@ -1063,6 +1096,7 @@
                   [value]="assign5Target()"
                   [min]="0"
                   [max]="534"
+                  tooltip="Target parameter ID (0-534). Select which GR-55 parameter this assign controls."
                   (valueChange)="onAssign5TargetChange($event)">
                 </app-knob>
               </div>
@@ -1084,6 +1118,7 @@
                   label="Assign 6"
                   [isOn]="assign6Switch()"
                   [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 6. Click to toggle this assignable control on/off."
                   (valueChange)="onAssign6SwitchChange($event)">
                 </app-led>
               </div>
@@ -1093,6 +1128,7 @@
                   label="Source"
                   [value]="assign6Source()"
                   [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 6 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
                   (valueChange)="onAssign6SourceChange($event)">
                 </app-dropdown>
               </div>
@@ -1103,6 +1139,7 @@
                   [value]="assign6Target()"
                   [min]="0"
                   [max]="534"
+                  tooltip="Target parameter ID (0-534). Select which GR-55 parameter this assign controls."
                   (valueChange)="onAssign6TargetChange($event)">
                 </app-knob>
               </div>
@@ -1124,6 +1161,7 @@
                   label="Assign 7"
                   [isOn]="assign7Switch()"
                   [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 7. Click to toggle this assignable control on/off."
                   (valueChange)="onAssign7SwitchChange($event)">
                 </app-led>
               </div>
@@ -1133,6 +1171,7 @@
                   label="Source"
                   [value]="assign7Source()"
                   [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 7 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
                   (valueChange)="onAssign7SourceChange($event)">
                 </app-dropdown>
               </div>
@@ -1143,6 +1182,7 @@
                   [value]="assign7Target()"
                   [min]="0"
                   [max]="534"
+                  tooltip="Target parameter ID (0-534). Select which GR-55 parameter this assign controls."
                   (valueChange)="onAssign7TargetChange($event)">
                 </app-knob>
               </div>
@@ -1164,6 +1204,7 @@
                   label="Assign 8"
                   [isOn]="assign8Switch()"
                   [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 8. Click to toggle this assignable control on/off."
                   (valueChange)="onAssign8SwitchChange($event)">
                 </app-led>
               </div>
@@ -1173,6 +1214,7 @@
                   label="Source"
                   [value]="assign8Source()"
                   [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 8 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
                   (valueChange)="onAssign8SourceChange($event)">
                 </app-dropdown>
               </div>
@@ -1183,6 +1225,7 @@
                   [value]="assign8Target()"
                   [min]="0"
                   [max]="534"
+                  tooltip="Target parameter ID (0-534). Select which GR-55 parameter this assign controls."
                   (valueChange)="onAssign8TargetChange($event)">
                 </app-knob>
               </div>
