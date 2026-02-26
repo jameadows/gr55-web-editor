@@ -336,6 +336,7 @@
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
+                tooltip="Enable/disable PCM Tone 2. Click to toggle on/off."
                 (toggle)="onPcm2MuteChange(!$event)">
               </app-led>
             </div>
@@ -350,6 +351,7 @@
                 [color]="'amber'"
                 [orientation]="'horizontal'"
                 [width]="250"
+                tooltip="Select PCM tone (0-895). 896 high-quality sounds: pianos, strings, synths, drums, and more."
                 (valueChange)="onPcm2ToneSelectChange($event)">
               </app-slider>
             </div>
@@ -363,6 +365,7 @@
                 [label]="'Level'"
                 [color]="'green'"
                 [size]="100"
+                tooltip="PCM Tone 2 output level (0-127). Adjust volume balance when layering multiple tones."
                 (valueChange)="onPcm2LevelChange($event)">
               </app-knob>
             </div>
@@ -387,6 +390,7 @@
                   [label]="'Octave Shift'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Transpose in octaves (-3 to +3). Lower octaves for bass, raise for higher ranges."
                   (valueChange)="onPcm2OctaveChange($event)">
                 </app-knob>
               </div>
@@ -400,6 +404,7 @@
                   [label]="'Pan'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Stereo panning (0=far left, 64=center, 127=far right). Position tone in stereo field."
                   (valueChange)="onPcm2PanChange($event)">
                 </app-knob>
               </div>
@@ -414,6 +419,7 @@
                   [color]="'cyan'"
                   [orientation]="'horizontal'"
                   [width]="200"
+                  tooltip="Transpose in semitones (-24 to +24). Use for non-standard tunings or pitch shifts."
                   (valueChange)="onPcm2CoarseTuneChange($event)">
                 </app-slider>
               </div>
@@ -428,6 +434,7 @@
                   [color]="'cyan'"
                   [orientation]="'horizontal'"
                   [width]="200"
+                  tooltip="Fine pitch adjustment in cents (-50 to +50). For subtle detuning or chorus effects."
                   (valueChange)="onPcm2FineTuneChange($event)">
                 </app-slider>
               </div>
