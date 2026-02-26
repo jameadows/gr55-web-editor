@@ -17,6 +17,8 @@ import { LedComponent } from '../../shared/components/led/led.component';
 import { ParameterLabelComponent } from '../../shared/components/parameter-label/parameter-label.component';
 import { MidiIoService, Gr55ProtocolService } from '../../core/midi';
 import { GR55AddressMap } from '../../data/gr55-address-map';
+import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
+import { ConfirmationDialogService } from '../../core/services/confirmation-dialog.service';
 
 type TabId = 'common' | 'pcm1' | 'pcm2' | 'modeling' | 'mfx' | 'delay' | 'chorus' | 'reverb' | 'assigns';
 
@@ -45,6 +47,8 @@ export class PatchEditorComponent implements OnInit {
   private midiIo = inject(MidiIoService);
   private gr55 = inject(Gr55ProtocolService);
   private router = inject(Router);
+  private keyboard = inject(KeyboardShortcutService);
+  private confirmDialog = inject(ConfirmationDialogService);
   
   // ═══════════════════════════════════════════════════════════
   // CONNECTION STATE
@@ -261,11 +265,58 @@ export class PatchEditorComponent implements OnInit {
   // ═══════════════════════════════════════════════════════════
   
   ngOnInit() {
+    // Register keyboard shortcuts
+    this.registerKeyboardShortcuts();
+    
     // Load patch parameters if connected
     if (this.isConnected()) {
       this.loadPatch();
     }
     // If not connected, showConnectionPrompt will display
+  }
+  
+  /**
+   * Register keyboard shortcuts for editor
+   */
+  private registerKeyboardShortcuts() {
+    // Save patch (Ctrl+S / Cmd+S)
+    this.keyboard.register('save-patch', {
+      key: 's',
+      ctrl: true,
+      description: 'Save current patch to file',
+      action: () => this.savePatchToFile()
+    });
+    
+    // Open library (Ctrl+O / Cmd+O)
+    this.keyboard.register('open-library', {
+      key: 'o',
+      ctrl: true,
+      description: 'Open patch library',
+      action: () => this.router.navigate(['/library'])
+    });
+    
+    // Navigate to library (Ctrl+L / Cmd+L)
+    this.keyboard.register('goto-library', {
+      key: 'l',
+      ctrl: true,
+      description: 'Navigate to library',
+      action: () => this.router.navigate(['/library'])
+    });
+  }
+  
+  /**
+   * Save current patch to file (for keyboard shortcut)
+   */
+  private savePatchToFile() {
+    if (!this.isConnected()) {
+      alert('Please connect to GR-55 first');
+      return;
+    }
+    
+    // This would use PatchLibraryService to save
+    // For now, just show message
+    console.log('Save patch shortcut triggered - feature in progress');
+    alert('Save patch feature coming soon!');
   }
   
   // ═══════════════════════════════════════════════════════════
