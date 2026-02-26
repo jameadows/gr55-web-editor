@@ -9,7 +9,7 @@
 
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ConfirmationDialogService } from '../../core/services/confirmation-dialog.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 
 @Component({
   selector: 'app-confirmation-dialog',
