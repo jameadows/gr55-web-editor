@@ -1,0 +1,248 @@
+<div class="librarian-container">
+  <!-- Header -->
+  <header class="librarian-header">
+    <div class="header-content">
+      <h1>📚 Patch Library</h1>
+      <p class="header-subtitle">
+        Manage your GR-55 patch collection
+      </p>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn-primary" routerLink="/editor">
+        ← Back to Editor
+      </button>
+    </div>
+  </header>
+  
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <app-loading-spinner 
+      message="Loading library..."
+      [overlay]="true">
+    </app-loading-spinner>
+  }
+  
+  <!-- Main Content -->
+  @if (isInitialized() && !isLoading()) {
+    <div class="librarian-body">
+      <!-- Sidebar: Search & Filters -->
+      <aside class="sidebar">
+        <!-- Stats -->
+        <section class="stats-section">
+          <h3>Library Stats</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-value">{{ stats().totalPatches }}</span>
+              <span class="stat-label">Patches</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ formatFileSize(stats().totalSize) }}</span>
+              <span class="stat-label">Size</span>
+            </div>
+            @if (stats().averageRating) {
+              <div class="stat-item">
+                <span class="stat-value">{{ stats().averageRating!.toFixed(1) }}</span>
+                <span class="stat-label">Avg Rating</span>
+              </div>
+            }
+          </div>
+        </section>
+        
+        <!-- Search -->
+        <section class="filter-section">
+          <h3>Search</h3>
+          <input 
+            type="text"
+            class="search-input"
+            placeholder="Search patches..."
+            [value]="searchQuery()"
+            (input)="onSearchChange($any($event.target).value)">
+        </section>
+        
+        <!-- Categories -->
+        @if (categories().length > 0) {
+          <section class="filter-section">
+            <h3>Categories</h3>
+            <div class="filter-list">
+              <button 
+                class="filter-item"
+                [class.active]="selectedCategory() === null"
+                (click)="onCategorySelect(null)">
+                All
+              </button>
+              @for (category of categories(); track category) {
+                <button 
+                  class="filter-item"
+                  [class.active]="selectedCategory() === category"
+                  (click)="onCategorySelect(category)">
+                  {{ category }}
+                  <span class="count">({{ stats().categories.get(category) }})</span>
+                </button>
+              }
+            </div>
+          </section>
+        }
+        
+        <!-- Tags -->
+        @if (allTags().length > 0) {
+          <section class="filter-section">
+            <h3>Tags</h3>
+            <div class="tags-list">
+              @for (tag of allTags(); track tag) {
+                <button 
+                  class="tag-button"
+                  [class.active]="selectedTags().includes(tag)"
+                  (click)="onTagToggle(tag)">
+                  {{ tag }}
+                  <span class="count">{{ stats().tags.get(tag) }}</span>
+                </button>
+              }
+            </div>
+          </section>
+        }
+        
+        <!-- Clear Filters -->
+        @if (searchQuery() || selectedCategory() || selectedTags().length > 0) {
+          <button class="clear-filters-btn" (click)="clearFilters()">
+            Clear All Filters
+          </button>
+        }
+      </aside>
+      
+      <!-- Main: Patch Grid/List -->
+      <main class="main-content">
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <span class="result-count">
+              {{ filteredPatches().length }} patches
+            </span>
+            
+            @if (selectedPatches().size > 0) {
+              <span class="selection-info">
+                ({{ selectedPatches().size }} selected)
+              </span>
+            }
+          </div>
+          
+          <div class="toolbar-right">
+            <!-- Batch Actions -->
+            @if (selectedPatches().size > 0) {
+              <button class="btn-secondary" (click)="selectNone()">
+                Deselect All
+              </button>
+              <button class="btn-danger" (click)="deleteSelected()">
+                Delete Selected
+              </button>
+            } @else {
+              <button class="btn-secondary" (click)="selectAll()">
+                Select All
+              </button>
+            }
+            
+            <!-- View Mode Toggle -->
+            <button class="btn-icon" (click)="toggleViewMode()" title="Toggle view mode">
+              {{ viewMode() === 'grid' ? '☰ List' : '⊞ Grid' }}
+            </button>
+          </div>
+        </div>
+        
+        <!-- Patch Grid -->
+        @if (filteredPatches().length === 0) {
+          <div class="empty-state">
+            <h2>No Patches Found</h2>
+            <p>Your library is empty or no patches match your filters.</p>
+            <button class="btn-primary" routerLink="/library">
+              Import Patches →
+            </button>
+          </div>
+        } @else {
+          <div class="patches-grid" [class.list-view]="viewMode() === 'list'">
+            @for (patch of filteredPatches(); track patch.id) {
+              <div 
+                class="patch-card"
+                [class.selected]="isSelected(patch.id)"
+                (click)="togglePatchSelection(patch.id)">
+                
+                <!-- Selection Checkbox -->
+                <div class="patch-select">
+                  <input 
+                    type="checkbox"
+                    [checked]="isSelected(patch.id)"
+                    (click)="$event.stopPropagation()">
+                </div>
+                
+                <!-- Patch Info -->
+                <div class="patch-info">
+                  <h4 class="patch-name">{{ patch.name }}</h4>
+                  
+                  @if (patch.category) {
+                    <span class="patch-category">{{ patch.category }}</span>
+                  }
+                  
+                  @if (patch.originalSlot !== undefined) {
+                    <span class="patch-slot">Slot {{ patch.originalSlot + 1 }}</span>
+                  }
+                  
+                  <div class="patch-meta">
+                    <span>{{ formatDate(patch.modified) }}</span>
+                    <span>{{ formatFileSize(patch.fileSize) }}</span>
+                  </div>
+                  
+                  @if (patch.tags.length > 0) {
+                    <div class="patch-tags">
+                      @for (tag of patch.tags; track tag) {
+                        <span class="tag">{{ tag }}</span>
+                      }
+                    </div>
+                  }
+                  
+                  @if (patch.notes) {
+                    <p class="patch-notes">{{ patch.notes }}</p>
+                  }
+                </div>
+                
+                <!-- Actions -->
+                <div class="patch-actions">
+                  <button 
+                    class="btn-small btn-primary"
+                    (click)="loadPatchToEditor(patch.id); $event.stopPropagation()">
+                    Load
+                  </button>
+                  <button 
+                    class="btn-small btn-secondary"
+                    (click)="$event.stopPropagation()">
+                    Edit
+                  </button>
+                  <button 
+                    class="btn-small btn-danger"
+                    (click)="deletePatch(patch.id); $event.stopPropagation()">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </main>
+    </div>
+  }
+  
+  <!-- No OPFS Support -->
+  @if (!isInitialized() && !isLoading()) {
+    <div class="error-state">
+      <h2>⚠️ OPFS Not Supported</h2>
+      <p>
+        Your browser doesn't support the Origin Private File System (OPFS) API,
+        which is required for the patch library feature.
+      </p>
+      <p>
+        Please use a modern browser like Chrome 102+, Edge 102+, or Opera 88+.
+      </p>
+      <button class="btn-primary" routerLink="/library">
+        Use Traditional File Library →
+      </button>
+    </div>
+  }
+</div>

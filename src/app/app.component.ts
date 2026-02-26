@@ -54,6 +54,15 @@ import { ConfirmationDialogComponent } from './shared/components/confirmation-di
             <li class="nav-item">
               <a 
                 class="nav-link" 
+                routerLink="/librarian" 
+                routerLinkActive="active"
+                (click)="navbarCollapsed = true">
+                Librarian
+              </a>
+            </li>
+            <li class="nav-item">
+              <a 
+                class="nav-link" 
                 routerLink="/demo" 
                 routerLinkActive="active"
                 (click)="navbarCollapsed = true">
