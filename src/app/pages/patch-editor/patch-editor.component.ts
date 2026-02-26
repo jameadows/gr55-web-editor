@@ -203,6 +203,34 @@ export class PatchEditorComponent implements OnInit {
   assign4Source = signal(0);
   assign4SourceMode = signal(0);
   
+  assign5Switch = signal(false);
+  assign5Target = signal(0);
+  assign5TargetMin = signal(0);
+  assign5TargetMax = signal(16383);
+  assign5Source = signal(0);
+  assign5SourceMode = signal(0);
+  
+  assign6Switch = signal(false);
+  assign6Target = signal(0);
+  assign6TargetMin = signal(0);
+  assign6TargetMax = signal(16383);
+  assign6Source = signal(0);
+  assign6SourceMode = signal(0);
+  
+  assign7Switch = signal(false);
+  assign7Target = signal(0);
+  assign7TargetMin = signal(0);
+  assign7TargetMax = signal(16383);
+  assign7Source = signal(0);
+  assign7SourceMode = signal(0);
+  
+  assign8Switch = signal(false);
+  assign8Target = signal(0);
+  assign8TargetMin = signal(0);
+  assign8TargetMax = signal(16383);
+  assign8Source = signal(0);
+  assign8SourceMode = signal(0);
+  
   // Computed - active modeling category and tone based on guitar/bass mode
   activeModelingCategory = computed(() => {
     return this.patchAttribute() === 0 ? this.modelingCategoryGuitar() : this.modelingCategoryBass();
@@ -1346,6 +1374,110 @@ export class PatchEditorComponent implements OnInit {
       next: (v) => this.assign4SourceMode.set(v),
       error: (e) => console.error('Failed to read assign4 mode:', e)
     });
+    
+    // ASSIGN 5
+    this.gr55.readParameter(map.assign5Switch).subscribe({
+      next: (v) => this.assign5Switch.set(v),
+      error: (e) => console.error('Failed to read assign5 switch:', e)
+    });
+    this.gr55.readParameter(map.assign5Target).subscribe({
+      next: (v) => this.assign5Target.set(v),
+      error: (e) => console.error('Failed to read assign5 target:', e)
+    });
+    this.gr55.readParameter(map.assign5TargetMin).subscribe({
+      next: (v) => this.assign5TargetMin.set(v),
+      error: (e) => console.error('Failed to read assign5 min:', e)
+    });
+    this.gr55.readParameter(map.assign5TargetMax).subscribe({
+      next: (v) => this.assign5TargetMax.set(v),
+      error: (e) => console.error('Failed to read assign5 max:', e)
+    });
+    this.gr55.readParameter(map.assign5Source).subscribe({
+      next: (v) => this.assign5Source.set(v),
+      error: (e) => console.error('Failed to read assign5 source:', e)
+    });
+    this.gr55.readParameter(map.assign5SourceMode).subscribe({
+      next: (v) => this.assign5SourceMode.set(v),
+      error: (e) => console.error('Failed to read assign5 mode:', e)
+    });
+    
+    // ASSIGN 6
+    this.gr55.readParameter(map.assign6Switch).subscribe({
+      next: (v) => this.assign6Switch.set(v),
+      error: (e) => console.error('Failed to read assign6 switch:', e)
+    });
+    this.gr55.readParameter(map.assign6Target).subscribe({
+      next: (v) => this.assign6Target.set(v),
+      error: (e) => console.error('Failed to read assign6 target:', e)
+    });
+    this.gr55.readParameter(map.assign6TargetMin).subscribe({
+      next: (v) => this.assign6TargetMin.set(v),
+      error: (e) => console.error('Failed to read assign6 min:', e)
+    });
+    this.gr55.readParameter(map.assign6TargetMax).subscribe({
+      next: (v) => this.assign6TargetMax.set(v),
+      error: (e) => console.error('Failed to read assign6 max:', e)
+    });
+    this.gr55.readParameter(map.assign6Source).subscribe({
+      next: (v) => this.assign6Source.set(v),
+      error: (e) => console.error('Failed to read assign6 source:', e)
+    });
+    this.gr55.readParameter(map.assign6SourceMode).subscribe({
+      next: (v) => this.assign6SourceMode.set(v),
+      error: (e) => console.error('Failed to read assign6 mode:', e)
+    });
+    
+    // ASSIGN 7
+    this.gr55.readParameter(map.assign7Switch).subscribe({
+      next: (v) => this.assign7Switch.set(v),
+      error: (e) => console.error('Failed to read assign7 switch:', e)
+    });
+    this.gr55.readParameter(map.assign7Target).subscribe({
+      next: (v) => this.assign7Target.set(v),
+      error: (e) => console.error('Failed to read assign7 target:', e)
+    });
+    this.gr55.readParameter(map.assign7TargetMin).subscribe({
+      next: (v) => this.assign7TargetMin.set(v),
+      error: (e) => console.error('Failed to read assign7 min:', e)
+    });
+    this.gr55.readParameter(map.assign7TargetMax).subscribe({
+      next: (v) => this.assign7TargetMax.set(v),
+      error: (e) => console.error('Failed to read assign7 max:', e)
+    });
+    this.gr55.readParameter(map.assign7Source).subscribe({
+      next: (v) => this.assign7Source.set(v),
+      error: (e) => console.error('Failed to read assign7 source:', e)
+    });
+    this.gr55.readParameter(map.assign7SourceMode).subscribe({
+      next: (v) => this.assign7SourceMode.set(v),
+      error: (e) => console.error('Failed to read assign7 mode:', e)
+    });
+    
+    // ASSIGN 8
+    this.gr55.readParameter(map.assign8Switch).subscribe({
+      next: (v) => this.assign8Switch.set(v),
+      error: (e) => console.error('Failed to read assign8 switch:', e)
+    });
+    this.gr55.readParameter(map.assign8Target).subscribe({
+      next: (v) => this.assign8Target.set(v),
+      error: (e) => console.error('Failed to read assign8 target:', e)
+    });
+    this.gr55.readParameter(map.assign8TargetMin).subscribe({
+      next: (v) => this.assign8TargetMin.set(v),
+      error: (e) => console.error('Failed to read assign8 min:', e)
+    });
+    this.gr55.readParameter(map.assign8TargetMax).subscribe({
+      next: (v) => this.assign8TargetMax.set(v),
+      error: (e) => console.error('Failed to read assign8 max:', e)
+    });
+    this.gr55.readParameter(map.assign8Source).subscribe({
+      next: (v) => this.assign8Source.set(v),
+      error: (e) => console.error('Failed to read assign8 source:', e)
+    });
+    this.gr55.readParameter(map.assign8SourceMode).subscribe({
+      next: (v) => this.assign8SourceMode.set(v),
+      error: (e) => console.error('Failed to read assign8 mode:', e)
+    });
   }
   
   // CTL Change Handlers
@@ -1431,7 +1563,131 @@ export class PatchEditorComponent implements OnInit {
     });
   }
   
-  // Note: Additional handlers for Assign 2-4 targets/sources and min/max values would follow the same pattern
+  // ASSIGN 5 Handlers
+  onAssign5SwitchChange(enabled: boolean) {
+    this.assign5Switch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign5Switch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign5 switch:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign5TargetChange(value: number) {
+    this.assign5Target.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign5Target, value).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign5 target:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign5SourceChange(value: number) {
+    this.assign5Source.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign5Source, value).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign5 source:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  // ASSIGN 6 Handlers
+  onAssign6SwitchChange(enabled: boolean) {
+    this.assign6Switch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign6Switch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign6 switch:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign6TargetChange(value: number) {
+    this.assign6Target.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign6Target, value).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign6 target:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign6SourceChange(value: number) {
+    this.assign6Source.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign6Source, value).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign6 source:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  // ASSIGN 7 Handlers
+  onAssign7SwitchChange(enabled: boolean) {
+    this.assign7Switch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign7Switch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign7 switch:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign7TargetChange(value: number) {
+    this.assign7Target.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign7Target, value).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign7 target:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign7SourceChange(value: number) {
+    this.assign7Source.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign7Source, value).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign7 source:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  // ASSIGN 8 Handlers
+  onAssign8SwitchChange(enabled: boolean) {
+    this.assign8Switch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign8Switch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign8 switch:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign8TargetChange(value: number) {
+    this.assign8Target.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign8Target, value).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign8 target:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign8SourceChange(value: number) {
+    this.assign8Source.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign8Source, value).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign8 source:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  // Note: Additional handlers for Assign 2-8 min/max values would follow the same pattern
   // Users can adjust via the UI and the handlers will write to GR-55
 }
 

@@ -1013,8 +1013,168 @@
           </div>
         </section>
         
+        <!-- ASSIGN 5 -->
+        <section class="parameter-section">
+          <h3>Assign 5</h3>
+          <div class="assign-config">
+            <div class="controls-grid">
+              <div class="control-group">
+                <app-led
+                  label="Assign 5"
+                  [isOn]="assign5Switch()"
+                  [clickable]="true"
+                  (valueChange)="onAssign5SwitchChange($event)">
+                </app-led>
+              </div>
+              
+              <div class="control-group">
+                <app-dropdown
+                  label="Source"
+                  [value]="assign5Source()"
+                  [options]="assignSourceOptions"
+                  (valueChange)="onAssign5SourceChange($event)">
+                </app-dropdown>
+              </div>
+              
+              <div class="control-group">
+                <app-knob
+                  label="Target"
+                  [value]="assign5Target()"
+                  [min]="0"
+                  [max]="534"
+                  (valueChange)="onAssign5TargetChange($event)">
+                </app-knob>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Range" value="{{ assign5TargetMin() }} - {{ assign5TargetMax() }}" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ASSIGN 6 -->
+        <section class="parameter-section">
+          <h3>Assign 6</h3>
+          <div class="assign-config">
+            <div class="controls-grid">
+              <div class="control-group">
+                <app-led
+                  label="Assign 6"
+                  [isOn]="assign6Switch()"
+                  [clickable]="true"
+                  (valueChange)="onAssign6SwitchChange($event)">
+                </app-led>
+              </div>
+              
+              <div class="control-group">
+                <app-dropdown
+                  label="Source"
+                  [value]="assign6Source()"
+                  [options]="assignSourceOptions"
+                  (valueChange)="onAssign6SourceChange($event)">
+                </app-dropdown>
+              </div>
+              
+              <div class="control-group">
+                <app-knob
+                  label="Target"
+                  [value]="assign6Target()"
+                  [min]="0"
+                  [max]="534"
+                  (valueChange)="onAssign6TargetChange($event)">
+                </app-knob>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Range" value="{{ assign6TargetMin() }} - {{ assign6TargetMax() }}" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ASSIGN 7 -->
+        <section class="parameter-section">
+          <h3>Assign 7</h3>
+          <div class="assign-config">
+            <div class="controls-grid">
+              <div class="control-group">
+                <app-led
+                  label="Assign 7"
+                  [isOn]="assign7Switch()"
+                  [clickable]="true"
+                  (valueChange)="onAssign7SwitchChange($event)">
+                </app-led>
+              </div>
+              
+              <div class="control-group">
+                <app-dropdown
+                  label="Source"
+                  [value]="assign7Source()"
+                  [options]="assignSourceOptions"
+                  (valueChange)="onAssign7SourceChange($event)">
+                </app-dropdown>
+              </div>
+              
+              <div class="control-group">
+                <app-knob
+                  label="Target"
+                  [value]="assign7Target()"
+                  [min]="0"
+                  [max]="534"
+                  (valueChange)="onAssign7TargetChange($event)">
+                </app-knob>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Range" value="{{ assign7TargetMin() }} - {{ assign7TargetMax() }}" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ASSIGN 8 -->
+        <section class="parameter-section">
+          <h3>Assign 8</h3>
+          <div class="assign-config">
+            <div class="controls-grid">
+              <div class="control-group">
+                <app-led
+                  label="Assign 8"
+                  [isOn]="assign8Switch()"
+                  [clickable]="true"
+                  (valueChange)="onAssign8SwitchChange($event)">
+                </app-led>
+              </div>
+              
+              <div class="control-group">
+                <app-dropdown
+                  label="Source"
+                  [value]="assign8Source()"
+                  [options]="assignSourceOptions"
+                  (valueChange)="onAssign8SourceChange($event)">
+                </app-dropdown>
+              </div>
+              
+              <div class="control-group">
+                <app-knob
+                  label="Target"
+                  [value]="assign8Target()"
+                  [min]="0"
+                  [max]="534"
+                  (valueChange)="onAssign8TargetChange($event)">
+                </app-knob>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Range" value="{{ assign8TargetMin() }} - {{ assign8TargetMax() }}" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
         <div class="info-box">
-          <p><strong>Note:</strong> Assigns 5-8 are also available in the GR-55 but not yet implemented in this editor.</p>
+          <p><strong>Complete Assigns System:</strong> All 8 assignable controls plus CTL pedal are now available for full customization.</p>
           <p><strong>Target IDs:</strong> Each GR-55 parameter has a unique ID (0-534). Common targets:</p>
           <ul>
             <li>0-50: Patch Level, Tone switches</li>
