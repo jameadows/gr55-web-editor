@@ -844,13 +844,181 @@
     }
     
     @if (activeTab() === 'assigns') {
-      <div class="tab-panel placeholder">
-        <h2>Assigns</h2>
-        <p class="placeholder-text">
-          Assign editor will be implemented in Phase 5+.
-          <br>
-          8 assignable control blocks.
+      <div class="tab-panel">
+        <h2>🎛️ Assigns & CTL</h2>
+        <p class="tab-description">
+          Configure CTL pedal and assignable controls to map any parameter to any control source.
         </p>
+        
+        <!-- CTL Pedal Section -->
+        <section class="parameter-section">
+          <h3>CTL Pedal</h3>
+          <div class="controls-grid">
+            <div class="control-group">
+              <app-led
+                label="CTL Status"
+                [isOn]="ctlStatus()"
+                (valueChange)="onCtlStatusChange($event)">
+              </app-led>
+            </div>
+            
+            <div class="control-group">
+              <app-dropdown
+                label="CTL Function"
+                [value]="ctlFunction()"
+                [options]="['OFF', 'HOLD', 'TAP TEMPO', 'TONE SW', 'AMP SW', 'MOD SW',
+                           'MFX SW', 'DELAY SW', 'REVERB SW', 'CHORUS SW',
+                           'AUDIO PLAYER PLAY/STOP', 'AUDIO PLAYER SONG INC',
+                           'AUDIO PLAYER SONG DEC', 'AUDIO PLAYER SW', 'V-LINK SW',
+                           'LED MOMENT', 'LED TOGGLE']"
+                (valueChange)="onCtlFunctionChange($event)">
+              </app-dropdown>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ASSIGN 1 -->
+        <section class="parameter-section">
+          <h3>Assign 1</h3>
+          <div class="assign-config">
+            <div class="controls-grid">
+              <div class="control-group">
+                <app-led
+                  label="Assign 1"
+                  [isOn]="assign1Switch()"
+                  (valueChange)="onAssign1SwitchChange($event)">
+                </app-led>
+              </div>
+              
+              <div class="control-group">
+                <app-dropdown
+                  label="Source"
+                  [value]="assign1Source()"
+                  [options]="['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                             'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                             'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                             'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                             'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                             'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                             'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                             'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8']"
+                  (valueChange)="onAssign1SourceChange($event)">
+                </app-dropdown>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Target" value="{{ assign1Target() }}" />
+                <p class="hint">Parameter ID to control (0-534)</p>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Min" value="{{ assign1TargetMin() }}" />
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Max" value="{{ assign1TargetMax() }}" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ASSIGN 2 -->
+        <section class="parameter-section">
+          <h3>Assign 2</h3>
+          <div class="assign-config">
+            <div class="controls-grid">
+              <div class="control-group">
+                <app-led
+                  label="Assign 2"
+                  [isOn]="assign2Switch()"
+                  (valueChange)="onAssign1SwitchChange($event)">
+                </app-led>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Source" value="{{ assign2Source() }}" />
+                <p class="hint">Control source</p>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Target" value="{{ assign2Target() }}" />
+                <p class="hint">Parameter to control</p>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Range" value="{{ assign2TargetMin() }} - {{ assign2TargetMax() }}" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ASSIGN 3 -->
+        <section class="parameter-section">
+          <h3>Assign 3</h3>
+          <div class="assign-config">
+            <div class="controls-grid">
+              <div class="control-group">
+                <app-led
+                  label="Assign 3"
+                  [isOn]="assign3Switch()"
+                  (valueChange)="onAssign1SwitchChange($event)">
+                </app-led>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Source" value="{{ assign3Source() }}" />
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Target" value="{{ assign3Target() }}" />
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Range" value="{{ assign3TargetMin() }} - {{ assign3TargetMax() }}" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ASSIGN 4 -->
+        <section class="parameter-section">
+          <h3>Assign 4</h3>
+          <div class="assign-config">
+            <div class="controls-grid">
+              <div class="control-group">
+                <app-led
+                  label="Assign 4"
+                  [isOn]="assign4Switch()"
+                  (valueChange)="onAssign1SwitchChange($event)">
+                </app-led>
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Source" value="{{ assign4Source() }}" />
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Target" value="{{ assign4Target() }}" />
+              </div>
+              
+              <div class="control-group">
+                <app-parameter-label label="Range" value="{{ assign4TargetMin() }} - {{ assign4TargetMax() }}" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <div class="info-box">
+          <p><strong>Note:</strong> Assigns 5-8 are also available in the GR-55 but not yet implemented in this editor.</p>
+          <p><strong>Target IDs:</strong> Each GR-55 parameter has a unique ID (0-534). Common targets:</p>
+          <ul>
+            <li>0-50: Patch Level, Tone switches</li>
+            <li>100-200: PCM Tone parameters</li>
+            <li>300-400: Modeling parameters</li>
+            <li>500+: Effect parameters</li>
+          </ul>
+          <p>Refer to the GR-55 manual for complete target ID list.</p>
+        </div>
       </div>
     }
     

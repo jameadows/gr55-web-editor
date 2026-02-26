@@ -1022,7 +1022,632 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
     },
     
-    // assigns: {...}
+    // ═══════════════════════════════════════════════════════════════
+    // ASSIGNS SECTION (0x18000011, 0x1800010C-0x18000217)
+    // CTL Pedal + 8 Assignable Controls
+    // ═══════════════════════════════════════════════════════════════
+    
+    assigns: {
+      // CTL Pedal (0x18000011-0x18000023)
+      ctlStatus: {
+        address: 0x18000011,
+        size: 1,
+        type: 'boolean',
+        label: 'CTL Status',
+        description: 'CTL pedal on/off',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      ctlFunction: {
+        address: 0x18000012,
+        size: 1,
+        type: 'enum',
+        enumValues: [
+          'OFF', 'HOLD', 'TAP TEMPO', 'TONE SW', 'AMP SW', 'MOD SW',
+          'MFX SW', 'DELAY SW', 'REVERB SW', 'CHORUS SW',
+          'AUDIO PLAYER PLAY/STOP', 'AUDIO PLAYER SONG INC',
+          'AUDIO PLAYER SONG DEC', 'AUDIO PLAYER SW', 'V-LINK SW',
+          'LED MOMENT', 'LED TOGGLE'
+        ],
+        label: 'CTL Function',
+        description: 'CTL pedal function',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // ASSIGN 1-8 (Each has: switch, target, targetMin, targetMax, source, sourceMode)
+      assign1Switch: {
+        address: 0x1800010C,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 1 Switch',
+        description: 'Assign 1 on/off',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign1Target: {
+        address: 0x1800010D,
+        size: 3,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 1 Target',
+        description: 'Parameter to control',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign1TargetMin: {
+        address: 0x18000110,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 1 Min',
+        description: 'Minimum value',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign1TargetMax: {
+        address: 0x18000113,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 1 Max',
+        description: 'Maximum value',
+        defaultValue: 16383,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign1Source: {
+        address: 0x18000116,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                    'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                    'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                    'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                    'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                    'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                    'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                    'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8'],
+        label: 'Assign 1 Source',
+        description: 'Control source',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign1SourceMode: {
+        address: 0x18000117,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 1 Mode',
+        description: 'Source behavior',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // ASSIGN 2
+      assign2Switch: {
+        address: 0x1800011F,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 2 Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign2Target: {
+        address: 0x18000120,
+        size: 3,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 2 Target',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign2TargetMin: {
+        address: 0x18000123,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 2 Min',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign2TargetMax: {
+        address: 0x18000126,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 2 Max',
+        defaultValue: 16383,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign2Source: {
+        address: 0x18000129,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                    'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                    'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                    'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                    'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                    'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                    'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                    'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8'],
+        label: 'Assign 2 Source',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign2SourceMode: {
+        address: 0x1800012A,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 2 Mode',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // ASSIGN 3
+      assign3Switch: {
+        address: 0x18000132,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 3 Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign3Target: {
+        address: 0x18000133,
+        size: 3,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 3 Target',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign3TargetMin: {
+        address: 0x18000136,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 3 Min',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign3TargetMax: {
+        address: 0x18000139,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 3 Max',
+        defaultValue: 16383,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign3Source: {
+        address: 0x1800013C,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                    'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                    'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                    'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                    'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                    'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                    'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                    'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8'],
+        label: 'Assign 3 Source',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign3SourceMode: {
+        address: 0x1800013D,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 3 Mode',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // ASSIGN 4
+      assign4Switch: {
+        address: 0x18000145,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 4 Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign4Target: {
+        address: 0x18000146,
+        size: 3,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 4 Target',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign4TargetMin: {
+        address: 0x18000149,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 4 Min',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign4TargetMax: {
+        address: 0x1800014C,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 4 Max',
+        defaultValue: 16383,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign4Source: {
+        address: 0x1800014F,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                    'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                    'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                    'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                    'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                    'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                    'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                    'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8'],
+        label: 'Assign 4 Source',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign4SourceMode: {
+        address: 0x18000150,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 4 Mode',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // ASSIGN 5
+      assign5Switch: {
+        address: 0x18000158,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 5 Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign5Target: {
+        address: 0x18000159,
+        size: 3,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 5 Target',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign5TargetMin: {
+        address: 0x1800015C,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 5 Min',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign5TargetMax: {
+        address: 0x1800015F,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 5 Max',
+        defaultValue: 16383,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign5Source: {
+        address: 0x18000162,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                    'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                    'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                    'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                    'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                    'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                    'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                    'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8'],
+        label: 'Assign 5 Source',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign5SourceMode: {
+        address: 0x18000163,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 5 Mode',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // ASSIGN 6
+      assign6Switch: {
+        address: 0x1800016B,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 6 Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign6Target: {
+        address: 0x1800016C,
+        size: 3,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 6 Target',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign6TargetMin: {
+        address: 0x1800016F,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 6 Min',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign6TargetMax: {
+        address: 0x18000172,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 6 Max',
+        defaultValue: 16383,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign6Source: {
+        address: 0x18000175,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                    'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                    'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                    'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                    'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                    'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                    'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                    'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8'],
+        label: 'Assign 6 Source',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign6SourceMode: {
+        address: 0x18000176,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 6 Mode',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // ASSIGN 7
+      assign7Switch: {
+        address: 0x1800017E,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 7 Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign7Target: {
+        address: 0x1800017F,
+        size: 3,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 7 Target',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign7TargetMin: {
+        address: 0x18000182,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 7 Min',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign7TargetMax: {
+        address: 0x18000185,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 7 Max',
+        defaultValue: 16383,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign7Source: {
+        address: 0x18000188,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                    'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                    'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                    'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                    'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                    'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                    'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                    'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8'],
+        label: 'Assign 7 Source',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign7SourceMode: {
+        address: 0x18000189,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 7 Mode',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // ASSIGN 8
+      assign8Switch: {
+        address: 0x18000211,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 8 Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign8Target: {
+        address: 0x18000212,
+        size: 3,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 8 Target',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign8TargetMin: {
+        address: 0x18000215,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 8 Min',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign8TargetMax: {
+        address: 0x18000218,
+        size: 3,
+        type: 'number',
+        range: [0, 16383],
+        label: 'Assign 8 Max',
+        defaultValue: 16383,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign8Source: {
+        address: 0x1800021B,
+        size: 1,
+        type: 'enum',
+        enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
+                    'CC08', 'CC09', 'CC10', 'CC11', 'CC12', 'CC13', 'CC14',
+                    'CC15', 'CC16', 'CC17', 'CC18', 'CC19', 'CC20', 'CC21',
+                    'CC22', 'CC23', 'CC24', 'CC25', 'CC26', 'CC27', 'CC28',
+                    'CC29', 'CC30', 'CC31', 'AFTERTOUCH', 'SYS CTRL1', 'SYS CTRL2',
+                    'SYS CTRL3', 'SYS CTRL4', 'GK VOL', 'GK S1/S2', 'EXP PEDAL',
+                    'EXP SW', 'CTL1', 'CTL2', 'WAVE PEDAL', 'ASSIGN1', 'ASSIGN2',
+                    'ASSIGN3', 'ASSIGN4', 'ASSIGN5', 'ASSIGN6', 'ASSIGN7', 'ASSIGN8'],
+        label: 'Assign 8 Source',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign8SourceMode: {
+        address: 0x1800021C,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 8 Mode',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+    },
   },
   
   // ═══════════════════════════════════════════════════════════════
