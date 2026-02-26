@@ -43,6 +43,9 @@ export class LedComponent {
   /** Emits when LED is clicked (if clickable) */
   @Output() toggle = new EventEmitter<boolean>();
   
+  /** Emits new value (matches other control components) */
+  @Output() valueChange = new EventEmitter<boolean>();
+  
   // ═══════════════════════════════════════════════════════════
   // COMPUTED VALUES
   // ═══════════════════════════════════════════════════════════
@@ -65,7 +68,9 @@ export class LedComponent {
    */
   onToggle(): void {
     if (this.clickable) {
-      this.toggle.emit(!this.isOn);
+      const newValue = !this.isOn;
+      this.toggle.emit(newValue);
+      this.valueChange.emit(newValue);
     }
   }
 }

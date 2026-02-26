@@ -858,6 +858,7 @@
               <app-led
                 label="CTL Status"
                 [isOn]="ctlStatus()"
+                [clickable]="true"
                 (valueChange)="onCtlStatusChange($event)">
               </app-led>
             </div>
@@ -886,6 +887,7 @@
                 <app-led
                   label="Assign 1"
                   [isOn]="assign1Switch()"
+                  [clickable]="true"
                   (valueChange)="onAssign1SwitchChange($event)">
                 </app-led>
               </div>
@@ -931,6 +933,7 @@
                 <app-led
                   label="Assign 2"
                   [isOn]="assign2Switch()"
+                  [clickable]="true"
                   (valueChange)="onAssign2SwitchChange($event)">
                 </app-led>
               </div>
@@ -961,6 +964,7 @@
                 <app-led
                   label="Assign 3"
                   [isOn]="assign3Switch()"
+                  [clickable]="true"
                   (valueChange)="onAssign3SwitchChange($event)">
                 </app-led>
               </div>
@@ -989,6 +993,7 @@
                 <app-led
                   label="Assign 4"
                   [isOn]="assign4Switch()"
+                  [clickable]="true"
                   (valueChange)="onAssign4SwitchChange($event)">
                 </app-led>
               </div>
