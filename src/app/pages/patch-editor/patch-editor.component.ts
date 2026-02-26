@@ -1349,7 +1349,38 @@ export class PatchEditorComponent implements OnInit {
     });
   }
   
-  // Note: For brevity, change handlers for Assign 2-4 and min/max values would follow the same pattern
+  // Assign 2-4 Switch Change Handlers
+  onAssign2SwitchChange(enabled: boolean) {
+    this.assign2Switch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign2Switch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign2 switch:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign3SwitchChange(enabled: boolean) {
+    this.assign3Switch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign3Switch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign3 switch:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  onAssign4SwitchChange(enabled: boolean) {
+    this.assign4Switch.set(enabled);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign4Switch, enabled).subscribe({
+      error: (e) => {
+        console.error('Failed to write assign4 switch:', e);
+        this.loadAssignsParameters();
+      }
+    });
+  }
+  
+  // Note: Additional handlers for Assign 2-4 targets/sources and min/max values would follow the same pattern
   // Users can adjust via the UI and the handlers will write to GR-55
 }
 

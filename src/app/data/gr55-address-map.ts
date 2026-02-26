@@ -513,6 +513,98 @@ export const GR55AddressMap = {
       // These will be added in Phase 6+ with specialized UI per effect
     },
     
+    // ═══════════════════════════════════════════════════════════════
+    // ASSIGNS SECTION (0x1800010C+)
+    // 8 assign slots for CTL/EXP/CC control
+    // Each assign is 0x13 bytes (19 bytes) apart
+    // ═══════════════════════════════════════════════════════════════
+    
+    assigns: {
+      // ASSIGN 1 (Base: 0x1800010C)
+      assign1Switch: {
+        address: 0x1800010C,
+        size: 1,
+        type: 'boolean',
+        label: 'Assign 1 Switch',
+        description: 'Enable/disable assign 1',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<boolean>,
+      
+      assign1Target: {
+        address: 0x1800010D,
+        size: 2,
+        type: 'number',
+        range: [0, 534],
+        label: 'Assign 1 Target',
+        description: 'Parameter to control (0-534 valid targets)',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign1TargetMin: {
+        address: 0x18000110,
+        size: 2,
+        type: 'number',
+        range: [0, 127],
+        label: 'Assign 1 Min',
+        description: 'Minimum value for target parameter',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign1TargetMax: {
+        address: 0x18000113,
+        size: 2,
+        type: 'number',
+        range: [0, 127],
+        label: 'Assign 1 Max',
+        description: 'Maximum value for target parameter',
+        defaultValue: 127,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign1Source: {
+        address: 0x18000116,
+        size: 1,
+        type: 'enum',
+        enumValues: [
+          'CTL', 'EXP PEDAL OFF', 'EXP PEDAL ON', 'EXP PEDAL SW', 
+          'INT PDL', 'WAVE PDL', 'GK S1', 'GK S2', 'GK VOL'
+        ],
+        label: 'Assign 1 Source',
+        description: 'Control source for assign 1',
+        defaultValue: 0,
+        uiLevel: 'primary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      assign1SourceMode: {
+        address: 0x18000117,
+        size: 1,
+        type: 'enum',
+        enumValues: ['MOMENT', 'TOGGLE'],
+        label: 'Assign 1 Mode',
+        description: 'Momentary or toggle mode',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'Assigns'
+      } as FieldDefinition<number>,
+      
+      // NOTE: Assigns 2-8 follow same structure
+      // Assign 2: 0x1800011F (+0x13)
+      // Assign 3: 0x18000132 (+0x13)
+      // Assign 4: 0x18000145 (+0x13)
+      // Assign 5: 0x18000158 (+0x13)
+      // Assign 6: 0x1800016B (+0x13)
+      // Assign 7: 0x1800017E (+0x13)
+      // Assign 8: 0x18000191 (+0x13)
+    },
+    
     // TODO: Add remaining sections
     
     // ═══════════════════════════════════════════════════════════════
