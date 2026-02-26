@@ -1,4 +1,12 @@
 <div class="editor-container">
+  <!-- LOADING SPINNER -->
+  @if (isLoading()) {
+    <app-loading-spinner 
+      message="Loading patch parameters..."
+      [overlay]="true">
+    </app-loading-spinner>
+  }
+  
   <!-- CONNECTION PROMPT (when not connected) -->
   @if (showConnectionPrompt()) {
     <div class="connection-prompt">
@@ -65,6 +73,7 @@
                 [options]="['Guitar', 'Bass']"
                 [label]="'Mode'"
                 [color]="'amber'"
+                tooltip="Guitar or Bass mode (affects available modeling types and tone categories)"
                 (valueChange)="onModeChange($event)">
               </app-dropdown>
             </div>
@@ -78,6 +87,7 @@
                 [label]="'Patch Level'"
                 [color]="'amber'"
                 [size]="100"
+                tooltip="Overall patch output level (0-100). Master volume for this patch without affecting tone."
                 (valueChange)="onLevelChange($event)">
               </app-knob>
             </div>
@@ -92,6 +102,7 @@
                 [units]="'BPM'"
                 [color]="'green'"
                 [size]="100"
+                tooltip="Patch tempo in BPM (20-250). Controls delay sync, LFO rates, and other time-based effects."
                 (valueChange)="onTempoChange($event)">
               </app-knob>
             </div>
@@ -117,6 +128,7 @@
                   [color]="'cyan'"
                   [orientation]="'horizontal'"
                   [width]="200"
+                  tooltip="Normal pickup output level (0-100). Blends your guitar's magnetic pickups with GK signal."
                   (valueChange)="onNormalPuLevelChange($event)">
                 </app-slider>
               </div>
@@ -130,6 +142,7 @@
                     [color]="'amber'"
                     [size]="14"
                     [clickable]="true"
+                    tooltip="Enable alternate tuning presets (drop tunings, open tunings, transpose, etc.)"
                     (toggle)="onAltTuneSwitchChange($event)">
                   </app-led>
                   
@@ -143,6 +156,7 @@
                       ]"
                       [label]="'Tuning Type'"
                       [color]="'cyan'"
+                      tooltip="Tuning preset selection. Choose from open tunings, drop tunings, transpose options, and custom."
                       (valueChange)="onAltTuneTypeChange($event)">
                     </app-dropdown>
                   }
@@ -198,6 +212,7 @@
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
+                tooltip="Enable/disable PCM Tone 1. Click to toggle on/off."
                 (toggle)="onPcm1MuteChange(!$event)">
               </app-led>
             </div>
@@ -212,6 +227,7 @@
                 [color]="'amber'"
                 [orientation]="'horizontal'"
                 [width]="250"
+                tooltip="Select PCM tone (0-895). 896 high-quality sounds: pianos, strings, synths, drums, and more."
                 (valueChange)="onPcm1ToneSelectChange($event)">
               </app-slider>
             </div>
@@ -225,6 +241,7 @@
                 [label]="'Level'"
                 [color]="'green'"
                 [size]="100"
+                tooltip="PCM Tone 1 output level (0-127). Adjust volume balance when layering multiple tones."
                 (valueChange)="onPcm1LevelChange($event)">
               </app-knob>
             </div>
@@ -249,6 +266,7 @@
                   [label]="'Octave Shift'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Transpose in octaves (-3 to +3). Lower octaves for bass, raise for higher ranges."
                   (valueChange)="onPcm1OctaveChange($event)">
                 </app-knob>
               </div>
@@ -262,6 +280,7 @@
                   [label]="'Pan'"
                   [color]="'cyan'"
                   [size]="100"
+                  tooltip="Stereo panning (0=far left, 64=center, 127=far right). Position tone in stereo field."
                   (valueChange)="onPcm1PanChange($event)">
                 </app-knob>
               </div>
@@ -276,6 +295,7 @@
                   [color]="'cyan'"
                   [orientation]="'horizontal'"
                   [width]="200"
+                  tooltip="Transpose in semitones (-24 to +24). Use for non-standard tunings or pitch shifts."
                   (valueChange)="onPcm1CoarseTuneChange($event)">
                 </app-slider>
               </div>
@@ -290,6 +310,7 @@
                   [color]="'cyan'"
                   [orientation]="'horizontal'"
                   [width]="200"
+                  tooltip="Fine pitch adjustment in cents (-50 to +50). For subtle detuning or chorus effects."
                   (valueChange)="onPcm1FineTuneChange($event)">
                 </app-slider>
               </div>

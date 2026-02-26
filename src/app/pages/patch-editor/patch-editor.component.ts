@@ -15,6 +15,8 @@ import { SliderComponent } from '../../shared/components/slider/slider.component
 import { DropdownComponent } from '../../shared/components/dropdown/dropdown.component';
 import { LedComponent } from '../../shared/components/led/led.component';
 import { ParameterLabelComponent } from '../../shared/components/parameter-label/parameter-label.component';
+import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { MidiIoService, Gr55ProtocolService } from '../../core/midi';
 import { GR55AddressMap } from '../../data/gr55-address-map';
 import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
@@ -38,7 +40,9 @@ interface Tab {
     SliderComponent,
     DropdownComponent,
     LedComponent,
-    ParameterLabelComponent
+    ParameterLabelComponent,
+    LoadingSpinnerComponent,
+    TooltipDirective
   ],
   templateUrl: './patch-editor.component.html',
   styleUrl: './patch-editor.component.css'
@@ -55,6 +59,7 @@ export class PatchEditorComponent implements OnInit {
   // ═══════════════════════════════════════════════════════════
   
   isConnected = this.midiIo.isConnected;
+  isLoading = signal(false);
   
   // ═══════════════════════════════════════════════════════════
   // TAB NAVIGATION
@@ -380,6 +385,9 @@ export class PatchEditorComponent implements OnInit {
   // ═══════════════════════════════════════════════════════════
   
   loadPatch() {
+    // Show loading spinner
+    this.isLoading.set(true);
+    
     // Load Common section parameters
     this.loadCommonParameters();
     
@@ -400,6 +408,11 @@ export class PatchEditorComponent implements OnInit {
     
     // Load Assigns section
     this.loadAssignsParameters();
+    
+    // Hide loading spinner after a short delay to ensure all reads complete
+    setTimeout(() => {
+      this.isLoading.set(false);
+    }, 1500);
   }
   
   private loadCommonParameters() {
