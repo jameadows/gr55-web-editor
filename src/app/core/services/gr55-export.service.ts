@@ -8,7 +8,7 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { Gr55ProtocolService } from './gr55-protocol.service';
+import { Gr55ProtocolService } from '../midi/gr55-protocol.service';
 import { OpfsLibraryService } from './opfs-library.service';
 
 @Injectable({
@@ -156,7 +156,8 @@ export class Gr55ExportService {
    * Download a file to the user's filesystem
    */
   private downloadFile(data: Uint8Array, filename: string, mimeType: string): void {
-    const blob = new Blob([data], { type: mimeType });
+    // Convert to ArrayBuffer to ensure type compatibility
+    const blob = new Blob([data.buffer as ArrayBuffer], { type: mimeType });
     const url = URL.createObjectURL(blob);
     
     const a = document.createElement('a');

@@ -201,16 +201,21 @@ export class LibrarianComponent implements OnInit {
       // Load patch from OPFS
       const { sysexData } = await this.opfsLibrary.loadPatch(id);
       
-      // Write patch to GR-55 temporary slot (if connected)
+      // Write patch to GR-55 temporary editing buffer (if connected)
       if (this.isConnected()) {
-        await this.gr55.writePatch(sysexData, 0); // Write to slot 0 (current editing buffer)
+        // Note: writePatch returns an Observable, need to convert to Promise
+        await new Promise<void>((resolve, reject) => {
+          this.gr55.writePatch(sysexData).subscribe({
+            next: () => resolve(),
+            error: (err) => reject(err)
+          });
+        });
       }
       
       // Navigate to editor
       this.router.navigate(['/editor']);
       
-      // Note: The editor will need to read the patch from GR-55 on load
-      // For offline mode, we'd need to pass the patch data through a service
+      // The editor will read the patch from GR-55 on load
     } catch (error) {
       console.error('Failed to load patch to editor:', error);
       alert('Failed to load patch to editor');

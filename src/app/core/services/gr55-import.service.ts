@@ -8,7 +8,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { Gr55ProtocolService } from './gr55-protocol.service';
+import { Gr55ProtocolService } from '../midi/gr55-protocol.service';
 import { OpfsLibraryService } from './opfs-library.service';
 import { PatchMetadata } from '../models/patch-metadata';
 

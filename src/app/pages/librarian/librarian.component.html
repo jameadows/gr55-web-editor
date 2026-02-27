@@ -52,8 +52,8 @@
         </div>
         <p class="progress-text">
           {{ importProgress()!.current }} / {{ importProgress()!.total }}
-          @if (importProgress()!.currentSlot !== undefined) {
-            <span> (Slot {{ importProgress()!.currentSlot + 1 }})</span>
+          @if (importProgress()!.currentSlot !== undefined && importProgress()!.currentSlot !== null) {
+            <span> (Slot {{ (importProgress()!.currentSlot ?? 0) + 1 }})</span>
           }
         </p>
         @if (importProgress()!.status === 'error') {
