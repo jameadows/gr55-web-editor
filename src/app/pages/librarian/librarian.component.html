@@ -9,7 +9,23 @@
     </div>
     
     <div class="header-actions">
-      <button class="btn-primary" routerLink="/editor">
+      <!-- Import Menu -->
+      <div class="action-group">
+        <button class="btn-primary" (click)="importFromFiles()">
+          📁 Import Files
+        </button>
+        
+        @if (isConnected()) {
+          <button class="btn-primary" (click)="importFromGR55Single()">
+            📥 Import from GR-55
+          </button>
+          <button class="btn-primary" (click)="importFromGR55All()">
+            📥 Import All (297)
+          </button>
+        }
+      </div>
+      
+      <button class="btn-secondary" routerLink="/editor">
         ← Back to Editor
       </button>
     </div>
@@ -21,6 +37,30 @@
       message="Loading library..."
       [overlay]="true">
     </app-loading-spinner>
+  }
+  
+  <!-- Import Progress -->
+  @if (isImporting() && importProgress()) {
+    <div class="import-progress-overlay">
+      <div class="import-progress-dialog">
+        <h3>Importing Patches</h3>
+        <div class="progress-bar">
+          <div 
+            class="progress-fill"
+            [style.width.%]="(importProgress()!.current / importProgress()!.total) * 100">
+          </div>
+        </div>
+        <p class="progress-text">
+          {{ importProgress()!.current }} / {{ importProgress()!.total }}
+          @if (importProgress()!.currentSlot !== undefined) {
+            <span> (Slot {{ importProgress()!.currentSlot + 1 }})</span>
+          }
+        </p>
+        @if (importProgress()!.status === 'error') {
+          <p class="error-text">{{ importProgress()!.error }}</p>
+        }
+      </div>
+    </div>
   }
   
   <!-- Main Content -->
@@ -132,6 +172,9 @@
               <button class="btn-secondary" (click)="selectNone()">
                 Deselect All
               </button>
+              <button class="btn-secondary" (click)="exportSelectedToFiles()">
+                💾 Export Selected
+              </button>
               <button class="btn-danger" (click)="deleteSelected()">
                 Delete Selected
               </button>
@@ -207,14 +250,24 @@
                 <div class="patch-actions">
                   <button 
                     class="btn-small btn-primary"
-                    (click)="loadPatchToEditor(patch.id); $event.stopPropagation()">
+                    (click)="loadPatchToEditor(patch.id); $event.stopPropagation()"
+                    title="Load to editor">
                     Load
                   </button>
                   <button 
                     class="btn-small btn-secondary"
-                    (click)="$event.stopPropagation()">
-                    Edit
+                    (click)="exportPatchToFile(patch.id); $event.stopPropagation()"
+                    title="Export to .syx file">
+                    💾 Export
                   </button>
+                  @if (isConnected()) {
+                    <button 
+                      class="btn-small btn-secondary"
+                      (click)="exportPatchToGR55(patch.id); $event.stopPropagation()"
+                      title="Export to GR-55">
+                      📤 To GR-55
+                    </button>
+                  }
                   <button 
                     class="btn-small btn-danger"
                     (click)="deletePatch(patch.id); $event.stopPropagation()">

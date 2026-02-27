@@ -7,10 +7,13 @@
  * © 2025 GR-55 Web Editor Contributors (MIT License)
  */
 
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { OpfsLibraryService } from '../../core/services/opfs-library.service';
+import { Gr55ImportService } from '../../core/services/gr55-import.service';
+import { Gr55ExportService } from '../../core/services/gr55-export.service';
+import { MidiIoService } from '../../core/midi/midi-io.service';
 import { PatchMetadata } from '../../core/models/patch-metadata';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 
@@ -24,6 +27,9 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 export class LibrarianComponent implements OnInit {
   // Inject services
   private opfsLibrary = inject(OpfsLibraryService);
+  private importService = inject(Gr55ImportService);
+  private exportService = inject(Gr55ExportService);
+  private midiIo = inject(MidiIoService);
   
   // State signals
   searchQuery = signal('');
@@ -31,11 +37,17 @@ export class LibrarianComponent implements OnInit {
   selectedTags = signal<string[]>([]);
   viewMode = signal<'grid' | 'list'>('grid');
   selectedPatches = signal<Set<string>>(new Set());
+  showImportDialog = signal(false);
+  showExportDialog = signal(false);
+  exportTargetPatch = signal<string | null>(null);
   
   // Computed signals
   allPatches = this.opfsLibrary.patches;
   isLoading = this.opfsLibrary.isLoading;
   isInitialized = this.opfsLibrary.isInitialized;
+  isConnected = this.midiIo.isConnected;
+  isImporting = this.importService.isImporting;
+  importProgress = this.importService.importProgress;
   
   filteredPatches = computed(() => {
     let patches = this.allPatches();
@@ -191,7 +203,134 @@ export class LibrarianComponent implements OnInit {
   formatDate(isoString: string): string {
     return new Date(isoString).toLocaleDateString();
   }
+  
+  // ═══════════════════════════════════════════════════════════
+  // IMPORT OPERATIONS
+  // ═══════════════════════════════════════════════════════════
+  
+  async importFromGR55Single() {
+    if (!this.isConnected()) {
+      alert('Please connect to GR-55 first');
+      return;
+    }
+    
+    const slotStr = prompt('Enter GR-55 slot number (1-297):');
+    if (!slotStr) return;
+    
+    const slot = parseInt(slotStr) - 1; // Convert to 0-indexed
+    if (isNaN(slot) || slot < 0 || slot >= 297) {
+      alert('Invalid slot number. Must be 1-297.');
+      return;
+    }
+    
+    try {
+      await this.importService.importSinglePatch(slot);
+      alert('Patch imported successfully!');
+    } catch (error) {
+      console.error('Import failed:', error);
+      alert('Failed to import patch');
+    }
+  }
+  
+  async importFromGR55All() {
+    if (!this.isConnected()) {
+      alert('Please connect to GR-55 first');
+      return;
+    }
+    
+    const confirmed = confirm(
+      'Import all 297 patches from GR-55?\n\nThis will take several minutes.'
+    );
+    if (!confirmed) return;
+    
+    try {
+      await this.importService.importAllPatches();
+      alert('All patches imported successfully!');
+    } catch (error) {
+      console.error('Bulk import failed:', error);
+      alert('Failed to import patches');
+    }
+  }
+  
+  async importFromFiles() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.syx';
+    input.multiple = true;
+    
+    input.onchange = async () => {
+      if (!input.files || input.files.length === 0) return;
+      
+      try {
+        const ids = await this.importService.importMultipleFiles(input.files);
+        alert(`Imported ${ids.length} patch(es) successfully!`);
+      } catch (error) {
+        console.error('File import failed:', error);
+        alert('Failed to import files');
+      }
+    };
+    
+    input.click();
+  }
+  
+  // ═══════════════════════════════════════════════════════════
+  // EXPORT OPERATIONS
+  // ═══════════════════════════════════════════════════════════
+  
+  async exportPatchToFile(id: string) {
+    try {
+      await this.exportService.exportToFile(id);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export patch');
+    }
+  }
+  
+  async exportSelectedToFiles() {
+    if (this.selectedPatches().size === 0) {
+      alert('No patches selected');
+      return;
+    }
+    
+    try {
+      const ids = Array.from(this.selectedPatches());
+      await this.exportService.exportMultipleToFiles(ids);
+      alert(`Exported ${ids.length} patch(es) successfully!`);
+    } catch (error) {
+      console.error('Batch export failed:', error);
+      alert('Failed to export patches');
+    }
+  }
+  
+  async exportPatchToGR55(id: string) {
+    if (!this.isConnected()) {
+      alert('Please connect to GR-55 first');
+      return;
+    }
+    
+    const slotStr = prompt('Enter target GR-55 slot (1-99, user patches only):');
+    if (!slotStr) return;
+    
+    const slot = parseInt(slotStr) - 1; // Convert to 0-indexed
+    if (isNaN(slot) || slot < 0 || slot >= 99) {
+      alert('Invalid slot number. Must be 1-99 (user patches only).');
+      return;
+    }
+    
+    const confirmed = confirm(
+      `Overwrite GR-55 slot ${slot + 1}?\n\nThis will replace the current patch in that slot.`
+    );
+    if (!confirmed) return;
+    
+    try {
+      await this.exportService.exportToGR55(id, slot);
+      alert('Patch exported to GR-55 successfully!');
+    } catch (error) {
+      console.error('Export to GR-55 failed:', error);
+      alert('Failed to export patch to GR-55');
+    }
+  }
 }
 
-// Missing inject import
-import { inject } from '@angular/core';
+// Missing inject import - moved to top
+// import { inject } from '@angular/core';
