@@ -185,10 +185,11 @@ export class OpfsLibraryService {
     try {
       const patches: PatchMetadata[] = [];
       
-      // Iterate through all metadata files
-      for await (const entry of this.metadataDir.values()) {
-        if (entry.kind === 'file' && entry.name.endsWith('.json')) {
-          const id = entry.name.replace('.json', '');
+      // Iterate through all metadata files using entries()
+      // @ts-ignore - FileSystemDirectoryHandle iteration is experimental
+      for await (const [name, entry] of this.metadataDir.entries()) {
+        if (entry.kind === 'file' && name.endsWith('.json')) {
+          const id = name.replace('.json', '');
           try {
             const metadata = await this.loadMetadata(id);
             patches.push(metadata);
@@ -302,7 +303,8 @@ export class OpfsLibraryService {
     
     const fileHandle = await this.patchesDir.getFileHandle(`${id}.syx`, { create: true });
     const writable = await fileHandle.createWritable();
-    await writable.write(data);
+    // Convert to ArrayBuffer to ensure type compatibility
+    await writable.write(data.buffer as ArrayBuffer);
     await writable.close();
   }
   
@@ -345,7 +347,8 @@ export class OpfsLibraryService {
   }
   
   private async calculateChecksum(data: Uint8Array): Promise<string> {
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    // Convert to ArrayBuffer to ensure type compatibility
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data.buffer as ArrayBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
