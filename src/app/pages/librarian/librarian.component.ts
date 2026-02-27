@@ -9,11 +9,12 @@
 
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { OpfsLibraryService } from '../../core/services/opfs-library.service';
 import { Gr55ImportService } from '../../core/services/gr55-import.service';
 import { Gr55ExportService } from '../../core/services/gr55-export.service';
 import { MidiIoService } from '../../core/midi/midi-io.service';
+import { Gr55ProtocolService } from '../../core/midi/gr55-protocol.service';
 import { PatchMetadata } from '../../core/models/patch-metadata';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 
@@ -30,6 +31,8 @@ export class LibrarianComponent implements OnInit {
   private importService = inject(Gr55ImportService);
   private exportService = inject(Gr55ExportService);
   private midiIo = inject(MidiIoService);
+  private gr55 = inject(Gr55ProtocolService);
+  private router = inject(Router);
   
   // State signals
   searchQuery = signal('');
@@ -186,8 +189,32 @@ export class LibrarianComponent implements OnInit {
   }
   
   async loadPatchToEditor(id: string) {
-    // TODO: Implement loading patch to editor
-    console.log('Load patch to editor:', id);
+    if (!this.isConnected()) {
+      const shouldContinue = confirm(
+        'MIDI not connected. Load patch for offline editing?\n\n' +
+        'You can view and edit parameters, but cannot send to GR-55 until connected.'
+      );
+      if (!shouldContinue) return;
+    }
+    
+    try {
+      // Load patch from OPFS
+      const { sysexData } = await this.opfsLibrary.loadPatch(id);
+      
+      // Write patch to GR-55 temporary slot (if connected)
+      if (this.isConnected()) {
+        await this.gr55.writePatch(sysexData, 0); // Write to slot 0 (current editing buffer)
+      }
+      
+      // Navigate to editor
+      this.router.navigate(['/editor']);
+      
+      // Note: The editor will need to read the patch from GR-55 on load
+      // For offline mode, we'd need to pass the patch data through a service
+    } catch (error) {
+      console.error('Failed to load patch to editor:', error);
+      alert('Failed to load patch to editor');
+    }
   }
   
   toggleViewMode() {
