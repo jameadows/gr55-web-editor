@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { KnobComponent } from '../../shared/components/knob/knob.component';
 import { DropdownComponent } from '../../shared/components/dropdown/dropdown.component';
 import { LedComponent } from '../../shared/components/led/led.component';
-import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { Gr55ProtocolService } from '../../core/midi';
 import {
   ModelingParamDef,
@@ -23,7 +22,7 @@ interface ParamGroup {
 @Component({
   selector: 'app-modeling-deep-editor',
   standalone: true,
-  imports: [CommonModule, KnobComponent, DropdownComponent, LedComponent, TooltipDirective],
+  imports: [CommonModule, KnobComponent, DropdownComponent, LedComponent],
   templateUrl: './modeling-deep-editor.component.html',
   styleUrls: ['./modeling-deep-editor.component.css'],
 })

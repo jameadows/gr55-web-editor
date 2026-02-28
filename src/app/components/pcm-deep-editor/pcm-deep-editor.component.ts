@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { KnobComponent } from '../../shared/components/knob/knob.component';
 import { DropdownComponent } from '../../shared/components/dropdown/dropdown.component';
 import { LedComponent } from '../../shared/components/led/led.component';
-import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { Gr55ProtocolService } from '../../core/midi';
 import { GR55AddressMap, FieldDefinition } from '../../data/gr55-address-map';
 
@@ -20,7 +19,7 @@ interface PcmParam {
 @Component({
   selector: 'app-pcm-deep-editor',
   standalone: true,
-  imports: [CommonModule, KnobComponent, DropdownComponent, LedComponent, TooltipDirective],
+  imports: [CommonModule, KnobComponent, DropdownComponent, LedComponent],
   templateUrl: './pcm-deep-editor.component.html',
   styleUrls: ['./pcm-deep-editor.component.css'],
 })

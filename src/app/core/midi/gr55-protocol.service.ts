@@ -25,24 +25,36 @@ export class Gr55ProtocolService {
 
       /**
        * Serial read queue — ensures only ONE RQ1 is outstanding at a time.
+       *
+       * Design notes:
+       * - readQueue$ is a Subject; each readParameter() call pushes an inner
+       *   Observable (the actual SysEx request) onto it.
+       * - concatMap subscribes to inner Observables one at a time, so the
+       *   GR-55 never sees overlapping RQ1 messages.
+       * - catchError at the concatMap level prevents a single timeout/error
+       *   from killing the queue for all subsequent reads.  The error still
+       *   reaches the original subscriber via tap() inside each inner observable
+       *   (see readParameter()), so callers get correct error propagation.
+       * - The null emitted by from([null]) on error is discarded because the
+       *   queue-level subscription has no next handler.
        */
       private readQueue$ = new Subject<Observable<any>>();
-      
-      // We use concatMap to ensure serial execution, and add a 25ms delay 
-      // between requests to prevent the GR-55 buffer from choking.
-      private readQueue = this.readQueue$.pipe(
+
+      private readonly readQueueSub = this.readQueue$.pipe(
         concatMap(obs$ => obs$.pipe(
-          tap(() => {}), // placeholder for debugging if needed
-          catchError(() => from([null])) // prevent queue from dying on single error
+          catchError(e => {
+            // Error already propagated to caller via tap() in readParameter().
+            // Swallow here so the queue stays alive for subsequent requests.
+            console.warn('GR-55 read queue: request error swallowed to keep queue alive:', e?.message ?? e);
+            return from([null]);
+          })
         ))
-      );
+      ).subscribe(); // no next handler — values are delivered via tap() in readParameter()
 
       constructor(
         private sysex: SysexService,
         private midiIo: MidiIoService
-      ) {
-        this.readQueue.subscribe();
-      }
+      ) {}
   
       // ═══════════════════════════════════════════════════════════
       // GENERIC PARAMETER ACCESS
