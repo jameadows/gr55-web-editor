@@ -337,3 +337,95 @@
     padding: 0 20px;
   }
 }
+
+/* ─── PCM Tone Picker ──────────────────────────────────────────────────────── */
+.pcm-tone-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 260px;
+}
+
+.pcm-tone-picker .param-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a0aec0;
+  margin-bottom: 2px;
+}
+
+/* Current selection display — tone number + name badge */
+.tone-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #1a202c;
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  min-height: 34px;
+}
+
+.tone-number {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  color: #f6ad55;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: right;
+}
+
+.tone-name {
+  font-size: 0.92rem;
+  color: #e2e8f0;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Search input — removed (replaced by category+tone dual selects) */
+
+/* Sublabel between the two selects */
+.picker-sublabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #718096;
+  margin-top: 4px;
+  margin-bottom: 1px;
+  display: block;
+}
+
+/* Scrollable tone list */
+.tone-select {
+  background: #1a202c;
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 0.82rem;
+  font-family: 'Courier New', Courier, monospace;
+  width: 100%;
+  padding: 2px 0;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.tone-select:focus {
+  border-color: #f6ad55;
+}
+
+.tone-select option {
+  padding: 3px 8px;
+  background: #1a202c;
+  color: #e2e8f0;
+}
+
+.tone-select option:checked,
+.tone-select option:hover {
+  background: #744210;
+  color: #fefefe;
+}

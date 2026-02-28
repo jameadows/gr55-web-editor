@@ -201,15 +201,9 @@ export class LibrarianComponent implements OnInit {
       // Load patch from OPFS
       const { sysexData } = await this.opfsLibrary.loadPatch(id);
       
-      // Write patch to GR-55 temporary editing buffer (if connected)
+      // Restore patch to GR-55 edit buffer (if connected)
       if (this.isConnected()) {
-        // Note: writePatch returns an Observable, need to convert to Promise
-        await new Promise<void>((resolve, reject) => {
-          this.gr55.writePatch(sysexData).subscribe({
-            next: () => resolve(),
-            error: (err) => reject(err)
-          });
-        });
+        await this.exportService.exportToGR55(id);
       }
       
       // Navigate to editor
@@ -242,45 +236,38 @@ export class LibrarianComponent implements OnInit {
   
   async importFromGR55Single() {
     if (!this.isConnected()) {
-      alert('Please connect to GR-55 first');
+      alert('No GR-55 connected.\n\nConnect via Web MIDI and try again.');
       return;
     }
-    
-    const slotStr = prompt('Enter GR-55 slot number (1-297):');
-    if (!slotStr) return;
-    
-    const slot = parseInt(slotStr) - 1; // Convert to 0-indexed
-    if (isNaN(slot) || slot < 0 || slot >= 297) {
-      alert('Invalid slot number. Must be 1-297.');
-      return;
-    }
-    
     try {
-      await this.importService.importSinglePatch(slot);
-      alert('Patch imported successfully!');
+      const id = await this.importService.importCurrentPatch();
+      await this.initializeLibrary();
+      alert(`Patch imported successfully!`);
     } catch (error) {
-      console.error('Import failed:', error);
-      alert('Failed to import patch');
+      console.error('Hardware import failed:', error);
+      alert(`Failed to import patch from GR-55:\n${error instanceof Error ? error.message : error}`);
     }
   }
   
   async importFromGR55All() {
     if (!this.isConnected()) {
-      alert('Please connect to GR-55 first');
+      alert('No GR-55 connected.\n\nConnect via Web MIDI and try again.');
       return;
     }
-    
-    const confirmed = confirm(
-      'Import all 297 patches from GR-55?\n\nThis will take several minutes.'
+    const confirm = window.confirm(
+      'Import all 297 user patches from the GR-55?\n\n' +
+      'This will navigate through each patch slot on the hardware and may take several minutes.'
     );
-    if (!confirmed) return;
-    
+    if (!confirm) return;
+
     try {
-      await this.importService.importAllPatches();
-      alert('All patches imported successfully!');
+      const slots = Array.from({ length: 297 }, (_, i) => i);
+      const ids = await this.importService.importMultiplePatches(slots);
+      await this.initializeLibrary();
+      alert(`Successfully imported ${ids.length} patches from the GR-55.`);
     } catch (error) {
       console.error('Bulk import failed:', error);
-      alert('Failed to import patches');
+      alert(`Bulk import failed:\n${error instanceof Error ? error.message : error}`);
     }
   }
   
@@ -336,30 +323,15 @@ export class LibrarianComponent implements OnInit {
   
   async exportPatchToGR55(id: string) {
     if (!this.isConnected()) {
-      alert('Please connect to GR-55 first');
+      alert('No GR-55 connected.\n\nConnect via Web MIDI and try again.');
       return;
     }
-    
-    const slotStr = prompt('Enter target GR-55 slot (1-99, user patches only):');
-    if (!slotStr) return;
-    
-    const slot = parseInt(slotStr) - 1; // Convert to 0-indexed
-    if (isNaN(slot) || slot < 0 || slot >= 99) {
-      alert('Invalid slot number. Must be 1-99 (user patches only).');
-      return;
-    }
-    
-    const confirmed = confirm(
-      `Overwrite GR-55 slot ${slot + 1}?\n\nThis will replace the current patch in that slot.`
-    );
-    if (!confirmed) return;
-    
     try {
-      await this.exportService.exportToGR55(id, slot);
-      alert('Patch exported to GR-55 successfully!');
+      await this.exportService.exportToGR55(id);
+      alert('Patch loaded to GR-55 edit buffer.\n\nUse the GR-55\'s Write function to save it to a user slot.');
     } catch (error) {
       console.error('Export to GR-55 failed:', error);
-      alert('Failed to export patch to GR-55');
+      alert(`Failed to send patch to GR-55:\n${error instanceof Error ? error.message : error}`);
     }
   }
 }

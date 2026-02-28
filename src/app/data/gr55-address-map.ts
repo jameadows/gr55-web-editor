@@ -523,9 +523,9 @@ export const GR55AddressMap = {
         address: 0x18002000,
         size: 3, // PCM tone select field (special encoding)
         type: 'number',
-        range: [0, 895],
+        range: [0, 909],
         label: 'PCM Tone Number',
-        description: '896 PCM tones available',
+        description: '910 PCM tones available (0-indexed)',
         defaultValue: 0,
         uiLevel: 'primary',
         category: 'PCM Tone 1'
@@ -613,9 +613,9 @@ export const GR55AddressMap = {
         address: 0x18002100,
         size: 3,
         type: 'number',
-        range: [0, 895],
+        range: [0, 909],
         label: 'PCM Tone Number',
-        description: '896 PCM tones available',
+        description: '910 PCM tones available (0-indexed)',
         defaultValue: 0,
         uiLevel: 'primary',
         category: 'PCM Tone 2'

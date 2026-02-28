@@ -133,7 +133,7 @@ export class PatchLibraryService {
     // Size is approximately 0x4000 bytes (16KB)
     // We need to read in chunks
     
-    return this.sysex.request(0x18000000, 0x4000).pipe(
+    return this.sysex.request(0x18000000, 0x4000, 5000).pipe(
       map(data => this.wrapInSysEx(data))
     );
   }

@@ -9,7 +9,7 @@
 
 import { Injectable } from '@angular/core';
 import { Observable, Subject, timer, throwError } from 'rxjs';
-import { map, timeout, take, filter } from 'rxjs/operators';
+import { map, take, filter } from 'rxjs/operators';
 import {
   SysExMessage,
   RolandCommand,
@@ -273,34 +273,66 @@ export class SysexService {
   // ═══════════════════════════════════════════════════════════
   
   /**
-   * Send RQ1 and wait for DT1 response
-   * 
-   * @param address Address to read
-   * @param size Number of bytes to read
-   * @param timeoutMs Timeout in milliseconds (default: 500)
-   * @returns Observable that emits the response data
+   * Send RQ1 and wait for DT1 response.
+   *
+   * CRITICAL ORDERING:
+   *   1. Subscribe to incoming MIDI stream FIRST (never miss a fast reply)
+   *   2. Send the RQ1 message
+   *   3. Start the timeout clock only AFTER the send resolves
+   *
+   * Using a plain Observable constructor so we control subscription order
+   * precisely. switchMap/defer approaches have a subscribe-after-send race.
+   *
+   * @param address   Address to read
+   * @param size      Number of bytes to read
+   * @param timeoutMs Timeout in milliseconds, measured from when the RQ1 is
+   *                  actually transmitted (default: 2000)
+   * @returns Observable that emits the response data bytes
    */
-  request(address: number, size: number, timeoutMs: number = 500): Observable<number[]> {
+  request(address: number, size: number, timeoutMs: number = 2000): Observable<number[]> {
     const rq1 = this.buildRQ1(address, size);
-    
-    // Create observable that waits for matching DT1 response
-    const response$ = this.midiIo.getSysExMessages$().pipe(
-      map(msg => msg.data),
-      filter(data => this.isDT1(data)),
-      map(data => this.parseSysEx(data)),
-      filter(parsed => parsed !== null && parsed.address === address),
-      map(parsed => parsed!.data),
-      take(1),
-      timeout(timeoutMs)
-    );
-    
-    // Send request
-    this.sendSysEx(rq1).catch(error => {
-      console.error('Failed to send RQ1:', error);
+
+    return new Observable<number[]>(subscriber => {
+      let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
+
+      // ── Step 1: listen BEFORE sending ────────────────────────────────────
+      const msgSub = this.midiIo.getSysExMessages$().pipe(
+        map(msg => msg.data),
+        filter(data => this.isDT1(data)),
+        map(data => this.parseSysEx(data)),
+        filter(parsed => parsed !== null && parsed.address === address),
+        map(parsed => parsed!.data),
+        take(1)
+      ).subscribe({
+        next: data => {
+          if (timeoutHandle !== null) clearTimeout(timeoutHandle);
+          subscriber.next(data);
+          subscriber.complete();
+        },
+        error: err => subscriber.error(err)
+      });
+
+      // ── Step 2: send the request ─────────────────────────────────────────
+      this.sendSysEx(rq1).then(() => {
+        // ── Step 3: start timeout only now ───────────────────────────────
+        timeoutHandle = setTimeout(() => {
+          msgSub.unsubscribe();
+          subscriber.error(new Error(
+            `GR-55 timeout: no response for address 0x${address.toString(16).padStart(8, '0')} ` +
+            `after ${timeoutMs}ms`
+          ));
+        }, timeoutMs);
+      }).catch(err => {
+        msgSub.unsubscribe();
+        subscriber.error(err);
+      });
+
+      // ── Teardown on unsubscribe ───────────────────────────────────────────
+      return () => {
+        if (timeoutHandle !== null) clearTimeout(timeoutHandle);
+        msgSub.unsubscribe();
+      };
     });
-    
-    // Return response observable
-    return response$;
   }
   
   /**

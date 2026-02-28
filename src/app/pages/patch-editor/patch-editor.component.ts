@@ -18,7 +18,12 @@ import { ParameterLabelComponent } from '../../shared/components/parameter-label
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { MidiIoService, Gr55ProtocolService } from '../../core/midi';
+import { MfxDeepEditorComponent } from '../../components/mfx-deep-editor/mfx-deep-editor.component';
 import { GR55AddressMap } from '../../data/gr55-address-map';
+import {
+  GR55_PCM_CATEGORIES, ToneCategory,
+  getPcmToneName, getCategoryForTone, getTonesForCategory
+} from '../../data/gr55-pcm-tones';
 import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
 import { ConfirmationDialogService } from '../../core/services/confirmation-dialog.service';
 
@@ -42,7 +47,8 @@ interface Tab {
     LedComponent,
     ParameterLabelComponent,
     LoadingSpinnerComponent,
-    TooltipDirective
+    TooltipDirective,
+    MfxDeepEditorComponent
   ],
   templateUrl: './patch-editor.component.html',
   styleUrl: './patch-editor.component.css'
@@ -140,6 +146,44 @@ export class PatchEditorComponent implements OnInit {
   
   // PCM Tone 1
   pcm1ToneSelect = signal(0);
+
+  // Category/tone selector helpers (shared by both PCM tones)
+  readonly pcmCategories = GR55_PCM_CATEGORIES;
+  getPcmToneName = getPcmToneName;
+
+  // PCM 1 — derived category state
+  pcm1SelectedCategory = computed<ToneCategory>(() =>
+    getCategoryForTone(this.pcm1ToneSelect()) ?? GR55_PCM_CATEGORIES[0]
+  );
+  pcm1TonesInCategory = computed(() =>
+    getTonesForCategory(this.pcm1SelectedCategory())
+  );
+
+  onPcm1CategoryChange(catName: string) {
+    const cat = GR55_PCM_CATEGORIES.find(c => c.name === catName);
+    if (!cat) return;
+    // Select first tone in category without waiting for user to pick one
+    this.pcm1ToneSelect.set(cat.start - 1);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone1.toneSelect, cat.start - 1)
+      .subscribe({ error: e => console.error('PCM1 category tone write failed:', e) });
+  }
+
+  // PCM 2 — derived category state
+  pcm2SelectedCategory = computed<ToneCategory>(() =>
+    getCategoryForTone(this.pcm2ToneSelect()) ?? GR55_PCM_CATEGORIES[0]
+  );
+  pcm2TonesInCategory = computed(() =>
+    getTonesForCategory(this.pcm2SelectedCategory())
+  );
+
+  onPcm2CategoryChange(catName: string) {
+    const cat = GR55_PCM_CATEGORIES.find(c => c.name === catName);
+    if (!cat) return;
+    this.pcm2ToneSelect.set(cat.start - 1);
+    this.gr55.writeParameter(GR55AddressMap.patch.pcmTone2.toneSelect, cat.start - 1)
+      .subscribe({ error: e => console.error('PCM2 category tone write failed:', e) });
+  }
+
   pcm1MuteSwitch = signal(false);
   pcm1Level = signal(127);
   pcm1OctaveShift = signal(0);

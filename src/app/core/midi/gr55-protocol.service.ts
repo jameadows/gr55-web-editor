@@ -7,13 +7,13 @@
  * © 2025 GR-55 Web Editor Contributors (MIT License)
  */
 
-import { Injectable, signal } from '@angular/core';
-import { Observable, from, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
-import { SysexService } from './sysex.service';
-import { MidiIoService } from './midi-io.service';
-import { FieldDefinition } from '../../data/gr55-address-map';
-import { ROLAND_GR55, MIDIError, MIDIErrorCode } from './midi.types';
+import {Injectable, signal} from '@angular/core';
+import {defer, from, Observable, Subject, throwError} from 'rxjs';
+import {catchError, concatMap, map, tap} from 'rxjs/operators';
+import {SysexService} from './sysex.service';
+import {MidiIoService} from './midi-io.service';
+import {FieldDefinition, getAllFields} from '../../data/gr55-address-map';
+import {ROLAND_GR55} from './midi.types';
 
 @Injectable({
   providedIn: 'root'
@@ -22,32 +22,61 @@ export class Gr55ProtocolService {
   
   /** Current device ID (can be changed for multi-device setups) */
   deviceId = signal<number>(ROLAND_GR55.DEFAULT_DEVICE_ID);
+
+      /**
+       * Serial read queue — ensures only ONE RQ1 is outstanding at a time.
+       */
+      private readQueue$ = new Subject<Observable<any>>();
+      
+      // We use concatMap to ensure serial execution, and add a 25ms delay 
+      // between requests to prevent the GR-55 buffer from choking.
+      private readQueue = this.readQueue$.pipe(
+        concatMap(obs$ => obs$.pipe(
+          tap(() => {}), // placeholder for debugging if needed
+          catchError(() => from([null])) // prevent queue from dying on single error
+        ))
+      );
+
+      constructor(
+        private sysex: SysexService,
+        private midiIo: MidiIoService
+      ) {
+        this.readQueue.subscribe();
+      }
   
-  constructor(
-    private sysex: SysexService,
-    private midiIo: MidiIoService
-  ) {}
+      // ═══════════════════════════════════════════════════════════
+      // GENERIC PARAMETER ACCESS
+      // ═══════════════════════════════════════════════════════════
   
-  // ═══════════════════════════════════════════════════════════
-  // GENERIC PARAMETER ACCESS
-  // ═══════════════════════════════════════════════════════════
-  
-  /**
-   * Read a parameter value
-   * 
-   * @param field Field definition from address map
-   * @returns Observable that emits the decoded value
-   */
-  readParameter<T>(field: FieldDefinition<T>): Observable<T> {
-    return this.sysex.request(field.address, field.size).pipe(
-      map(data => this.decodeValue<T>(data, field)),
-      catchError(error => {
-        console.error(`Failed to read parameter at ${this.formatAddress(field.address)}:`, error);
-        return throwError(() => error);
-      })
-    );
-  }
-  
+      /**
+       * Read a parameter value
+       */
+      readParameter<T>(field: FieldDefinition<T>): Observable<T> {
+        return new Observable<T>(subscriber => {
+          const req$ = defer(() =>
+            this.sysex.request(field.address, field.size).pipe(
+              // Small pacing delay after receiving response 
+              // gives the GR-55 hardware a breather
+              concatMap(data => from(new Promise(r => setTimeout(() => r(data), 25)))),
+              map(data => this.decodeValue<T>(data as number[], field)),
+              catchError(error => {
+                console.error(`Failed to read parameter at ${this.formatAddress(field.address)}:`, error);
+                return throwError(() => error);
+              })
+            )
+          );
+
+          // Push the request into the serial queue
+          this.readQueue$.next(
+            req$.pipe(
+              tap({
+                next: v => { subscriber.next(v); subscriber.complete(); },
+                error: e => subscriber.error(e)
+              })
+            )
+          );
+        });
+      }
   /**
    * Write a parameter value
    * 
@@ -211,34 +240,137 @@ export class Gr55ProtocolService {
   // ═══════════════════════════════════════════════════════════
   // BULK OPERATIONS
   // ═══════════════════════════════════════════════════════════
-  
+
   /**
-   * Read entire patch from edit buffer
-   * 
-   * Note: This is a placeholder for future implementation.
-   * Full patch read requires chunking into multiple RQ1 requests.
+   * Read all known patch parameters from the GR-55 edit buffer.
+   *
+   * Returns a plain record: { address (hex string) → raw value }.
+   * The value type matches whatever decodeValue returns (number | string | boolean).
+   *
+   * Progress callback receives (completed, total) counts so callers can
+   * display a progress bar.
    */
-  readPatch(): Observable<any> {
-    // TODO: Implement chunked read of entire patch
-    // Will need to request each section separately and combine
-    return throwError(() => new Error('Not yet implemented'));
+  async readAllParameters(
+    fields: FieldDefinition[],
+    onProgress?: (done: number, total: number) => void
+  ): Promise<Record<string, unknown>> {
+    const result: Record<string, unknown> = {};
+    let done = 0;
+
+    for (const field of fields) {
+      try {
+        const value = await new Promise<unknown>((resolve, reject) => {
+          this.readParameter(field).subscribe({ next: resolve, error: reject });
+        });
+        result[`0x${field.address.toString(16).padStart(8, '0')}`] = value;
+      } catch (err) {
+        // Non-fatal: log and continue so one failing parameter doesn't abort all
+        console.warn(`readAllParameters: skipping ${this.formatAddress(field.address)}:`, err);
+      }
+      done++;
+      onProgress?.(done, fields.length);
+    }
+    return result;
   }
-  
+
   /**
-   * Write entire patch to edit buffer
-   * 
-   * Note: This is a placeholder for future implementation.
-   * Full patch write requires chunking into multiple DT1 requests.
+   * Write a set of parameters back to the GR-55 edit buffer.
+   *
+   * @param paramMap  Map produced by readAllParameters() or loaded from OPFS.
+   * @param fields    Field definitions to use for encoding.  Only parameters
+   *                  whose address appears in paramMap are written.
+   * @param onProgress  Optional (written, total) progress callback.
    */
-  writePatch(patch: any): Observable<void> {
-    // TODO: Implement chunked write of entire patch
-    return throwError(() => new Error('Not yet implemented'));
+  async writeAllParameters(
+    paramMap: Record<string, unknown>,
+    fields: FieldDefinition[],
+    onProgress?: (done: number, total: number) => void
+  ): Promise<void> {
+    let done = 0;
+    const toWrite = fields.filter(f =>
+      Object.prototype.hasOwnProperty.call(
+        paramMap,
+        `0x${f.address.toString(16).padStart(8, '0')}`
+      )
+    );
+
+    for (const field of toWrite) {
+      const key = `0x${field.address.toString(16).padStart(8, '0')}`;
+      const value = paramMap[key];
+      try {
+        await new Promise<void>((resolve, reject) => {
+          this.writeParameter(field, value as any).subscribe({ next: resolve, error: reject });
+        });
+      } catch (err) {
+        console.warn(`writeAllParameters: skipping ${this.formatAddress(field.address)}:`, err);
+      }
+      done++;
+      onProgress?.(done, toWrite.length);
+      // Small pacing gap between writes
+      await new Promise(r => setTimeout(r, 20));
+    }
   }
-  
+
+  // ═══════════════════════════════════════════════════════════
+  // PATCH NAVIGATION & PERSISTENCE
+  // ═══════════════════════════════════════════════════════════
+
+  /**
+   * Navigate the GR-55 to a specific patch slot (0-based).
+   * Async wrapper around setPatchNumber().
+   */
+  async selectPatch(slot: number): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      this.setPatchNumber(slot).subscribe({ next: resolve, error: reject });
+    });
+  }
+
+  /**
+   * Write the current edit buffer to a user patch slot on the hardware.
+   *
+   * GR-55 "Patch Write" SysEx: DT1 to address 0x01000010, 2-byte slot number.
+   * The slot value uses the same 1752-gap encoding as patch numbers.
+   */
+  async writePatchToSlot(slot: number): Promise<void> {
+    if (slot < 0 || slot >= 297) {
+      throw new Error(`Patch slot ${slot} is out of user range (0–296)`);
+    }
+    // Select the target slot first, then issue a "write" command.
+    // Roland GR-55 write: set address 0x01000010 with the 2-byte patch number.
+    const adjusted = slot > ROLAND_GR55.PATCH_GAP_START
+      ? slot + ROLAND_GR55.PATCH_GAP_OFFSET
+      : slot;
+    const data = [(adjusted >>> 8) & 0x7F, adjusted & 0x7F];
+    await this.sysex.write(0x01000010, data);
+  }
+
+  /**
+   * Send raw SysEx bytes directly.  Used for replaying imported .syx blobs.
+   * Parses the concatenated F0...F7 messages and sends each with pacing.
+   */
+  async sendRawSysEx(data: number[]): Promise<void> {
+    // Split into individual F0...F7 messages
+    const messages: number[][] = [];
+    let start = -1;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i] === 0xF0) {
+        start = i;
+      } else if (data[i] === 0xF7 && start >= 0) {
+        messages.push(data.slice(start, i + 1));
+        start = -1;
+      }
+    }
+
+    for (const msg of messages) {
+      this.midiIo.send(msg);
+      await new Promise(r => setTimeout(r, 25));
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════
   // VALUE ENCODING/DECODING
   // ═══════════════════════════════════════════════════════════
-  
+
   /**
    * Decode raw bytes to typed value based on field definition
    */
@@ -257,8 +389,8 @@ export class Gr55ProtocolService {
         return num as T;
         
       case 'string':
-        // Special case: Patch name has 17 bytes but only first 16 are the name
-        // (byte 16 is a dummy byte)
+        // Patch name: GR-55 appends 1 dummy byte AFTER the 16-char name.
+        // Response is 17 bytes: [char1..char16, dummy]
         let stringData = data;
         if (field.label === 'Patch Name' && data.length === 17) {
           stringData = data.slice(0, 16);

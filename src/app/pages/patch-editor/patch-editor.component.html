@@ -217,19 +217,37 @@
               </app-led>
             </div>
             
-            <!-- Tone Selection (0-895) -->
-            <div class="control-group">
-              <app-slider
+            <!-- Tone Selection — Category then Tone -->
+            <div class="control-group pcm-tone-picker">
+              <label class="param-label">Tone</label>
+              <div class="tone-display">
+                <span class="tone-number">{{ pcm1ToneSelect() + 1 | number:'3.0-0' }}</span>
+                <span class="tone-name">{{ getPcmToneName(pcm1ToneSelect()) }}</span>
+              </div>
+              <label class="picker-sublabel">Category</label>
+              <select
+                class="tone-select"
+                [value]="pcm1SelectedCategory().name"
+                (change)="onPcm1CategoryChange($any($event.target).value)"
+                size="5">
+                @for (cat of pcmCategories; track cat.name) {
+                  <option [value]="cat.name" [selected]="cat.name === pcm1SelectedCategory().name">
+                    {{ cat.name }}
+                  </option>
+                }
+              </select>
+              <label class="picker-sublabel">Tone</label>
+              <select
+                class="tone-select"
                 [value]="pcm1ToneSelect()"
-                [min]="0"
-                [max]="895"
-                [label]="'Tone Number'"
-                [color]="'amber'"
-                [orientation]="'horizontal'"
-                [width]="250"
-                tooltip="Select PCM tone (0-895). 896 high-quality sounds: pianos, strings, synths, drums, and more."
-                (valueChange)="onPcm1ToneSelectChange($event)">
-              </app-slider>
+                (change)="onPcm1ToneSelectChange(+$any($event.target).value)"
+                size="5">
+                @for (opt of pcm1TonesInCategory(); track opt.value) {
+                  <option [value]="opt.value" [selected]="opt.value === pcm1ToneSelect()">
+                    {{ opt.label }}
+                  </option>
+                }
+              </select>
             </div>
             
             <!-- Level -->
@@ -341,19 +359,37 @@
               </app-led>
             </div>
             
-            <!-- Tone Selection (0-895) -->
-            <div class="control-group">
-              <app-slider
+            <!-- Tone Selection — Category then Tone -->
+            <div class="control-group pcm-tone-picker">
+              <label class="param-label">Tone</label>
+              <div class="tone-display">
+                <span class="tone-number">{{ pcm2ToneSelect() + 1 | number:'3.0-0' }}</span>
+                <span class="tone-name">{{ getPcmToneName(pcm2ToneSelect()) }}</span>
+              </div>
+              <label class="picker-sublabel">Category</label>
+              <select
+                class="tone-select"
+                [value]="pcm2SelectedCategory().name"
+                (change)="onPcm2CategoryChange($any($event.target).value)"
+                size="5">
+                @for (cat of pcmCategories; track cat.name) {
+                  <option [value]="cat.name" [selected]="cat.name === pcm2SelectedCategory().name">
+                    {{ cat.name }}
+                  </option>
+                }
+              </select>
+              <label class="picker-sublabel">Tone</label>
+              <select
+                class="tone-select"
                 [value]="pcm2ToneSelect()"
-                [min]="0"
-                [max]="895"
-                [label]="'Tone Number'"
-                [color]="'amber'"
-                [orientation]="'horizontal'"
-                [width]="250"
-                tooltip="Select PCM tone (0-895). 896 high-quality sounds: pianos, strings, synths, drums, and more."
-                (valueChange)="onPcm2ToneSelectChange($event)">
-              </app-slider>
+                (change)="onPcm2ToneSelectChange(+$any($event.target).value)"
+                size="5">
+                @for (opt of pcm2TonesInCategory(); track opt.value) {
+                  <option [value]="opt.value" [selected]="opt.value === pcm2ToneSelect()">
+                    {{ opt.label }}
+                  </option>
+                }
+              </select>
             </div>
             
             <!-- Level -->
@@ -609,16 +645,13 @@
                 </app-knob>
               </div>
             </div>
-            
-            <!-- Note about advanced parameters -->
-            <div class="section-note">
-              <strong>MFX Deep Editing:</strong> Each MFX type has 32 unique parameters.
-              <br>
-              Specialized editors for each effect type will be added in Phase 6+.
-              <br>
-              <em>Examples: EQ bands, filter cutoff/resonance, phaser rate/depth, compressor threshold/ratio, etc.</em>
-            </div>
           }
+        </section>
+
+        <!-- MFX DEEP EDITING -->
+        <section class="controls-section primary mfx-deep-section">
+          <h3>Effect Parameters</h3>
+          <app-mfx-deep-editor [mfxType]="mfxType()"></app-mfx-deep-editor>
         </section>
       </div>
     }

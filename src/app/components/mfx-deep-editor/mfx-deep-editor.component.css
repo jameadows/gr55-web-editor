@@ -1,0 +1,84 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   MFX Deep Editor
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.mfx-deep-editor {
+  padding: 0;
+}
+
+/* ── Effect header ─────────────────────────────────────────────────── */
+
+.effect-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.effect-badge {
+  background: linear-gradient(135deg, #2d3748, #1a202c);
+  border: 1px solid #4a5568;
+  color: #f6ad55;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 3px;
+}
+
+.param-count {
+  font-size: 0.65rem;
+  color: #718096;
+  letter-spacing: 0.06em;
+}
+
+/* ── Params grid ───────────────────────────────────────────────────── */
+
+.params-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* ── Individual param cells ────────────────────────────────────────── */
+
+.param-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.param-cell--knob {
+  width: 88px;
+}
+
+.param-cell--dropdown {
+  width: 130px;
+}
+
+.param-cell--led {
+  width: 100px;
+  padding-top: 4px;
+}
+
+/* ── Value display under knob ──────────────────────────────────────── */
+
+.param-value-display {
+  font-size: 0.62rem;
+  color: #a0aec0;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── No params state ───────────────────────────────────────────────── */
+
+.no-params {
+  color: #718096;
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 12px 0;
+}

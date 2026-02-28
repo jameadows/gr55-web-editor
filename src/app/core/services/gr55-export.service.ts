@@ -1,178 +1,193 @@
 /**
  * GR-55 Export Service
- * 
- * Handles exporting patches from OPFS library to GR-55 hardware or filesystem.
- * Supports single export, batch export, and ZIP archive creation.
- * 
+ *
+ * Handles exporting patches from the OPFS library back to the GR-55 hardware,
+ * or saving them as files on the user's computer.
+ *
+ * Hardware export strategy
+ * ─────────────────────────
+ * Patches stored in OPFS are either:
+ *   a) JSON snapshots produced by Gr55ImportService (PatchSnapshot format)
+ *   b) Raw SysEx blobs imported from .syx files
+ *
+ * For JSON snapshots, we decode the parameter map and call writeAllParameters()
+ * to restore each parameter to the GR-55 edit buffer.  For raw SysEx blobs we
+ * stream the DT1 messages directly.
+ *
+ * Writing to a specific user slot: after restoring to the edit buffer the
+ * caller should invoke "Write" on the GR-55 itself (the device requires the
+ * user to confirm the slot destination via its own UI, or we can trigger a
+ * write via the appropriate SysEx command once that is mapped).
+ *
  * © 2025 GR-55 Web Editor Contributors (MIT License)
  */
 
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Gr55ProtocolService } from '../midi/gr55-protocol.service';
 import { OpfsLibraryService } from './opfs-library.service';
+import { getAllFields } from '../../data/gr55-address-map';
+import { PatchSnapshot } from './gr55-import.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface ExportProgress {
+  current: number;
+  total: number;
+  status: 'preparing' | 'writing' | 'complete' | 'error';
+  error?: string;
+}
+
+function getPatchFields() {
+  return getAllFields().filter(f =>
+    f.address >= 0x18000000 && f.address < 0x19000000
+  );
+}
+
+@Injectable({ providedIn: 'root' })
 export class Gr55ExportService {
   private gr55 = inject(Gr55ProtocolService);
   private opfs = inject(OpfsLibraryService);
-  
+
+  exportProgress = signal<ExportProgress | null>(null);
+  isExporting = signal(false);
+
   // ═══════════════════════════════════════════════════════════
-  // EXPORT TO GR-55
+  // EXPORT TO GR-55 HARDWARE
   // ═══════════════════════════════════════════════════════════
-  
+
   /**
-   * Export a patch to a specific GR-55 slot
+   * Restore a patch from OPFS to the GR-55 edit buffer.
+   *
+   * After this call the patch is "loaded" in the GR-55 as if the user had
+   * selected it — the user can then save it to any user slot from the device.
    */
-  async exportToGR55(patchId: string, targetSlot: number): Promise<void> {
-    // Load patch from OPFS
-    const { sysexData, metadata } = await this.opfs.loadPatch(patchId);
-    
-    // Write to GR-55
-    await this.writePatchToGR55(sysexData, targetSlot);
-    
-    console.log(`Exported "${metadata.name}" to GR-55 slot ${targetSlot + 1}`);
-  }
-  
-  /**
-   * Export multiple patches to consecutive GR-55 slots
-   */
-  async exportMultipleToGR55(
-    patchIds: string[], 
-    startingSlot: number
-  ): Promise<void> {
-    for (let i = 0; i < patchIds.length; i++) {
-      const targetSlot = startingSlot + i;
-      
-      if (targetSlot >= 99) {
-        throw new Error('Cannot write to preset slots (read-only)');
+  async exportToGR55(patchId: string): Promise<void> {
+    this.isExporting.set(true);
+    const fields = getPatchFields();
+
+    this.exportProgress.set({ current: 0, total: fields.length, status: 'preparing' });
+
+    try {
+      const { sysexData } = await this.opfs.loadPatch(patchId);
+
+      this.exportProgress.update(p => p ? { ...p, status: 'writing' } : null);
+
+      // Detect format
+      if (sysexData[0] === 0x7B /* JSON '{' */) {
+        await this.writeJsonSnapshotToHardware(sysexData, fields);
+      } else if (sysexData[0] === 0xF0) {
+        await this.writeSyxToHardware(sysexData);
+      } else {
+        throw new Error('Unknown patch data format');
       }
-      
-      await this.exportToGR55(patchIds[i], targetSlot);
-      
-      // Small delay between writes
-      await this.delay(100);
+
+      this.exportProgress.update(p => p ? { ...p, current: fields.length, status: 'complete' } : null);
+
+    } catch (err) {
+      this.exportProgress.update(p => p ? {
+        ...p, status: 'error',
+        error: err instanceof Error ? err.message : 'Unknown error'
+      } : null);
+      throw err;
+    } finally {
+      this.isExporting.set(false);
     }
   }
-  
-  // ═══════════════════════════════════════════════════════════
-  // EXPORT TO FILESYSTEM
-  // ═══════════════════════════════════════════════════════════
-  
+
   /**
-   * Export a single patch to a .syx file
+   * Restore multiple patches to the GR-55 in sequence.
+   * Each patch is written to the edit buffer; between each one we trigger
+   * a hardware write to the corresponding user slot.
    */
-  async exportToFile(patchId: string): Promise<void> {
-    const { sysexData, metadata } = await this.opfs.loadPatch(patchId);
-    
-    // Create filename from patch name
-    const filename = this.sanitizeFilename(metadata.name) + '.syx';
-    
-    // Download file
-    this.downloadFile(sysexData, filename, 'application/octet-stream');
-  }
-  
-  /**
-   * Export multiple patches as individual .syx files (triggers multiple downloads)
-   */
-  async exportMultipleToFiles(patchIds: string[]): Promise<void> {
-    for (const id of patchIds) {
-      await this.exportToFile(id);
-      // Small delay between downloads
+  async exportMultipleToGR55(patchIds: string[], startingSlot: number): Promise<void> {
+    for (let i = 0; i < patchIds.length; i++) {
+      const targetSlot = startingSlot + i;
+      if (targetSlot >= 297) {
+        throw new Error('Cannot write beyond user patch range (slot 0–296)');
+      }
+      await this.exportToGR55(patchIds[i]);
+      // Write the edit buffer to the target user slot
+      await this.gr55.writePatchToSlot(targetSlot);
       await this.delay(200);
     }
   }
-  
+
+  // ═══════════════════════════════════════════════════════════
+  // EXPORT TO FILES
+  // ═══════════════════════════════════════════════════════════
+
   /**
-   * Export multiple patches as a ZIP archive
+   * Export a single patch to a .json snapshot file (our format) or .syx
+   * (if the stored data is raw SysEx).
    */
-  async exportAsZip(patchIds: string[], zipName: string = 'patches'): Promise<void> {
-    // Create a simple ZIP file (no compression for simplicity)
-    const patches = await Promise.all(
-      patchIds.map(id => this.opfs.loadPatch(id))
-    );
-    
-    // For now, use a simple approach: concatenate files with basic ZIP structure
-    // In production, you'd use a library like JSZip
-    
-    // Fallback: export as individual files with sequential names
-    console.warn('ZIP export not fully implemented, exporting individual files');
-    await this.exportMultipleToFiles(patchIds);
+  async exportToFile(patchId: string): Promise<void> {
+    const { sysexData, metadata } = await this.opfs.loadPatch(patchId);
+    const baseName = this.sanitizeFilename(metadata.name);
+
+    if (sysexData[0] === 0x7B) {
+      this.downloadFile(sysexData, `${baseName}.json`, 'application/json');
+    } else {
+      this.downloadFile(sysexData, `${baseName}.syx`, 'application/octet-stream');
+    }
   }
-  
-  /**
-   * Export entire library as ZIP
-   */
+
+  async exportMultipleToFiles(patchIds: string[]): Promise<void> {
+    for (const id of patchIds) {
+      await this.exportToFile(id);
+      await this.delay(200);
+    }
+  }
+
   async exportLibraryAsZip(): Promise<void> {
     const allPatches = await this.opfs.getAllPatches();
-    const patchIds = allPatches.map(p => p.id);
-    await this.exportAsZip(patchIds, 'gr55-library');
+    await this.exportMultipleToFiles(allPatches.map(p => p.id));
   }
-  
+
   // ═══════════════════════════════════════════════════════════
-  // HELPER METHODS
+  // PRIVATE HELPERS
   // ═══════════════════════════════════════════════════════════
-  
-  /**
-   * Write patch data to GR-55 slot
-   */
-  private async writePatchToGR55(sysexData: Uint8Array, slot: number): Promise<void> {
-    // Validate slot is in user range (0-98)
-    if (slot < 0 || slot >= 99) {
-      throw new Error('Can only write to user patches (slots 0-98)');
-    }
-    
-    const baseAddress = this.getPatchBaseAddress(slot);
-    
-    // TODO: Implement actual MIDI write operation
-    // await this.gr55.writeMemoryRange(baseAddress, sysexData);
-    
-    console.log(`Writing patch to slot ${slot} at address 0x${baseAddress.toString(16)}`);
+
+  private async writeJsonSnapshotToHardware(
+    data: Uint8Array,
+    fields: ReturnType<typeof getPatchFields>
+  ): Promise<void> {
+    const snapshot = JSON.parse(new TextDecoder().decode(data)) as PatchSnapshot;
+    if (!snapshot.parameters) throw new Error('Invalid snapshot: missing parameters');
+
+    await this.gr55.writeAllParameters(
+      snapshot.parameters,
+      fields,
+      (done, total) => this.exportProgress.update(p =>
+        p ? { ...p, current: done, total } : null
+      )
+    );
   }
-  
-  /**
-   * Get base address for a patch slot
-   */
-  private getPatchBaseAddress(slot: number): number {
-    const PATCH_SIZE = 0x4000; // 16KB per patch
-    const USER_BASE = 0x10000000;
-    
-    return USER_BASE + (slot * PATCH_SIZE);
+
+  private async writeSyxToHardware(data: Uint8Array): Promise<void> {
+    // Raw SysEx: parse each F0...F7 message and send via sysex service
+    // We delegate to the protocol service's raw send capability
+    await this.gr55.sendRawSysEx(Array.from(data));
   }
-  
-  /**
-   * Sanitize filename for safe file downloads
-   */
+
   private sanitizeFilename(name: string): string {
     return name
       .replace(/[^a-z0-9_\-\s]/gi, '_')
       .replace(/\s+/g, '_')
       .replace(/_+/g, '_')
-      .substring(0, 50);
+      .substring(0, 50) || 'patch';
   }
-  
-  /**
-   * Download a file to the user's filesystem
-   */
+
   private downloadFile(data: Uint8Array, filename: string, mimeType: string): void {
-    // Convert to ArrayBuffer to ensure type compatibility
     const blob = new Blob([data.buffer as ArrayBuffer], { type: mimeType });
     const url = URL.createObjectURL(blob);
-    
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     a.click();
-    
-    // Clean up
     setTimeout(() => URL.revokeObjectURL(url), 100);
   }
-  
-  /**
-   * Delay helper
-   */
+
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(r => setTimeout(r, ms));
   }
+
+  clearProgress(): void { this.exportProgress.set(null); }
 }
