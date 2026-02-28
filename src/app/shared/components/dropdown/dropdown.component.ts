@@ -25,7 +25,7 @@ export class DropdownComponent {
   @Input() value: number = 0;
   
   /** Option labels */
-  @Input() options: string[] = [];
+  @Input() options: readonly string[] = [];
   
   /** Parameter label */
   @Input() label: string = '';
