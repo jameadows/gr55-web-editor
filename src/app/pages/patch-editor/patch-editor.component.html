@@ -541,15 +541,14 @@
           </div>
         </section>
         
-        <!-- Note about mode-dependent parameters -->
+        <!-- Deep Edit: model-specific parameters -->
         <section class="controls-section secondary">
-          <div class="section-note">
-            <strong>Note:</strong> Category and tone options change based on Guitar/Bass mode (Common tab).
-            <br>
-            Guitar mode: E.GTR, AC, E.BASS, SYNTH
-            <br>
-            Bass mode: E.BASS, SYNTH, E.GTR
-          </div>
+          <h3>Deep Edit</h3>
+          <app-modeling-deep-editor
+            [isGuitar]="patchAttribute() === 0"
+            [categoryIndex]="activeModelingCategory()"
+            [toneIndex]="activeModelingTone()">
+          </app-modeling-deep-editor>
         </section>
       </div>
     }

@@ -1,0 +1,73 @@
+<div class="modeling-deep-editor">
+
+  <!-- Header -->
+  <div class="model-header">
+    <span class="model-badge">{{ modelName }}</span>
+    <span class="param-count">{{ totalParamCount }} parameters</span>
+    @if (isLoading) {
+      <span class="loading-indicator">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        Reading from hardware…
+      </span>
+    }
+  </div>
+
+  <!-- Grouped parameter sections -->
+  @for (group of paramGroups; track group.name) {
+    @if (group.params.length > 0) {
+      <div class="param-section">
+        <div class="section-label">{{ group.name }}</div>
+        <div class="params-grid">
+
+          @for (param of group.params; track trackByAddr($index, param)) {
+
+            @if (param.type === 'boolean') {
+              <div class="param-cell param-cell--led">
+                <app-led
+                  [isOn]="getValue(param.address) === 1"
+                  [label]="param.label"
+                  [color]="group.name === 'Noise Suppressor' ? 'red' : 'amber'"
+                  [size]="14"
+                  [clickable]="true"
+                  (toggle)="onParamChange(param, $event ? 1 : 0)">
+                </app-led>
+              </div>
+            }
+
+            @if (param.type === 'enum') {
+              <div class="param-cell param-cell--dropdown">
+                <app-dropdown
+                  [value]="getValue(param.address)"
+                  [options]="param.enumValues!"
+                  [label]="param.label"
+                  [color]="'cyan'"
+                  (valueChange)="onParamChange(param, $event)">
+                </app-dropdown>
+              </div>
+            }
+
+            @if (param.type === 'number') {
+              <div class="param-cell param-cell--knob">
+                <app-knob
+                  [value]="getValue(param.address)"
+                  [min]="param.range![0]"
+                  [max]="param.range![1]"
+                  [label]="param.label"
+                  [color]="getKnobColor(param)"
+                  [size]="72"
+                  (valueChange)="onParamChange(param, $event)">
+                </app-knob>
+                <span class="param-value-display">{{ formatValue(param, getValue(param.address)) }}</span>
+              </div>
+            }
+
+          }
+
+        </div>
+      </div>
+    }
+  }
+
+</div>

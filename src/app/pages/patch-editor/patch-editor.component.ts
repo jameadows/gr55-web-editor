@@ -19,6 +19,7 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { MidiIoService, Gr55ProtocolService } from '../../core/midi';
 import { MfxDeepEditorComponent } from '../../components/mfx-deep-editor/mfx-deep-editor.component';
+import { ModelingDeepEditorComponent } from '../../components/modeling-deep-editor/modeling-deep-editor.component';
 import { GR55AddressMap } from '../../data/gr55-address-map';
 import {
   GR55_PCM_CATEGORIES, ToneCategory,
@@ -48,7 +49,8 @@ interface Tab {
     ParameterLabelComponent,
     LoadingSpinnerComponent,
     TooltipDirective,
-    MfxDeepEditorComponent
+    MfxDeepEditorComponent,
+    ModelingDeepEditorComponent
   ],
   templateUrl: './patch-editor.component.html',
   styleUrl: './patch-editor.component.css'

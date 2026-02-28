@@ -1,0 +1,120 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Modeling Deep Editor
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.modeling-deep-editor {
+  padding: 0;
+}
+
+/* ── Model header ──────────────────────────────────────────────────── */
+
+.model-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.model-badge {
+  background: linear-gradient(135deg, #2d3748, #1a202c);
+  border: 1px solid #4a5568;
+  color: #68d391;          /* green — differentiate from MFX amber */
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 3px;
+}
+
+.param-count {
+  font-size: 0.65rem;
+  color: #718096;
+  letter-spacing: 0.06em;
+}
+
+/* ── Grouped sections ──────────────────────────────────────────────── */
+
+.param-section {
+  margin-bottom: 20px;
+}
+
+.section-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4a5568;
+  border-bottom: 1px solid #2d3748;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+
+/* ── Params grid ───────────────────────────────────────────────────── */
+
+.params-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* ── Individual param cells ────────────────────────────────────────── */
+
+.param-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.param-cell--knob {
+  width: 88px;
+}
+
+.param-cell--dropdown {
+  width: 130px;
+}
+
+.param-cell--led {
+  width: 100px;
+  padding-top: 4px;
+}
+
+/* ── Value display under knob ──────────────────────────────────────── */
+
+.param-value-display {
+  font-size: 0.62rem;
+  color: #a0aec0;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Loading indicator ─────────────────────────────────────────────── */
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  color: #718096;
+  letter-spacing: 0.05em;
+  margin-left: auto;
+}
+
+.loading-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #68d391;
+  animation: mdl-pulse 1.2s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes mdl-pulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40%           { opacity: 1;   transform: scale(1); }
+}
