@@ -115,6 +115,49 @@
   letter-spacing: 0.05em;
 }
 
+.btn-save {
+  background: linear-gradient(135deg, #276749, #1a4a34);
+  border: 1px solid #38a169;
+  color: #9ae6b4;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-save:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2f855a, #276749);
+  border-color: #68d391;
+  color: #c6f6d5;
+}
+
+.btn-save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-save.saving {
+  animation: save-pulse 1s ease-in-out infinite;
+}
+
+@keyframes save-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+.param-value {
+  font-size: 0.62rem;
+  color: #a0aec0;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Tab Navigation */
 .tab-nav {
   background: #131715;

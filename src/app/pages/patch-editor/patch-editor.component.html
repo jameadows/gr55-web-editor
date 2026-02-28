@@ -39,6 +39,14 @@
         [size]="12">
       </app-led>
       <span class="patch-name-display">{{ patchName() }}</span>
+      <button
+        class="btn-save"
+        [class.saving]="isSavingPatch()"
+        [disabled]="isSavingPatch() || !isConnected()"
+        (click)="savePatchToHardware()"
+        title="Write current patch to hardware (Ctrl+S)">
+        {{ isSavingPatch() ? 'Writing…' : 'Save' }}
+      </button>
     </div>
   </header>
   
@@ -335,13 +343,24 @@
             </div>
           }
         </section>
+
+        <!-- Deep Edit: TVF/TVA envelopes, LFO, pitch env -->
+        <section class="controls-section secondary">
+          <h3 (click)="toggleSecondary()" class="collapsible-header" style="cursor:pointer">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Deep Edit
+          </h3>
+          @if (showSecondaryControls()) {
+            <app-pcm-deep-editor [toneIndex]="1"></app-pcm-deep-editor>
+          }
+        </section>
       </div>
     }
-    
+
     @if (activeTab() === 'pcm2') {
       <div class="tab-panel">
         <h2>PCM Tone 2</h2>
-        
+
         <!-- PRIMARY CONTROLS -->
         <section class="controls-section primary">
           <h3>Quick Edit</h3>
@@ -477,13 +496,24 @@
             </div>
           }
         </section>
+
+        <!-- Deep Edit: TVF/TVA envelopes, LFO, pitch env -->
+        <section class="controls-section secondary">
+          <h3 (click)="toggleSecondary()" class="collapsible-header" style="cursor:pointer">
+            <span class="toggle-icon">{{ showSecondaryControls() ? '▼' : '▶' }}</span>
+            Deep Edit
+          </h3>
+          @if (showSecondaryControls()) {
+            <app-pcm-deep-editor [toneIndex]="2"></app-pcm-deep-editor>
+          }
+        </section>
       </div>
     }
-    
+
     @if (activeTab() === 'modeling') {
       <div class="tab-panel">
         <h2>Modeling</h2>
-        
+
         <!-- PRIMARY CONTROLS -->
         <section class="controls-section primary">
           <h3>Quick Edit</h3>
@@ -933,7 +963,187 @@
         </section>
       </div>
     }
-    
+
+    @if (activeTab() === 'eq') {
+      <div class="tab-panel">
+        <h2>5-Band EQ</h2>
+
+        <section class="controls-section primary">
+          <h3>Quick Edit</h3>
+          <div class="controls-grid">
+            <div class="control-group">
+              <app-led
+                [isOn]="eqSwitch()"
+                [label]="'EQ On'"
+                [color]="'green'"
+                [size]="16"
+                [clickable]="true"
+                tooltip="Enable/disable the 5-band equalizer."
+                (toggle)="onEqSwitchChange($event)">
+              </app-led>
+            </div>
+
+            <div class="control-group">
+              <app-knob
+                [value]="eqLevel()"
+                [min]="0"
+                [max]="40"
+                [label]="'EQ Level'"
+                [color]="'green'"
+                [size]="100"
+                tooltip="Overall EQ output level (±20 dB)."
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqLevel, $event, eqLevel.set.bind(eqLevel))">
+              </app-knob>
+              <span class="param-value">{{ formatGain(eqLevel()) }}</span>
+            </div>
+
+            <div class="control-group">
+              <app-knob
+                [value]="ezCharacter()"
+                [min]="0"
+                [max]="6"
+                [label]="'EZ Character'"
+                [color]="'amber'"
+                [size]="100"
+                tooltip="Easy character control — adjusts overall EQ character from -3 to +3."
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.ezCharacter, $event, ezCharacter.set.bind(ezCharacter))">
+              </app-knob>
+              <span class="param-value">{{ formatEzChar(ezCharacter()) }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="controls-section secondary">
+          <h3>Low Shelf</h3>
+          <div class="controls-grid">
+            <div class="control-group">
+              <app-dropdown
+                [value]="eqLowCutoff()"
+                [options]="['FLAT','55','110','165','200','280','340','400','500','630','800']"
+                [label]="'Low Cutoff (Hz)'"
+                [color]="'cyan'"
+                tooltip="Low shelf cutoff frequency."
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqLowCutoff, $event, eqLowCutoff.set.bind(eqLowCutoff))">
+              </app-dropdown>
+            </div>
+            <div class="control-group">
+              <app-knob
+                [value]="eqLowGain()"
+                [min]="0"
+                [max]="40"
+                [label]="'Low Gain'"
+                [color]="'green'"
+                [size]="88"
+                tooltip="Low shelf gain (±20 dB)."
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqLowGain, $event, eqLowGain.set.bind(eqLowGain))">
+              </app-knob>
+              <span class="param-value">{{ formatGain(eqLowGain()) }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="controls-section secondary">
+          <h3>Low-Mid Peak</h3>
+          <div class="controls-grid">
+            <div class="control-group">
+              <app-dropdown
+                [value]="eqLowMidCutoff()"
+                [options]="['20','25','31.5','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300','8000','10000']"
+                [label]="'Low-Mid Freq (Hz)'"
+                [color]="'cyan'"
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqLowMidCutoff, $event, eqLowMidCutoff.set.bind(eqLowMidCutoff))">
+              </app-dropdown>
+            </div>
+            <div class="control-group">
+              <app-dropdown
+                [value]="eqLowMidQ()"
+                [options]="['0.5','1','2','4','8','16']"
+                [label]="'Low-Mid Q'"
+                [color]="'cyan'"
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqLowMidQ, $event, eqLowMidQ.set.bind(eqLowMidQ))">
+              </app-dropdown>
+            </div>
+            <div class="control-group">
+              <app-knob
+                [value]="eqLowMidGain()"
+                [min]="0"
+                [max]="40"
+                [label]="'Low-Mid Gain'"
+                [color]="'green'"
+                [size]="88"
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqLowMidGain, $event, eqLowMidGain.set.bind(eqLowMidGain))">
+              </app-knob>
+              <span class="param-value">{{ formatGain(eqLowMidGain()) }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="controls-section secondary">
+          <h3>High-Mid Peak</h3>
+          <div class="controls-grid">
+            <div class="control-group">
+              <app-dropdown
+                [value]="eqHighMidCutoff()"
+                [options]="['20','25','31.5','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300','8000','10000']"
+                [label]="'High-Mid Freq (Hz)'"
+                [color]="'cyan'"
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqHighMidCutoff, $event, eqHighMidCutoff.set.bind(eqHighMidCutoff))">
+              </app-dropdown>
+            </div>
+            <div class="control-group">
+              <app-dropdown
+                [value]="eqHighMidQ()"
+                [options]="['0.5','1','2','4','8','16']"
+                [label]="'High-Mid Q'"
+                [color]="'cyan'"
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqHighMidQ, $event, eqHighMidQ.set.bind(eqHighMidQ))">
+              </app-dropdown>
+            </div>
+            <div class="control-group">
+              <app-knob
+                [value]="eqHighMidGain()"
+                [min]="0"
+                [max]="40"
+                [label]="'High-Mid Gain'"
+                [color]="'green'"
+                [size]="88"
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqHighMidGain, $event, eqHighMidGain.set.bind(eqHighMidGain))">
+              </app-knob>
+              <span class="param-value">{{ formatGain(eqHighMidGain()) }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="controls-section secondary">
+          <h3>High Shelf</h3>
+          <div class="controls-grid">
+            <div class="control-group">
+              <app-dropdown
+                [value]="eqHighCutoff()"
+                [options]="['700','1000','1400','2000','3000','4000','6000','8000','11000','FLAT']"
+                [label]="'High Cutoff (Hz)'"
+                [color]="'cyan'"
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqHighCutoff, $event, eqHighCutoff.set.bind(eqHighCutoff))">
+              </app-dropdown>
+            </div>
+            <div class="control-group">
+              <app-knob
+                [value]="eqHighGain()"
+                [min]="0"
+                [max]="40"
+                [label]="'High Gain'"
+                [color]="'green'"
+                [size]="88"
+                (valueChange)="onEqParamChange(GR55AddressMap.patch.eq.eqHighGain, $event, eqHighGain.set.bind(eqHighGain))">
+              </app-knob>
+              <span class="param-value">{{ formatGain(eqHighGain()) }}</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    }
+
     @if (activeTab() === 'assigns') {
       <div class="tab-panel">
         <h2>🎛️ Assigns & CTL</h2>

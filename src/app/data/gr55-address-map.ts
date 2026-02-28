@@ -601,6 +601,35 @@ export const GR55AddressMap = {
         uiLevel: 'secondary',
         category: 'PCM Tone 1'
       } as FieldDefinition<number>,
+
+      // Additional PatchPCMToneStruct fields
+      chromatic: {
+        address: 0x18002006, size: 1, type: 'boolean', label: 'Chromatic',
+        defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<boolean>,
+      legatoSwitch: {
+        address: 0x18002007, size: 1, type: 'boolean', label: 'Legato',
+        defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<boolean>,
+      nuanceSwitch: {
+        address: 0x18002008, size: 1, type: 'boolean', label: 'Nuance',
+        defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<boolean>,
+      portamentoSwitch: {
+        address: 0x1800200C, size: 1, type: 'enum',
+        enumValues: ['OFF', 'ON', 'TONE'], label: 'Portamento',
+        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      releaseMode: {
+        address: 0x1800200F, size: 1, type: 'enum',
+        enumValues: ['1', '2'], label: 'Release Mode',
+        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      outputMfxSelect: {
+        address: 0x18002016, size: 1, type: 'enum',
+        enumValues: ['PATCH', 'LINE1', 'LINE2'], label: 'Output (MFX)',
+        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
     },
     
     // ═══════════════════════════════════════════════════════════════
@@ -691,8 +720,334 @@ export const GR55AddressMap = {
         uiLevel: 'secondary',
         category: 'PCM Tone 2'
       } as FieldDefinition<number>,
+
+      // Additional PatchPCMToneStruct fields for PCM Tone 2
+      chromatic2: {
+        address: 0x18002106, size: 1, type: 'boolean', label: 'Chromatic',
+        defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<boolean>,
+      legatoSwitch2: {
+        address: 0x18002107, size: 1, type: 'boolean', label: 'Legato',
+        defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<boolean>,
+      nuanceSwitch2: {
+        address: 0x18002108, size: 1, type: 'boolean', label: 'Nuance',
+        defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<boolean>,
+      portamentoSwitch2: {
+        address: 0x1800210C, size: 1, type: 'enum',
+        enumValues: ['OFF', 'ON', 'TONE'], label: 'Portamento',
+        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      releaseMode2: {
+        address: 0x1800210F, size: 1, type: 'enum',
+        enumValues: ['1', '2'], label: 'Release Mode',
+        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      outputMfxSelect2: {
+        address: 0x18002116, size: 1, type: 'enum',
+        enumValues: ['PATCH', 'LINE1', 'LINE2'], label: 'Output (MFX)',
+        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
     },
-    
+
+    // ═══════════════════════════════════════════════════════════════
+    // PCM TONE 1 OFFSET STRUCT (0x18003000-0x18003027)
+    // Patch-level offsets applied on top of tone's own settings.
+    // From gr55-remote PatchPCMToneOffsetStruct (pack7(0x003000))
+    // ═══════════════════════════════════════════════════════════════
+
+    pcmTone1Offset: {
+      tvfFilterType: {
+        address: 0x18003000, size: 1, type: 'enum',
+        enumValues: ['OFF', 'LPF', 'BPF', 'HPF', 'PKG', 'LPF2', 'LPF3', 'TONE'],
+        label: 'Filter Type', defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfCutoff: {
+        address: 0x18003001, size: 1, type: 'number', range: [0, 126],
+        label: 'Cutoff Offset', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfResonance: {
+        address: 0x18003002, size: 1, type: 'number', range: [0, 128],
+        label: 'Resonance Offset', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfCutoffVelSens: {
+        address: 0x18003003, size: 1, type: 'number', range: [0, 128],
+        label: 'Cutoff Vel Sens', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfCutoffVelCurve: {
+        address: 0x18003004, size: 1, type: 'enum',
+        enumValues: ['FIXED', '1', '2', '3', '4', '5', '6', '7'],
+        label: 'Cutoff Vel Curve', defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfCutoffKeyfollow: {
+        address: 0x18003005, size: 1, type: 'number', range: [0, 400],
+        label: 'Cutoff Keyfollow', defaultValue: 200, encodedOffset: 200,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfEnvDepth: {
+        address: 0x18003007, size: 1, type: 'number', range: [0, 126],
+        label: 'TVF Env Depth', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfEnvTime1: {
+        address: 0x18003008, size: 1, type: 'number', range: [0, 128],
+        label: 'TVF Attack', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfEnvTime2: {
+        address: 0x18003009, size: 1, type: 'number', range: [0, 128],
+        label: 'TVF Decay', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfEnvLevel3: {
+        address: 0x1800300A, size: 1, type: 'number', range: [0, 128],
+        label: 'TVF Sustain', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvfEnvTime4: {
+        address: 0x1800300B, size: 1, type: 'number', range: [0, 128],
+        label: 'TVF Release', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvaLevelVelSens: {
+        address: 0x1800300E, size: 1, type: 'number', range: [0, 126],
+        label: 'Level Vel Sens', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvaEnvTime1: {
+        address: 0x18003010, size: 1, type: 'number', range: [0, 128],
+        label: 'TVA Attack', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvaEnvTime2: {
+        address: 0x18003011, size: 1, type: 'number', range: [0, 128],
+        label: 'TVA Decay', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvaEnvLevel3: {
+        address: 0x18003012, size: 1, type: 'number', range: [0, 128],
+        label: 'TVA Sustain', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      tvaEnvTime4: {
+        address: 0x18003013, size: 1, type: 'number', range: [0, 128],
+        label: 'TVA Release', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      pitchEnvOffset: {
+        address: 0x18003018, size: 1, type: 'number', range: [0, 24],
+        label: 'Pitch Env', defaultValue: 12, encodedOffset: 12, unit: 'st',
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      pitchEnvAttack: {
+        address: 0x18003019, size: 1, type: 'number', range: [0, 128],
+        label: 'Pitch Attack', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      pitchEnvDecay: {
+        address: 0x1800301A, size: 1, type: 'number', range: [0, 128],
+        label: 'Pitch Decay', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      portamentoType: {
+        address: 0x1800301B, size: 1, type: 'enum',
+        enumValues: ['RATE', 'TIME'], label: 'Portamento Type',
+        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      lfo1PitchDepth: {
+        address: 0x1800301E, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO1 Pitch', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      lfo1FilterDepth: {
+        address: 0x1800301F, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO1 Filter', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      lfo1AmpDepth: {
+        address: 0x18003020, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO1 Amp', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      lfo1PanDepth: {
+        address: 0x18003021, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO1 Pan', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      lfo2PitchDepth: {
+        address: 0x18003024, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO2 Pitch', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      lfo2FilterDepth: {
+        address: 0x18003025, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO2 Filter', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      lfo2AmpDepth: {
+        address: 0x18003026, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO2 Amp', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+      lfo2PanDepth: {
+        address: 0x18003027, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO2 Pan', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 1'
+      } as FieldDefinition<number>,
+    },
+
+    // ═══════════════════════════════════════════════════════════════
+    // PCM TONE 2 OFFSET STRUCT (0x18003100-0x18003127)
+    // Same layout as PCM Tone 1 Offset, base address +0x100
+    // ═══════════════════════════════════════════════════════════════
+
+    pcmTone2Offset: {
+      tvfFilterType: {
+        address: 0x18003100, size: 1, type: 'enum',
+        enumValues: ['OFF', 'LPF', 'BPF', 'HPF', 'PKG', 'LPF2', 'LPF3', 'TONE'],
+        label: 'Filter Type', defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfCutoff: {
+        address: 0x18003101, size: 1, type: 'number', range: [0, 126],
+        label: 'Cutoff Offset', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfResonance: {
+        address: 0x18003102, size: 1, type: 'number', range: [0, 128],
+        label: 'Resonance Offset', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfCutoffVelSens: {
+        address: 0x18003103, size: 1, type: 'number', range: [0, 128],
+        label: 'Cutoff Vel Sens', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfCutoffVelCurve: {
+        address: 0x18003104, size: 1, type: 'enum',
+        enumValues: ['FIXED', '1', '2', '3', '4', '5', '6', '7'],
+        label: 'Cutoff Vel Curve', defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfCutoffKeyfollow: {
+        address: 0x18003105, size: 1, type: 'number', range: [0, 400],
+        label: 'Cutoff Keyfollow', defaultValue: 200, encodedOffset: 200,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfEnvDepth: {
+        address: 0x18003107, size: 1, type: 'number', range: [0, 126],
+        label: 'TVF Env Depth', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfEnvTime1: {
+        address: 0x18003108, size: 1, type: 'number', range: [0, 128],
+        label: 'TVF Attack', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfEnvTime2: {
+        address: 0x18003109, size: 1, type: 'number', range: [0, 128],
+        label: 'TVF Decay', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfEnvLevel3: {
+        address: 0x1800310A, size: 1, type: 'number', range: [0, 128],
+        label: 'TVF Sustain', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvfEnvTime4: {
+        address: 0x1800310B, size: 1, type: 'number', range: [0, 128],
+        label: 'TVF Release', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvaLevelVelSens: {
+        address: 0x1800310E, size: 1, type: 'number', range: [0, 126],
+        label: 'Level Vel Sens', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvaEnvTime1: {
+        address: 0x18003110, size: 1, type: 'number', range: [0, 128],
+        label: 'TVA Attack', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvaEnvTime2: {
+        address: 0x18003111, size: 1, type: 'number', range: [0, 128],
+        label: 'TVA Decay', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvaEnvLevel3: {
+        address: 0x18003112, size: 1, type: 'number', range: [0, 128],
+        label: 'TVA Sustain', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      tvaEnvTime4: {
+        address: 0x18003113, size: 1, type: 'number', range: [0, 128],
+        label: 'TVA Release', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      pitchEnvOffset: {
+        address: 0x18003118, size: 1, type: 'number', range: [0, 24],
+        label: 'Pitch Env', defaultValue: 12, encodedOffset: 12, unit: 'st',
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      pitchEnvAttack: {
+        address: 0x18003119, size: 1, type: 'number', range: [0, 128],
+        label: 'Pitch Attack', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      pitchEnvDecay: {
+        address: 0x1800311A, size: 1, type: 'number', range: [0, 128],
+        label: 'Pitch Decay', defaultValue: 64, encodedOffset: 64,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      portamentoType: {
+        address: 0x1800311B, size: 1, type: 'enum',
+        enumValues: ['RATE', 'TIME'], label: 'Portamento Type',
+        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      lfo1PitchDepth: {
+        address: 0x1800311E, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO1 Pitch', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      lfo1FilterDepth: {
+        address: 0x1800311F, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO1 Filter', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      lfo1AmpDepth: {
+        address: 0x18003120, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO1 Amp', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      lfo1PanDepth: {
+        address: 0x18003121, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO1 Pan', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      lfo2PitchDepth: {
+        address: 0x18003124, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO2 Pitch', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      lfo2FilterDepth: {
+        address: 0x18003125, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO2 Filter', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      lfo2AmpDepth: {
+        address: 0x18003126, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO2 Amp', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+      lfo2PanDepth: {
+        address: 0x18003127, size: 1, type: 'number', range: [0, 126],
+        label: 'LFO2 Pan', defaultValue: 63, encodedOffset: 63,
+        uiLevel: 'secondary', category: 'PCM Tone 2'
+      } as FieldDefinition<number>,
+    },
+
     // ═══════════════════════════════════════════════════════════════
     // MODELING TONE SECTION (0x18001000-0x1800100A)
     // From gr55-remote PatchModelingToneStruct
@@ -1019,7 +1374,163 @@ export const GR55AddressMap = {
         category: 'Reverb'
       } as FieldDefinition<number>,
     },
-    
+
+    // ═══════════════════════════════════════════════════════════════
+    // EQ SECTION (0x18000611-0x1800061D)
+    // 5-band parametric EQ + EZ Character
+    // From gr55-remote sendsAndEq struct (offsets 0x0011-0x001d)
+    // ═══════════════════════════════════════════════════════════════
+
+    eq: {
+      eqSwitch: {
+        address: 0x18000611,
+        size: 1,
+        type: 'boolean',
+        label: 'EQ Switch',
+        defaultValue: false,
+        uiLevel: 'primary',
+        category: 'EQ'
+      } as FieldDefinition<boolean>,
+
+      eqLowCutoff: {
+        address: 0x18000612,
+        size: 1,
+        type: 'enum',
+        enumValues: ['FLAT', '55', '110', '165', '200', '280', '340', '400', '500', '630', '800'],
+        label: 'Low Cutoff',
+        defaultValue: 0,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqLowGain: {
+        address: 0x18000613,
+        size: 1,
+        type: 'number',
+        range: [0, 40],
+        label: 'Low Gain',
+        defaultValue: 20,
+        encodedOffset: 20,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqLowMidCutoff: {
+        address: 0x18000614,
+        size: 1,
+        type: 'enum',
+        enumValues: ['20','25','31.5','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300','8000','10000'],
+        label: 'Low-Mid Freq',
+        defaultValue: 17,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqLowMidQ: {
+        address: 0x18000615,
+        size: 1,
+        type: 'enum',
+        enumValues: ['0.5', '1', '2', '4', '8', '16'],
+        label: 'Low-Mid Q',
+        defaultValue: 1,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqLowMidGain: {
+        address: 0x18000616,
+        size: 1,
+        type: 'number',
+        range: [0, 40],
+        label: 'Low-Mid Gain',
+        defaultValue: 20,
+        encodedOffset: 20,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqHighMidCutoff: {
+        address: 0x18000617,
+        size: 1,
+        type: 'enum',
+        enumValues: ['20','25','31.5','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300','8000','10000'],
+        label: 'High-Mid Freq',
+        defaultValue: 20,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqHighMidQ: {
+        address: 0x18000618,
+        size: 1,
+        type: 'enum',
+        enumValues: ['0.5', '1', '2', '4', '8', '16'],
+        label: 'High-Mid Q',
+        defaultValue: 1,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqHighMidGain: {
+        address: 0x18000619,
+        size: 1,
+        type: 'number',
+        range: [0, 40],
+        label: 'High-Mid Gain',
+        defaultValue: 20,
+        encodedOffset: 20,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqHighCutoff: {
+        address: 0x1800061A,
+        size: 1,
+        type: 'enum',
+        enumValues: ['700', '1000', '1400', '2000', '3000', '4000', '6000', '8000', '11000', 'FLAT'],
+        label: 'High Cutoff',
+        defaultValue: 9,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqHighGain: {
+        address: 0x1800061B,
+        size: 1,
+        type: 'number',
+        range: [0, 40],
+        label: 'High Gain',
+        defaultValue: 20,
+        encodedOffset: 20,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      eqLevel: {
+        address: 0x1800061C,
+        size: 1,
+        type: 'number',
+        range: [0, 40],
+        label: 'EQ Level',
+        defaultValue: 20,
+        encodedOffset: 20,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+
+      ezCharacter: {
+        address: 0x1800061D,
+        size: 1,
+        type: 'number',
+        range: [0, 6],
+        label: 'EZ Character',
+        defaultValue: 3,
+        encodedOffset: 3,
+        uiLevel: 'secondary',
+        category: 'EQ'
+      } as FieldDefinition<number>,
+    },
+
     // ═══════════════════════════════════════════════════════════════
     // ASSIGNS SECTION (0x18000011, 0x1800010C-0x18000217)
     // CTL Pedal + 8 Assignable Controls

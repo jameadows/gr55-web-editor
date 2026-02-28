@@ -1,0 +1,70 @@
+<div class="pcm-deep-editor">
+
+  <!-- Header -->
+  <div class="pcm-header">
+    <span class="pcm-badge">PCM {{ toneIndex }}</span>
+    <span class="param-count">{{ totalParamCount }} parameters</span>
+    @if (isLoading) {
+      <span class="loading-indicator">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        Reading from hardware…
+      </span>
+    }
+  </div>
+
+  @for (group of paramGroups; track group.name) {
+    <div class="param-section">
+      <div class="section-label">{{ group.name }}</div>
+      <div class="params-grid">
+
+        @for (param of group.params; track trackByAddr($index, param)) {
+
+          @if (isBoolean(param.field)) {
+            <div class="param-cell param-cell--led">
+              <app-led
+                [isOn]="getValue(param.field)"
+                [label]="param.label"
+                [color]="'amber'"
+                [size]="14"
+                [clickable]="true"
+                (toggle)="onParamChange(param, $event)">
+              </app-led>
+            </div>
+          }
+
+          @if (isEnum(param.field)) {
+            <div class="param-cell param-cell--dropdown">
+              <app-dropdown
+                [value]="getNumericValue(param.field)"
+                [options]="param.field.enumValues!"
+                [label]="param.label"
+                [color]="'cyan'"
+                (valueChange)="onParamChange(param, $event)">
+              </app-dropdown>
+            </div>
+          }
+
+          @if (isNumber(param.field)) {
+            <div class="param-cell param-cell--knob">
+              <app-knob
+                [value]="getNumericValue(param.field)"
+                [min]="param.field.range![0]"
+                [max]="param.field.range![1]"
+                [label]="param.label"
+                [color]="getKnobColor(param)"
+                [size]="72"
+                (valueChange)="onParamChange(param, $event)">
+              </app-knob>
+              <span class="param-value-display">{{ formatValue(param, getNumericValue(param.field)) }}</span>
+            </div>
+          }
+
+        }
+
+      </div>
+    </div>
+  }
+
+</div>

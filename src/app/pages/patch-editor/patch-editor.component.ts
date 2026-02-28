@@ -20,6 +20,7 @@ import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { MidiIoService, Gr55ProtocolService } from '../../core/midi';
 import { MfxDeepEditorComponent } from '../../components/mfx-deep-editor/mfx-deep-editor.component';
 import { ModelingDeepEditorComponent } from '../../components/modeling-deep-editor/modeling-deep-editor.component';
+import { PcmDeepEditorComponent } from '../../components/pcm-deep-editor/pcm-deep-editor.component';
 import { GR55AddressMap } from '../../data/gr55-address-map';
 import {
   GR55_PCM_CATEGORIES, ToneCategory,
@@ -28,7 +29,7 @@ import {
 import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
 import { ConfirmationDialogService } from '../../core/services/confirmation-dialog.service';
 
-type TabId = 'common' | 'pcm1' | 'pcm2' | 'modeling' | 'mfx' | 'delay' | 'chorus' | 'reverb' | 'assigns';
+type TabId = 'common' | 'pcm1' | 'pcm2' | 'modeling' | 'mfx' | 'delay' | 'chorus' | 'reverb' | 'eq' | 'assigns';
 
 interface Tab {
   id: TabId;
@@ -50,24 +51,29 @@ interface Tab {
     LoadingSpinnerComponent,
     TooltipDirective,
     MfxDeepEditorComponent,
-    ModelingDeepEditorComponent
+    ModelingDeepEditorComponent,
+    PcmDeepEditorComponent
   ],
   templateUrl: './patch-editor.component.html',
   styleUrl: './patch-editor.component.css'
 })
 export class PatchEditorComponent implements OnInit {
-  private midiIo = inject(MidiIoService);
   private gr55 = inject(Gr55ProtocolService);
-  private router = inject(Router);
+  private midiIo = inject(MidiIoService);
   private keyboard = inject(KeyboardShortcutService);
   private confirmDialog = inject(ConfirmationDialogService);
-  
+  private router = inject(Router);
+
+  // Expose address map to template for EQ direct-field writes
+  readonly GR55AddressMap = GR55AddressMap;
+
   // ═══════════════════════════════════════════════════════════
   // CONNECTION STATE
   // ═══════════════════════════════════════════════════════════
-  
+
   isConnected = this.midiIo.isConnected;
   isLoading = signal(false);
+  isSavingPatch = signal(false);
   
   // ═══════════════════════════════════════════════════════════
   // TAB NAVIGATION
@@ -82,6 +88,7 @@ export class PatchEditorComponent implements OnInit {
     { id: 'delay', label: 'Delay' },
     { id: 'chorus', label: 'Chorus' },
     { id: 'reverb', label: 'Reverb' },
+    { id: 'eq', label: 'EQ' },
     { id: 'assigns', label: 'Assigns' }
   ];
   
@@ -145,7 +152,22 @@ export class PatchEditorComponent implements OnInit {
   reverbTime = signal(30);
   reverbHighCut = signal(10);
   reverbEffectLevel = signal(100);
-  
+
+  // EQ
+  eqSwitch = signal(false);
+  eqLowCutoff = signal(0);
+  eqLowGain = signal(20);
+  eqLowMidCutoff = signal(17);
+  eqLowMidQ = signal(1);
+  eqLowMidGain = signal(20);
+  eqHighMidCutoff = signal(20);
+  eqHighMidQ = signal(1);
+  eqHighMidGain = signal(20);
+  eqHighCutoff = signal(9);
+  eqHighGain = signal(20);
+  eqLevel = signal(20);
+  ezCharacter = signal(3);
+
   // PCM Tone 1
   pcm1ToneSelect = signal(0);
 
@@ -375,7 +397,7 @@ export class PatchEditorComponent implements OnInit {
       key: 's',
       ctrl: true,
       description: 'Save current patch to file',
-      action: () => this.savePatchToFile()
+      action: () => this.savePatchToHardware()
     });
     
     // Open library (Ctrl+O / Cmd+O)
@@ -394,22 +416,7 @@ export class PatchEditorComponent implements OnInit {
       action: () => this.router.navigate(['/library'])
     });
   }
-  
-  /**
-   * Save current patch to file (for keyboard shortcut)
-   */
-  private savePatchToFile() {
-    if (!this.isConnected()) {
-      alert('Please connect to GR-55 first');
-      return;
-    }
-    
-    // This would use PatchLibraryService to save
-    // For now, just show message
-    console.log('Save patch shortcut triggered - feature in progress');
-    alert('Save patch feature coming soon!');
-  }
-  
+
   // ═══════════════════════════════════════════════════════════
   // TAB NAVIGATION
   // ═══════════════════════════════════════════════════════════
@@ -441,6 +448,7 @@ export class PatchEditorComponent implements OnInit {
     this.loadDelayParameters();
     this.loadChorusParameters();
     this.loadReverbParameters();
+    this.loadEqParameters();
     
     // Load PCM Tone sections
     this.loadPcm1Parameters();
@@ -830,11 +838,104 @@ export class PatchEditorComponent implements OnInit {
       }
     });
   }
-  
+
+  // ═══════════════════════════════════════════════════════════
+  // EQ SECTION
+  // ═══════════════════════════════════════════════════════════
+
+  private loadEqParameters() {
+    const eq = GR55AddressMap.patch.eq;
+    const reads: Array<{ field: any; setter: (v: any) => void }> = [
+      { field: eq.eqSwitch,       setter: v => this.eqSwitch.set(v) },
+      { field: eq.eqLowCutoff,    setter: v => this.eqLowCutoff.set(v) },
+      { field: eq.eqLowGain,      setter: v => this.eqLowGain.set(v) },
+      { field: eq.eqLowMidCutoff, setter: v => this.eqLowMidCutoff.set(v) },
+      { field: eq.eqLowMidQ,      setter: v => this.eqLowMidQ.set(v) },
+      { field: eq.eqLowMidGain,   setter: v => this.eqLowMidGain.set(v) },
+      { field: eq.eqHighMidCutoff,setter: v => this.eqHighMidCutoff.set(v) },
+      { field: eq.eqHighMidQ,     setter: v => this.eqHighMidQ.set(v) },
+      { field: eq.eqHighMidGain,  setter: v => this.eqHighMidGain.set(v) },
+      { field: eq.eqHighCutoff,   setter: v => this.eqHighCutoff.set(v) },
+      { field: eq.eqHighGain,     setter: v => this.eqHighGain.set(v) },
+      { field: eq.eqLevel,        setter: v => this.eqLevel.set(v) },
+      { field: eq.ezCharacter,    setter: v => this.ezCharacter.set(v) },
+    ];
+    for (const r of reads) {
+      this.gr55.readParameter(r.field).subscribe({
+        next: r.setter,
+        error: e => console.error(`Failed to read EQ param:`, e)
+      });
+    }
+  }
+
+  onEqSwitchChange(v: boolean) {
+    this.eqSwitch.set(v);
+    this.gr55.writeParameter(GR55AddressMap.patch.eq.eqSwitch, v).subscribe({
+      error: e => { console.error('EQ switch write failed:', e); this.loadEqParameters(); }
+    });
+  }
+
+  onEqParamChange(field: any, value: any, setter: (v: any) => void) {
+    setter(value);
+    this.gr55.writeParameter(field, value).subscribe({
+      error: e => { console.error('EQ param write failed:', e); this.loadEqParameters(); }
+    });
+  }
+
+  formatGain(raw: number): string {
+    const v = raw - 20;
+    return `${v >= 0 ? '+' : ''}${v} dB`;
+  }
+
+  formatEzChar(raw: number): string {
+    const v = raw - 3;
+    return `${v >= 0 ? '+' : ''}${v}`;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // SAVE PATCH TO HARDWARE
+  // ═══════════════════════════════════════════════════════════
+
+  async savePatchToHardware() {
+    if (!this.isConnected()) return;
+
+    let slotNum: number;
+    try {
+      slotNum = await new Promise<number>((resolve, reject) => {
+        this.gr55.getCurrentPatchNumber().subscribe({ next: resolve, error: reject });
+      });
+    } catch {
+      alert('Could not read current patch number from GR-55.');
+      return;
+    }
+
+    const slotDisplay = slotNum + 1; // 1-based for user display
+    const name = this.patchName();
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Write Patch to Hardware',
+      message: `Write current changes to Patch ${slotDisplay} ("${name}") on the GR-55?\n\nThis will overwrite the saved patch.`,
+      confirmText: 'Write to GR-55',
+      cancelText: 'Cancel',
+      danger: false,
+    });
+
+    if (!confirmed) return;
+
+    this.isSavingPatch.set(true);
+    try {
+      await this.gr55.writePatchToSlot(slotNum);
+    } catch (e) {
+      console.error('Failed to write patch to slot:', e);
+      alert('Write failed — check connection and try again.');
+    } finally {
+      this.isSavingPatch.set(false);
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════
   // PCM TONE 1 SECTION
   // ═══════════════════════════════════════════════════════════
-  
+
   private loadPcm1Parameters() {
     const map = GR55AddressMap.patch.pcmTone1;
     
