@@ -1,7 +1,17 @@
 <div class="mfx-deep-editor">
+
+  <!-- Header: type name + loading indicator -->
   <div class="effect-header">
     <span class="effect-badge">{{ currentTypeName }}</span>
     <span class="param-count">{{ currentParams.length }} parameters</span>
+    @if (isLoading) {
+      <span class="loading-indicator">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        Reading from hardware…
+      </span>
+    }
   </div>
 
   @if (currentParams.length === 0) {
@@ -10,50 +20,55 @@
     <div class="params-grid">
       @for (param of currentParams; track trackBySlot($index, param)) {
 
-        @if (param.type === 'boolean') {
-          <div class="param-cell param-cell--led">
-            <app-led
-              [isOn]="getParamValue(param.slot) === 1"
-              [label]="param.label"
-              [color]="'amber'"
-              [size]="14"
-              [clickable]="true"
-              [tooltip]="param.description ?? ''"
-              (toggle)="onParamChange(param, $event ? 1 : 0)">
-            </app-led>
-          </div>
-        }
+        @if (isParamVisible(param)) {
 
-        @if (param.type === 'enum') {
-          <div class="param-cell param-cell--dropdown">
-            <app-dropdown
-              [value]="getParamValue(param.slot)"
-              [options]="param.enumValues!"
-              [label]="param.label"
-              [color]="'cyan'"
-              [tooltip]="param.description ?? ''"
-              (valueChange)="onParamChange(param, $event)">
-            </app-dropdown>
-          </div>
-        }
+          @if (param.type === 'boolean') {
+            <div class="param-cell param-cell--led">
+              <app-led
+                [isOn]="getParamValue(param.slot) === 1"
+                [label]="param.label"
+                [color]="'amber'"
+                [size]="14"
+                [clickable]="true"
+                [tooltip]="param.description ?? ''"
+                (toggle)="onParamChange(param, $event ? 1 : 0)">
+              </app-led>
+            </div>
+          }
 
-        @if (param.type === 'number') {
-          <div class="param-cell param-cell--knob">
-            <app-knob
-              [value]="getParamValue(param.slot)"
-              [min]="param.range![0]"
-              [max]="param.range![1]"
-              [label]="param.label"
-              [color]="getKnobColor(param)"
-              [size]="72"
-              [tooltip]="(param.description ?? '') + (param.unit ? ' (' + param.unit + ')' : '')"
-              (valueChange)="onParamChange(param, $event)">
-            </app-knob>
-            <span class="param-value-display">{{ formatParamValue(param, getParamValue(param.slot)) }}</span>
-          </div>
+          @if (param.type === 'enum') {
+            <div class="param-cell param-cell--dropdown">
+              <app-dropdown
+                [value]="getParamValue(param.slot)"
+                [options]="param.enumValues!"
+                [label]="param.label"
+                [color]="'cyan'"
+                [tooltip]="param.description ?? ''"
+                (valueChange)="onParamChange(param, $event)">
+              </app-dropdown>
+            </div>
+          }
+
+          @if (param.type === 'number') {
+            <div class="param-cell param-cell--knob">
+              <app-knob
+                [value]="getParamValue(param.slot)"
+                [min]="param.range![0]"
+                [max]="param.range![1]"
+                [label]="param.label"
+                [color]="getKnobColor(param)"
+                [size]="72"
+                [tooltip]="(param.description ?? '') + (param.unit ? ' (' + param.unit + ')' : '')"
+                (valueChange)="onParamChange(param, $event)">
+              </app-knob>
+              <span class="param-value-display">{{ formatParamValue(param, getParamValue(param.slot)) }}</span>
+            </div>
+          }
+
         }
 
       }
     </div>
   }
+
 </div>

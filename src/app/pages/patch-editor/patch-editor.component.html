@@ -650,7 +650,14 @@
 
         <!-- MFX DEEP EDITING -->
         <section class="controls-section primary mfx-deep-section">
-          <h3>Effect Parameters</h3>
+          <h3>Effect Parameters
+            <span class="section-type-badge">{{ [
+              'EQ', 'SUPER FILTER', 'PHASER', 'STEP PHASER', 'RING MODULATOR',
+              'TREMOLO', 'AUTO PAN', 'SLICER', 'VK ROTARY', 'HEXA-CHORUS',
+              'SPACE-D', 'FLANGER', 'STEP FLANGER', 'GUITAR AMP SIM', 'COMPRESSOR',
+              'LIMITER', '3TAP PAN DELAY', 'TIME CTRL DELAY', 'LOFI COMPRESS', 'PITCH SHIFTER'
+            ][mfxType()] }}</span>
+          </h3>
           <app-mfx-deep-editor [mfxType]="mfxType()"></app-mfx-deep-editor>
         </section>
       </div>

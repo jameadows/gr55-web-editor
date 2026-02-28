@@ -1,5 +1,5 @@
 import {
-  Component, Input, OnChanges, SimpleChanges, inject
+  Component, Input, OnChanges, SimpleChanges, inject, ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KnobComponent } from '../../shared/components/knob/knob.component';
@@ -22,16 +22,17 @@ import {
 })
 export class MfxDeepEditorComponent implements OnChanges {
   private gr55 = inject(Gr55ProtocolService);
+  private cdr = inject(ChangeDetectorRef);
 
-  /** Current MFX type index (0–19), driven by parent */
   @Input({ required: true }) mfxType: number = 0;
 
   get currentTypeDef() { return MFX_TYPE_BY_INDEX.get(this.mfxType); }
   get currentParams(): MfxParamDef[] { return this.currentTypeDef?.params ?? []; }
   get currentTypeName(): string { return this.currentTypeDef?.name ?? `Type ${this.mfxType}`; }
 
-  /** Per-slot raw values, keyed by slot index 0–31 */
   paramValues: Record<number, number> = {};
+  isLoading = false;
+  private pendingReads = 0;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['mfxType']) {
@@ -43,18 +44,33 @@ export class MfxDeepEditorComponent implements OnChanges {
     const typeDef = MFX_TYPE_BY_INDEX.get(this.mfxType);
     if (!typeDef) return;
 
-    // Seed defaults immediately
     const defaults: Record<number, number> = {};
     for (const param of typeDef.params) {
       defaults[param.slot] = param.defaultValue;
     }
     this.paramValues = { ...defaults };
 
-    // Read each param from hardware
+    this.isLoading = true;
+    this.pendingReads = typeDef.params.length;
+
+    const onReadDone = () => {
+      this.pendingReads--;
+      if (this.pendingReads <= 0) {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    };
+
     for (const param of typeDef.params) {
       this.gr55.readParameter<number>(this.makeFieldDef(param)).subscribe({
-        next: (v) => { this.paramValues = { ...this.paramValues, [param.slot]: v }; },
-        error: (e) => console.warn(`MFX slot ${param.slot} read failed:`, e),
+        next: (v) => {
+          this.paramValues = { ...this.paramValues, [param.slot]: v };
+          onReadDone();
+        },
+        error: (e) => {
+          console.warn(`MFX slot ${param.slot} read failed:`, e);
+          onReadDone();
+        },
       });
     }
   }
@@ -68,6 +84,33 @@ export class MfxDeepEditorComponent implements OnChanges {
 
   getParamValue(slot: number): number {
     return this.paramValues[slot] ?? 0;
+  }
+
+  /**
+   * Rate Sync conditional visibility.
+   * Three-slot pattern: [N] Sync toggle → [N+1] raw Rate knob OR [N+2] Rate Note dropdown
+   */
+  isParamVisible(param: MfxParamDef): boolean {
+    const label = param.label;
+    const params = this.currentParams;
+
+    if (label === 'Rate Note') {
+      const sync = params.find(p => p.label === 'Rate Sync');
+      return sync ? this.getParamValue(sync.slot) === 1 : true;
+    }
+    if (label === 'Step Note') {
+      const sync = params.find(p => p.label === 'Step Rate Sync');
+      return sync ? this.getParamValue(sync.slot) === 1 : true;
+    }
+    if (label === 'Rate' && param.type === 'number') {
+      const sync = params.find(p => p.label === 'Rate Sync');
+      return sync ? this.getParamValue(sync.slot) === 0 : true;
+    }
+    if (label === 'Step Rate' && param.type === 'number') {
+      const sync = params.find(p => p.label === 'Step Rate Sync');
+      return sync ? this.getParamValue(sync.slot) === 0 : true;
+    }
+    return true;
   }
 
   trackBySlot(_: number, param: MfxParamDef): number {
@@ -91,7 +134,7 @@ export class MfxDeepEditorComponent implements OnChanges {
     if (param.unit === '°')  return `${rawValue}°`;
     if (param.label.includes('Pitch Shift')) {
       const v = rawValue - 24;
-      return `${v >= 0 ? '+' : ''}${v}`;
+      return `${v >= 0 ? '+' : ''}${v} st`;
     }
     if (param.label.includes('Fine Tune') || param.label === 'Depth Dev' || param.label === 'Pan Dev') {
       const v = rawValue - 63;

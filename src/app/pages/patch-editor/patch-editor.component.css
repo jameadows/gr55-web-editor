@@ -429,3 +429,21 @@
   background: #744210;
   color: #fefefe;
 }
+
+/* ── MFX section type badge ────────────────────────────────────────── */
+
+.section-type-badge {
+  display: inline-block;
+  margin-left: 10px;
+  background: linear-gradient(135deg, #2d3748, #1a202c);
+  border: 1px solid #4a5568;
+  color: #f6ad55;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border-radius: 3px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
