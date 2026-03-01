@@ -28,6 +28,7 @@ import {
 } from '../../data/gr55-pcm-tones';
 import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
 import { ConfirmationDialogService } from '../../core/services/confirmation-dialog.service';
+import { AssignTargetSelectComponent } from '../../shared/components/assign-target-select/assign-target-select.component';
 
 type TabId = 'common' | 'pcm1' | 'pcm2' | 'modeling' | 'mfx' | 'delay' | 'chorus' | 'reverb' | 'eq' | 'assigns';
 
@@ -52,7 +53,8 @@ interface Tab {
     TooltipDirective,
     MfxDeepEditorComponent,
     ModelingDeepEditorComponent,
-    PcmDeepEditorComponent
+    PcmDeepEditorComponent,
+    AssignTargetSelectComponent
   ],
   templateUrl: './patch-editor.component.html',
   styleUrl: './patch-editor.component.css'
@@ -1714,7 +1716,21 @@ export class PatchEditorComponent implements OnInit {
       }
     });
   }
-  
+
+  onAssign2TargetChange(value: number) {
+    this.assign2Target.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign2Target, value).subscribe({
+      error: (e) => { console.error('Failed to write assign2 target:', e); this.loadAssignsParameters(); }
+    });
+  }
+
+  onAssign2SourceChange(value: number) {
+    this.assign2Source.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign2Source, value).subscribe({
+      error: (e) => { console.error('Failed to write assign2 source:', e); this.loadAssignsParameters(); }
+    });
+  }
+
   onAssign3SwitchChange(enabled: boolean) {
     this.assign3Switch.set(enabled);
     this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign3Switch, enabled).subscribe({
@@ -1724,7 +1740,21 @@ export class PatchEditorComponent implements OnInit {
       }
     });
   }
-  
+
+  onAssign3TargetChange(value: number) {
+    this.assign3Target.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign3Target, value).subscribe({
+      error: (e) => { console.error('Failed to write assign3 target:', e); this.loadAssignsParameters(); }
+    });
+  }
+
+  onAssign3SourceChange(value: number) {
+    this.assign3Source.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign3Source, value).subscribe({
+      error: (e) => { console.error('Failed to write assign3 source:', e); this.loadAssignsParameters(); }
+    });
+  }
+
   onAssign4SwitchChange(enabled: boolean) {
     this.assign4Switch.set(enabled);
     this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign4Switch, enabled).subscribe({
@@ -1732,6 +1762,20 @@ export class PatchEditorComponent implements OnInit {
         console.error('Failed to write assign4 switch:', e);
         this.loadAssignsParameters();
       }
+    });
+  }
+
+  onAssign4TargetChange(value: number) {
+    this.assign4Target.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign4Target, value).subscribe({
+      error: (e) => { console.error('Failed to write assign4 target:', e); this.loadAssignsParameters(); }
+    });
+  }
+
+  onAssign4SourceChange(value: number) {
+    this.assign4Source.set(value);
+    this.gr55.writeParameter(GR55AddressMap.patch.assigns.assign4Source, value).subscribe({
+      error: (e) => { console.error('Failed to write assign4 source:', e); this.loadAssignsParameters(); }
     });
   }
   

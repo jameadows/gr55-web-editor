@@ -1185,216 +1185,192 @@
         <section class="parameter-section">
           <h3>Assign 1</h3>
           <div class="assign-config">
-            <div class="controls-grid">
-              <div class="control-group">
+            <div class="assign-row">
+              <div class="assign-sw">
                 <app-led
-                  label="Assign 1"
+                  label="ON"
                   [isOn]="assign1Switch()"
                   [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 1. Click to toggle this assignable control on/off."
+                  tooltip="Enable/disable ASSIGN 1."
                   (valueChange)="onAssign1SwitchChange($event)">
                 </app-led>
               </div>
-              
-              <div class="control-group">
+              <div class="assign-source">
+                <label class="assign-field-label">Source</label>
                 <app-dropdown
-                  label="Source"
                   [value]="assign1Source()"
                   [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 1 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
+                  tooltip="Control source for ASSIGN 1."
                   (valueChange)="onAssign1SourceChange($event)">
                 </app-dropdown>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Target" value="{{ assign1Target() }}" />
-                <p class="hint">Parameter ID to control (0-534)</p>
+              <div class="assign-target">
+                <label class="assign-field-label">Target</label>
+                <app-assign-target-select
+                  [value]="assign1Target()"
+                  (valueChange)="onAssign1TargetChange($event)">
+                </app-assign-target-select>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Min" value="{{ assign1TargetMin() }}" />
-              </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Max" value="{{ assign1TargetMax() }}" />
+              <div class="assign-range">
+                <label class="assign-field-label">Min</label>
+                <app-parameter-label value="{{ assign1TargetMin() }}" />
+                <label class="assign-field-label">Max</label>
+                <app-parameter-label value="{{ assign1TargetMax() }}" />
               </div>
             </div>
           </div>
         </section>
-        
+
         <!-- ASSIGN 2 -->
         <section class="parameter-section">
           <h3>Assign 2</h3>
           <div class="assign-config">
-            <div class="controls-grid">
-              <div class="control-group">
-                <app-led
-                  label="Assign 2"
-                  [isOn]="assign2Switch()"
-                  [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 2. Click to toggle this assignable control on/off."
-                  (valueChange)="onAssign2SwitchChange($event)">
+            <div class="assign-row">
+              <div class="assign-sw">
+                <app-led label="ON" [isOn]="assign2Switch()" [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 2." (valueChange)="onAssign2SwitchChange($event)">
                 </app-led>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Source" value="{{ assign2Source() }}" />
-                <p class="hint">Control source</p>
+              <div class="assign-source">
+                <label class="assign-field-label">Source</label>
+                <app-dropdown [value]="assign2Source()" [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 2." (valueChange)="onAssign2SourceChange($event)">
+                </app-dropdown>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Target" value="{{ assign2Target() }}" />
-                <p class="hint">Parameter to control</p>
+              <div class="assign-target">
+                <label class="assign-field-label">Target</label>
+                <app-assign-target-select [value]="assign2Target()" (valueChange)="onAssign2TargetChange($event)">
+                </app-assign-target-select>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Range" value="{{ assign2TargetMin() }} - {{ assign2TargetMax() }}" />
+              <div class="assign-range">
+                <label class="assign-field-label">Min</label>
+                <app-parameter-label value="{{ assign2TargetMin() }}" />
+                <label class="assign-field-label">Max</label>
+                <app-parameter-label value="{{ assign2TargetMax() }}" />
               </div>
             </div>
           </div>
         </section>
-        
+
         <!-- ASSIGN 3 -->
         <section class="parameter-section">
           <h3>Assign 3</h3>
           <div class="assign-config">
-            <div class="controls-grid">
-              <div class="control-group">
-                <app-led
-                  label="Assign 3"
-                  [isOn]="assign3Switch()"
-                  [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 3. Click to toggle this assignable control on/off."
-                  (valueChange)="onAssign3SwitchChange($event)">
+            <div class="assign-row">
+              <div class="assign-sw">
+                <app-led label="ON" [isOn]="assign3Switch()" [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 3." (valueChange)="onAssign3SwitchChange($event)">
                 </app-led>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Source" value="{{ assign3Source() }}" />
+              <div class="assign-source">
+                <label class="assign-field-label">Source</label>
+                <app-dropdown [value]="assign3Source()" [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 3." (valueChange)="onAssign3SourceChange($event)">
+                </app-dropdown>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Target" value="{{ assign3Target() }}" />
+              <div class="assign-target">
+                <label class="assign-field-label">Target</label>
+                <app-assign-target-select [value]="assign3Target()" (valueChange)="onAssign3TargetChange($event)">
+                </app-assign-target-select>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Range" value="{{ assign3TargetMin() }} - {{ assign3TargetMax() }}" />
+              <div class="assign-range">
+                <label class="assign-field-label">Min</label>
+                <app-parameter-label value="{{ assign3TargetMin() }}" />
+                <label class="assign-field-label">Max</label>
+                <app-parameter-label value="{{ assign3TargetMax() }}" />
               </div>
             </div>
           </div>
         </section>
-        
+
         <!-- ASSIGN 4 -->
         <section class="parameter-section">
           <h3>Assign 4</h3>
           <div class="assign-config">
-            <div class="controls-grid">
-              <div class="control-group">
-                <app-led
-                  label="Assign 4"
-                  [isOn]="assign4Switch()"
-                  [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 4. Click to toggle this assignable control on/off."
-                  (valueChange)="onAssign4SwitchChange($event)">
+            <div class="assign-row">
+              <div class="assign-sw">
+                <app-led label="ON" [isOn]="assign4Switch()" [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 4." (valueChange)="onAssign4SwitchChange($event)">
                 </app-led>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Source" value="{{ assign4Source() }}" />
+              <div class="assign-source">
+                <label class="assign-field-label">Source</label>
+                <app-dropdown [value]="assign4Source()" [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 4." (valueChange)="onAssign4SourceChange($event)">
+                </app-dropdown>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Target" value="{{ assign4Target() }}" />
+              <div class="assign-target">
+                <label class="assign-field-label">Target</label>
+                <app-assign-target-select [value]="assign4Target()" (valueChange)="onAssign4TargetChange($event)">
+                </app-assign-target-select>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Range" value="{{ assign4TargetMin() }} - {{ assign4TargetMax() }}" />
+              <div class="assign-range">
+                <label class="assign-field-label">Min</label>
+                <app-parameter-label value="{{ assign4TargetMin() }}" />
+                <label class="assign-field-label">Max</label>
+                <app-parameter-label value="{{ assign4TargetMax() }}" />
               </div>
             </div>
           </div>
         </section>
-        
+
         <!-- ASSIGN 5 -->
         <section class="parameter-section">
           <h3>Assign 5</h3>
           <div class="assign-config">
-            <div class="controls-grid">
-              <div class="control-group">
-                <app-led
-                  label="Assign 5"
-                  [isOn]="assign5Switch()"
-                  [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 5. Click to toggle this assignable control on/off."
-                  (valueChange)="onAssign5SwitchChange($event)">
+            <div class="assign-row">
+              <div class="assign-sw">
+                <app-led label="ON" [isOn]="assign5Switch()" [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 5." (valueChange)="onAssign5SwitchChange($event)">
                 </app-led>
               </div>
-              
-              <div class="control-group">
-                <app-dropdown
-                  label="Source"
-                  [value]="assign5Source()"
-                  [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 5 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
-                  (valueChange)="onAssign5SourceChange($event)">
+              <div class="assign-source">
+                <label class="assign-field-label">Source</label>
+                <app-dropdown [value]="assign5Source()" [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 5." (valueChange)="onAssign5SourceChange($event)">
                 </app-dropdown>
               </div>
-              
-              <div class="control-group">
-                <app-knob
-                  label="Target"
-                  [value]="assign5Target()"
-                  [min]="0"
-                  [max]="534"
-                  tooltip="Target parameter ID (0-534). Select which GR-55 parameter this assign controls."
-                  (valueChange)="onAssign5TargetChange($event)">
-                </app-knob>
+              <div class="assign-target">
+                <label class="assign-field-label">Target</label>
+                <app-assign-target-select [value]="assign5Target()" (valueChange)="onAssign5TargetChange($event)">
+                </app-assign-target-select>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Range" value="{{ assign5TargetMin() }} - {{ assign5TargetMax() }}" />
+              <div class="assign-range">
+                <label class="assign-field-label">Min</label>
+                <app-parameter-label value="{{ assign5TargetMin() }}" />
+                <label class="assign-field-label">Max</label>
+                <app-parameter-label value="{{ assign5TargetMax() }}" />
               </div>
             </div>
           </div>
         </section>
-        
+
         <!-- ASSIGN 6 -->
         <section class="parameter-section">
           <h3>Assign 6</h3>
           <div class="assign-config">
-            <div class="controls-grid">
-              <div class="control-group">
-                <app-led
-                  label="Assign 6"
-                  [isOn]="assign6Switch()"
-                  [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 6. Click to toggle this assignable control on/off."
-                  (valueChange)="onAssign6SwitchChange($event)">
+            <div class="assign-row">
+              <div class="assign-sw">
+                <app-led label="ON" [isOn]="assign6Switch()" [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 6." (valueChange)="onAssign6SwitchChange($event)">
                 </app-led>
               </div>
-              
-              <div class="control-group">
-                <app-dropdown
-                  label="Source"
-                  [value]="assign6Source()"
-                  [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 6 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
-                  (valueChange)="onAssign6SourceChange($event)">
+              <div class="assign-source">
+                <label class="assign-field-label">Source</label>
+                <app-dropdown [value]="assign6Source()" [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 6." (valueChange)="onAssign6SourceChange($event)">
                 </app-dropdown>
               </div>
-              
-              <div class="control-group">
-                <app-knob
-                  label="Target"
-                  [value]="assign6Target()"
-                  [min]="0"
-                  [max]="534"
-                  tooltip="Target parameter ID (0-534). Select which GR-55 parameter this assign controls."
-                  (valueChange)="onAssign6TargetChange($event)">
-                </app-knob>
+              <div class="assign-target">
+                <label class="assign-field-label">Target</label>
+                <app-assign-target-select [value]="assign6Target()" (valueChange)="onAssign6TargetChange($event)">
+                </app-assign-target-select>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Range" value="{{ assign6TargetMin() }} - {{ assign6TargetMax() }}" />
+              <div class="assign-range">
+                <label class="assign-field-label">Min</label>
+                <app-parameter-label value="{{ assign6TargetMin() }}" />
+                <label class="assign-field-label">Max</label>
+                <app-parameter-label value="{{ assign6TargetMax() }}" />
               </div>
             </div>
           </div>
@@ -1404,98 +1380,66 @@
         <section class="parameter-section">
           <h3>Assign 7</h3>
           <div class="assign-config">
-            <div class="controls-grid">
-              <div class="control-group">
-                <app-led
-                  label="Assign 7"
-                  [isOn]="assign7Switch()"
-                  [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 7. Click to toggle this assignable control on/off."
-                  (valueChange)="onAssign7SwitchChange($event)">
+            <div class="assign-row">
+              <div class="assign-sw">
+                <app-led label="ON" [isOn]="assign7Switch()" [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 7." (valueChange)="onAssign7SwitchChange($event)">
                 </app-led>
               </div>
-              
-              <div class="control-group">
-                <app-dropdown
-                  label="Source"
-                  [value]="assign7Source()"
-                  [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 7 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
-                  (valueChange)="onAssign7SourceChange($event)">
+              <div class="assign-source">
+                <label class="assign-field-label">Source</label>
+                <app-dropdown [value]="assign7Source()" [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 7." (valueChange)="onAssign7SourceChange($event)">
                 </app-dropdown>
               </div>
-              
-              <div class="control-group">
-                <app-knob
-                  label="Target"
-                  [value]="assign7Target()"
-                  [min]="0"
-                  [max]="534"
-                  tooltip="Target parameter ID (0-534). Select which GR-55 parameter this assign controls."
-                  (valueChange)="onAssign7TargetChange($event)">
-                </app-knob>
+              <div class="assign-target">
+                <label class="assign-field-label">Target</label>
+                <app-assign-target-select [value]="assign7Target()" (valueChange)="onAssign7TargetChange($event)">
+                </app-assign-target-select>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Range" value="{{ assign7TargetMin() }} - {{ assign7TargetMax() }}" />
+              <div class="assign-range">
+                <label class="assign-field-label">Min</label>
+                <app-parameter-label value="{{ assign7TargetMin() }}" />
+                <label class="assign-field-label">Max</label>
+                <app-parameter-label value="{{ assign7TargetMax() }}" />
               </div>
             </div>
           </div>
         </section>
-        
+
         <!-- ASSIGN 8 -->
         <section class="parameter-section">
           <h3>Assign 8</h3>
           <div class="assign-config">
-            <div class="controls-grid">
-              <div class="control-group">
-                <app-led
-                  label="Assign 8"
-                  [isOn]="assign8Switch()"
-                  [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 8. Click to toggle this assignable control on/off."
-                  (valueChange)="onAssign8SwitchChange($event)">
+            <div class="assign-row">
+              <div class="assign-sw">
+                <app-led label="ON" [isOn]="assign8Switch()" [clickable]="true"
+                  tooltip="Enable/disable ASSIGN 8." (valueChange)="onAssign8SwitchChange($event)">
                 </app-led>
               </div>
-              
-              <div class="control-group">
-                <app-dropdown
-                  label="Source"
-                  [value]="assign8Source()"
-                  [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 8 (50+ options). Choose CC, EXP PEDAL, GK S1/S2, and more."
-                  (valueChange)="onAssign8SourceChange($event)">
+              <div class="assign-source">
+                <label class="assign-field-label">Source</label>
+                <app-dropdown [value]="assign8Source()" [options]="assignSourceOptions"
+                  tooltip="Control source for ASSIGN 8." (valueChange)="onAssign8SourceChange($event)">
                 </app-dropdown>
               </div>
-              
-              <div class="control-group">
-                <app-knob
-                  label="Target"
-                  [value]="assign8Target()"
-                  [min]="0"
-                  [max]="534"
-                  tooltip="Target parameter ID (0-534). Select which GR-55 parameter this assign controls."
-                  (valueChange)="onAssign8TargetChange($event)">
-                </app-knob>
+              <div class="assign-target">
+                <label class="assign-field-label">Target</label>
+                <app-assign-target-select [value]="assign8Target()" (valueChange)="onAssign8TargetChange($event)">
+                </app-assign-target-select>
               </div>
-              
-              <div class="control-group">
-                <app-parameter-label label="Range" value="{{ assign8TargetMin() }} - {{ assign8TargetMax() }}" />
+              <div class="assign-range">
+                <label class="assign-field-label">Min</label>
+                <app-parameter-label value="{{ assign8TargetMin() }}" />
+                <label class="assign-field-label">Max</label>
+                <app-parameter-label value="{{ assign8TargetMax() }}" />
               </div>
             </div>
           </div>
         </section>
-        
+
         <div class="info-box">
-          <p><strong>Complete Assigns System:</strong> All 8 assignable controls plus CTL pedal are now available for full customization.</p>
-          <p><strong>Target IDs:</strong> Each GR-55 parameter has a unique ID (0-534). Common targets:</p>
-          <ul>
-            <li>0-50: Patch Level, Tone switches</li>
-            <li>100-200: PCM Tone parameters</li>
-            <li>300-400: Modeling parameters</li>
-            <li>500+: Effect parameters</li>
-          </ul>
-          <p>Refer to the GR-55 manual for complete target ID list.</p>
+          <p><strong>Complete Assigns System:</strong> All 8 assignable controls plus CTL pedal. Each Target selector covers all 535 assignable GR-55 parameters — type to filter.</p>
         </div>
       </div>
     }

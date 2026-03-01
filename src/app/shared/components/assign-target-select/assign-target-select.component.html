@@ -1,0 +1,75 @@
+<div class="target-select-wrapper" [class.open]="isOpen()" [class.disabled]="disabled">
+
+  <!-- Trigger button -->
+  <button
+    type="button"
+    class="target-trigger"
+    (click)="openDropdown()"
+    [disabled]="disabled"
+    title="Click to change assign target">
+    <span class="trigger-group">{{ selectedGroup() }}</span>
+    <span class="trigger-label">{{ selectedLabel() }}</span>
+    <span class="trigger-arrow">▼</span>
+  </button>
+
+  <!-- Dropdown panel -->
+  @if (isOpen()) {
+    <div class="target-panel">
+
+      <!-- Search -->
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          class="target-search"
+          placeholder="Search targets…"
+          [ngModel]="searchText()"
+          (ngModelChange)="searchText.set($event); onSearchInput()"
+          (keydown)="onSearchKeydown($event)"
+          autocomplete="off">
+        @if (searchText()) {
+          <button class="search-clear" (click)="searchText.set('')">✕</button>
+        }
+      </div>
+
+      <!-- Result count hint -->
+      <div class="result-hint">
+        @if (searchText()) {
+          {{ filteredOptions().length }} of 535 targets
+        } @else {
+          535 targets — type to filter
+        }
+      </div>
+
+      <!-- Options list -->
+      <div class="target-list" role="listbox">
+        @for (opt of filteredOptions(); track trackByValue($index, opt); let i = $index) {
+
+          <!-- Group header -->
+          @if (groupHeader(i)) {
+            <div class="group-header">{{ groupHeader(i) }}</div>
+          }
+
+          <!-- Option row -->
+          <div
+            class="target-option"
+            [class.selected]="opt.value === value"
+            [class.highlighted]="i === highlightedIndex()"
+            role="option"
+            [attr.aria-selected]="opt.value === value"
+            (mouseenter)="highlightedIndex.set(i)"
+            (click)="select(opt)">
+            <span class="opt-index">{{ opt.value }}</span>
+            <span class="opt-label">{{ opt.label }}</span>
+          </div>
+        }
+
+        @if (filteredOptions().length === 0) {
+          <div class="no-results">No targets match "{{ searchText() }}"</div>
+        }
+      </div>
+
+    </div>
+  }
+
+</div>
