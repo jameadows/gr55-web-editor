@@ -16,6 +16,31 @@ interface DeviceState {
   patchName: string;
 }
 
+export interface ScanResult {
+  address: number;
+  addrStr: string;
+  status: 'pending' | 'ok' | 'timeout' | 'scanning';
+  data?: number[];
+  dataStr?: string;
+}
+
+const SECTION_PROBES = [
+  { label: 'Common base',   addr: 0x18000000, note: 'Mode, Name' },
+  { label: 'MFX? (0x0300)', addr: 0x18000300, note: 'Our map: mfxChorusSend' },
+  { label: 'MFX? (0x0500)', addr: 0x18000500, note: 'Old map: modeling' },
+  { label: 'MFX? (0x0600)', addr: 0x18000600, note: 'Old map: MFX base' },
+  { label: 'Delay?(0x0700)', addr: 0x18000700, note: 'Current map' },
+  { label: 'Chorus?(0x0800)',addr: 0x18000800, note: 'Current map' },
+  { label: 'Reverb?(0x0900)',addr: 0x18000900, note: 'Current map' },
+  { label: 'EQ?(0x0A00)',    addr: 0x18000A00, note: 'Current map' },
+  { label: 'EQ?(0x0A11)',    addr: 0x18000A11, note: 'eqSwitch' },
+  { label: 'Assigns(0x010C)',addr: 0x1800010C, note: 'assign1Switch' },
+  { label: 'PCMTone1(0x2000)',addr:0x18002000, note: 'toneSelect' },
+  { label: 'PCMTone2(0x2100)',addr:0x18002100, note: 'toneSelect' },
+  { label: 'PCMOff1(0x3000)', addr:0x18003000, note: 'TVF offsets' },
+  { label: 'PCMOff2(0x3100)', addr:0x18003100, note: 'TVF offsets' },
+];
+
 @Component({
   selector: 'app-midi-explorer',
   standalone: true,
@@ -24,70 +49,54 @@ interface DeviceState {
   styleUrl: './midi-explorer.component.css'
 })
 export class MidiExplorerComponent implements OnInit, OnDestroy {
-  // MIDI state
   midiAccess: any = null;
   selectedOutput: any = null;
   selectedInput: any = null;
 
-  // Signals
   connectionStatus = signal<'disconnected' | 'connected' | 'error'>('disconnected');
   statusText = signal('Not Connected');
   outputPorts = signal<any[]>([]);
   inputPorts = signal<any[]>([]);
   logEntries = signal<LogEntry[]>([]);
   deviceState = signal<DeviceState>({ patchNumber: '—', mode: '—', patchName: '—' });
-
-  // Stats
+  scanResults = signal<ScanResult[]>([]);
+  isScanning = signal(false);
+  scanProgress = signal('');
   stats = signal({ tx: 0, rx: 0, btx: 0, brx: 0, lastRx: '—' });
 
-  // Form models
   deviceId = '10';
   outputPortId = '';
   inputPortId = '';
-  addr1 = '18';
-  addr2 = '00';
-  addr3 = '00';
-  addr4 = '00';
+  addr1 = '18'; addr2 = '00'; addr3 = '00'; addr4 = '00';
   reqSize = 1;
   rawSysex = '';
   autoScroll = true;
 
-  // Constants
+  scanStartHex  = '18000600';
+  scanEndHex    = '18000A1D';
+  scanStrideHex = '01';
+  scanTimeout   = 800;
+
+  private scanAbort = false;
+  private pendingProbeResolve: ((data: number[] | null) => void) | null = null;
+  private pendingProbeAddr = -1;
+
   readonly ROLAND_ID = 0x41;
   readonly GR55_MODEL = [0x00, 0x00, 0x53];
   readonly CMD_RQ1 = 0x11;
   readonly CMD_DT1 = 0x12;
+  readonly sectionProbes = SECTION_PROBES;
 
-  // Computed values
   sysexPreview = computed(() => {
-    const addr = [
-      parseInt(this.addr1, 16) || 0,
-      parseInt(this.addr2, 16) || 0,
-      parseInt(this.addr3, 16) || 0,
-      parseInt(this.addr4, 16) || 0
-    ];
-    const bytes = this.buildRQ1(addr[0], addr[1], addr[2], addr[3], this.reqSize);
-    return this.formatBytesColored(bytes, 'rq1');
+    const bytes = this.buildRQ1(
+      parseInt(this.addr1, 16) || 0, parseInt(this.addr2, 16) || 0,
+      parseInt(this.addr3, 16) || 0, parseInt(this.addr4, 16) || 0, this.reqSize);
+    return this.formatBytesColored(bytes);
   });
 
-  ngOnInit() {
-    this.checkWebMidiSupport();
-  }
+  ngOnInit() { if (!(navigator as any).requestMIDIAccess) { this.connectionStatus.set('error'); this.statusText.set('Web MIDI Not Supported'); } }
 
-  ngOnDestroy() {
-    // Cleanup MIDI listeners
-    if (this.selectedInput) {
-      this.selectedInput.onmidimessage = null;
-    }
-  }
-
-  // ═══ WEB MIDI ACCESS ═══
-  checkWebMidiSupport() {
-    if (!(navigator as any).requestMIDIAccess) {
-      this.connectionStatus.set('error');
-      this.statusText.set('Web MIDI Not Supported');
-    }
-  }
+  ngOnDestroy() { this.scanAbort = true; if (this.selectedInput) this.selectedInput.onmidimessage = null; }
 
   async requestMidiAccess() {
     try {
@@ -95,350 +104,253 @@ export class MidiExplorerComponent implements OnInit, OnDestroy {
       this.connectionStatus.set('connected');
       this.statusText.set('MIDI Access Granted');
       this.populatePorts();
-      this.midiAccess.onstatechange = () => this.onPortStateChange();
-      this.addLog('info', 'MIDI Access', `Granted. ${this.midiAccess.outputs.size} outputs, ${this.midiAccess.inputs.size} inputs found.`);
+      this.midiAccess.onstatechange = () => this.populatePorts();
+      this.addLog('info', 'MIDI Access', `Granted — ${this.midiAccess.outputs.size} outputs, ${this.midiAccess.inputs.size} inputs`);
     } catch (e: any) {
       this.connectionStatus.set('error');
       this.statusText.set('Access Denied');
-      this.addLog('error', 'MIDI Error', e.message || 'Access denied or not supported.');
+      this.addLog('error', 'MIDI Error', e.message || 'Access denied');
     }
   }
 
   populatePorts() {
-    const outputs: any[] = [];
-    const inputs: any[] = [];
-
+    const outputs: any[] = []; const inputs: any[] = [];
     for (const [id, port] of this.midiAccess.outputs) {
-      outputs.push({ id, name: port.name });
-      // Auto-select GR-55
-      if (port.name.toUpperCase().includes('GR-55') || port.name.toUpperCase().includes('GR55')) {
-        this.outputPortId = id;
-        this.selectOutput(id);
-      }
+      outputs.push({ id, name: (port as any).name });
+      if ((port as any).name.toUpperCase().includes('GR')) { this.outputPortId = id; this.selectOutput(id); }
     }
-
     for (const [id, port] of this.midiAccess.inputs) {
-      inputs.push({ id, name: port.name });
-      // Auto-select GR-55
-      if (port.name.toUpperCase().includes('GR-55') || port.name.toUpperCase().includes('GR55')) {
-        this.inputPortId = id;
-        this.selectInput(id);
-      }
+      inputs.push({ id, name: (port as any).name });
+      if ((port as any).name.toUpperCase().includes('GR')) { this.inputPortId = id; this.selectInput(id); }
     }
-
     this.outputPorts.set(outputs);
     this.inputPorts.set(inputs);
   }
 
-  onPortStateChange() {
-    this.addLog('info', 'Port Change', 'MIDI port configuration changed');
-    this.populatePorts();
-  }
-
   selectOutput(id: string) {
     this.selectedOutput = id ? this.midiAccess.outputs.get(id) : null;
-    if (this.selectedOutput) {
-      this.addLog('info', 'Output', `Selected: ${this.selectedOutput.name}`);
-    }
+    if (this.selectedOutput) this.addLog('info', 'Output', `Selected: ${this.selectedOutput.name}`);
   }
 
   selectInput(id: string) {
-    if (this.selectedInput) {
-      const old = this.midiAccess.inputs.get(this.selectedInput.id);
-      if (old) old.onmidimessage = null;
-    }
+    if (this.selectedInput) { const old = this.midiAccess.inputs.get(this.selectedInput.id); if (old) old.onmidimessage = null; }
     this.selectedInput = id ? this.midiAccess.inputs.get(id) : null;
-    if (this.selectedInput) {
-      this.selectedInput.onmidimessage = (event: any) => this.onMidiMessage(event);
-      this.addLog('info', 'Input', `Listening: ${this.selectedInput.name}`);
-    }
+    if (this.selectedInput) { this.selectedInput.onmidimessage = (e: any) => this.onMidiMessage(e); this.addLog('info', 'Input', `Listening: ${this.selectedInput.name}`); }
   }
 
-  // ═══ ROLAND PROTOCOL ═══
-  getDeviceId(): number {
-    return parseInt(this.deviceId, 16) || 0x10;
-  }
+  getDeviceId(): number { return parseInt(this.deviceId, 16) || 0x10; }
 
   rolandChecksum(bytes: number[]): number {
-    const sum = bytes.reduce((a, b) => a + b, 0);
-    return (128 - (sum % 128)) % 128;
+    return (128 - (bytes.reduce((a, b) => a + b, 0) % 128)) % 128;
   }
 
-  buildRQ1(addr4: number, addr3: number, addr2: number, addr1: number, size: number): number[] {
-    const addrBytes = [addr4, addr3, addr2, addr1];
-    const sizeBytes = [
-      (size >>> 24) & 0x7F,
-      (size >>> 16) & 0x7F,
-      (size >>> 8) & 0x7F,
-      size & 0x7F
-    ];
-    const checksumData = [...addrBytes, ...sizeBytes];
-    const checksum = this.rolandChecksum(checksumData);
+  buildRQ1(b0: number, b1: number, b2: number, b3: number, size: number): number[] {
+    const addr = [b0, b1, b2, b3];
+    const sz = [(size>>>24)&0x7F, (size>>>16)&0x7F, (size>>>8)&0x7F, size&0x7F];
     return [0xF0, this.ROLAND_ID, this.getDeviceId(), ...this.GR55_MODEL, this.CMD_RQ1,
-      ...addrBytes, ...sizeBytes, checksum, 0xF7];
+      ...addr, ...sz, this.rolandChecksum([...addr, ...sz]), 0xF7];
+  }
+
+  buildRQ1FromAddr(addr: number, size: number): number[] {
+    return this.buildRQ1((addr>>>24)&0x7F, (addr>>>16)&0x7F, (addr>>>8)&0x7F, addr&0x7F, size);
   }
 
   sendSysEx(bytes: number[], label: string) {
-    if (!this.selectedOutput) {
-      this.addLog('error', 'TX Error', 'No output port selected.');
-      return;
-    }
+    if (!this.selectedOutput) { this.addLog('error', 'TX Error', 'No output port selected.'); return; }
     try {
       this.selectedOutput.send(bytes);
-      const currentStats = this.stats();
-      this.stats.set({
-        ...currentStats,
-        tx: currentStats.tx + 1,
-        btx: currentStats.btx + bytes.length
-      });
-      this.addLog('tx', label || 'SysEx TX', undefined, bytes);
-    } catch (e: any) {
-      this.addLog('error', 'TX Error', e.message);
+      const s = this.stats();
+      this.stats.set({ ...s, tx: s.tx + 1, btx: s.btx + bytes.length });
+      this.addLog('tx', label, undefined, bytes);
+    } catch (e: any) { this.addLog('error', 'TX Error', e.message); }
+  }
+
+  // ═══ ADDRESS SCANNER ═══
+
+  private rolandAddrAdd(addr: number, delta: number): number {
+    let b3 = (addr & 0xFF) + delta;
+    let b2 = ((addr>>>8)&0xFF) + Math.floor(b3/0x80); b3 %= 0x80;
+    let b1 = ((addr>>>16)&0xFF) + Math.floor(b2/0x80); b2 %= 0x80;
+    let b0 = ((addr>>>24)&0xFF) + Math.floor(b1/0x80); b1 %= 0x80;
+    return ((b0&0x7F)<<24)|((b1&0x7F)<<16)|((b2&0x7F)<<8)|(b3&0x7F);
+  }
+
+  private parseHex(s: string): number { return parseInt(s.replace(/\s/g,''), 16) || 0; }
+
+  formatAddr(addr: number): string {
+    return [24,16,8,0].map(s => this.toHex((addr>>>s)&0xFF)).join(' ');
+  }
+
+  private probeAddr(addr: number, timeoutMs: number): Promise<number[] | null> {
+    return new Promise(resolve => {
+      this.pendingProbeAddr = addr;
+      this.pendingProbeResolve = resolve;
+      try {
+        const rq1 = this.buildRQ1FromAddr(addr, 1);
+        this.selectedOutput.send(rq1);
+        const s = this.stats();
+        this.stats.set({ ...s, tx: s.tx+1, btx: s.btx+rq1.length });
+      } catch { this.pendingProbeAddr = -1; this.pendingProbeResolve = null; resolve(null); return; }
+      setTimeout(() => {
+        if (this.pendingProbeAddr === addr) { this.pendingProbeAddr = -1; this.pendingProbeResolve = null; resolve(null); }
+      }, timeoutMs);
+    });
+  }
+
+  async runScan() {
+    if (!this.selectedOutput || !this.selectedInput) { this.addLog('error', 'Scanner', 'Select output AND input ports first.'); return; }
+    this.scanAbort = false; this.isScanning.set(true); this.scanResults.set([]);
+    const start = this.parseHex(this.scanStartHex);
+    const end   = this.parseHex(this.scanEndHex);
+    const stride = Math.max(1, this.parseHex(this.scanStrideHex));
+    this.addLog('info', 'Scan start', `0x${start.toString(16)} – 0x${end.toString(16)}, stride ${stride}, timeout ${this.scanTimeout}ms`);
+    let addr = start; let idx = 0;
+    while (addr <= end && !this.scanAbort) {
+      const addrStr = this.formatAddr(addr);
+      this.scanResults.update(r => [...r, { address: addr, addrStr, status: 'scanning' }]);
+      this.scanProgress.set(`${idx + 1} — probing ${addrStr} …`);
+      const data = await this.probeAddr(addr, this.scanTimeout);
+      this.scanResults.update(r => { const c = [...r]; c[idx] = { address: addr, addrStr, status: data ? 'ok' : 'timeout', data: data ?? undefined, dataStr: data ? data.map(b=>this.toHex(b)).join(' ') : undefined }; return c; });
+      if (data) this.addLog('rx', `OK @ ${addrStr}`, data.map(b=>this.toHex(b)).join(' '));
+      addr = this.rolandAddrAdd(addr, stride); idx++;
+      await new Promise(r => setTimeout(r, 15));
     }
+    const ok = this.scanResults().filter(r => r.status === 'ok');
+    this.scanProgress.set(this.scanAbort ? 'Aborted' : `Done — ${ok.length}/${this.scanResults().length} responded`);
+    this.addLog('info', 'Scan complete', ok.map(r => '0x'+r.address.toString(16).toUpperCase()).join(', ') || 'no responses');
+    this.isScanning.set(false); this.scanAbort = false;
+  }
+
+  async probeSectionBases() {
+    if (!this.selectedOutput || !this.selectedInput) { this.addLog('error', 'Probe', 'Select ports first.'); return; }
+    this.scanAbort = false; this.isScanning.set(true); this.scanResults.set([]);
+    for (let i = 0; i < SECTION_PROBES.length && !this.scanAbort; i++) {
+      const { label, addr, note } = SECTION_PROBES[i];
+      const addrStr = this.formatAddr(addr);
+      this.scanResults.update(r => [...r, { address: addr, addrStr, status: 'scanning', dataStr: `${label}` }]);
+      this.scanProgress.set(`Probing ${label} @ ${addrStr} …`);
+      const data = await this.probeAddr(addr, this.scanTimeout);
+      this.scanResults.update(r => { const c=[...r]; c[i]={ address:addr, addrStr, status: data?'ok':'timeout', data: data??undefined, dataStr: data ? `${label}: [${data.map(b=>this.toHex(b)).join(' ')}]` : `${label}: NO RESPONSE (${note})` }; return c; });
+      await new Promise(r => setTimeout(r, 20));
+    }
+    this.scanProgress.set('Section probe complete — see results below');
+    this.isScanning.set(false); this.scanAbort = false;
+  }
+
+  stopScan() { this.scanAbort = true; }
+  clearScan() { this.scanResults.set([]); this.scanProgress.set(''); }
+
+  exportScan() {
+    const r = this.scanResults(); if (!r.length) return;
+    const csv = 'Address,Status,Data\n' + r.map(x => `0x${x.address.toString(16).toUpperCase()},${x.status},"${x.dataStr??''}"`).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = `gr55-scan-${Date.now()}.csv`; a.click();
   }
 
   // ═══ INCOMING MESSAGES ═══
   onMidiMessage(event: any) {
     const data = Array.from(event.data) as number[];
-    const currentStats = this.stats();
-    this.stats.set({
-      ...currentStats,
-      rx: currentStats.rx + 1,
-      brx: currentStats.brx + data.length,
-      lastRx: new Date().toLocaleTimeString()
-    });
+    const s = this.stats();
+    this.stats.set({ ...s, rx: s.rx+1, brx: s.brx+data.length, lastRx: new Date().toLocaleTimeString() });
 
-    if (data[0] === 0xF0) {
-      this.handleSysEx(data);
-    } else {
-      const type = this.getMidiMsgType(data[0]);
-      this.addLog('rx', type, this.describeShortMsg(data), data);
+    // Route to probe resolver
+    if (data[0]===0xF0 && data[1]===this.ROLAND_ID && data[6]===this.CMD_DT1 && this.pendingProbeResolve) {
+      const rxAddr = (data[7]<<24)|(data[8]<<16)|(data[9]<<8)|data[10];
+      if (rxAddr === this.pendingProbeAddr) {
+        const payload = data.slice(11, data.length - 2);
+        const r = this.pendingProbeResolve;
+        this.pendingProbeAddr = -1; this.pendingProbeResolve = null;
+        r(payload); return;
+      }
     }
+    if (data[0] === 0xF0) this.handleSysEx(data);
+    else this.addLog('rx', this.getMidiMsgType(data[0]), this.describeShortMsg(data), data);
   }
 
   handleSysEx(data: number[]) {
-    // Universal Identity Response
-    if (data[1] === 0x7E && data[3] === 0x06 && data[4] === 0x02) {
-      const manufacturer = data.slice(5, 8).map(this.toHex).join(' ');
-      const family = data.slice(8, 10).map(this.toHex).join(' ');
-      const member = data.slice(10, 12).map(this.toHex).join(' ');
-      const revision = data.slice(12, 16).map(this.toHex).join(' ');
-      const decoded = `Manufacturer: ${manufacturer} | Family: ${family} | Member: ${member} | Revision: ${revision}`;
-      this.addLog('rx', 'Identity Response', decoded, data);
+    if (data[1]===0x7E && data[3]===0x06 && data[4]===0x02) {
+      this.addLog('rx', 'Identity Response', `Manufacturer:${data.slice(5,8).map(b=>this.toHex(b)).join(' ')} Family:${data.slice(8,10).map(b=>this.toHex(b)).join(' ')}`, data);
       return;
     }
-
-    // Roland DT1
-    if (data[1] === this.ROLAND_ID && data[3] === 0x00 && data[4] === 0x00 &&
-      data[5] === 0x53 && data[6] === this.CMD_DT1) {
-      const addr = (data[7] << 24) | (data[8] << 16) | (data[9] << 8) | data[10];
-      const payload = data.slice(11, data.length - 2);
-      const addrStr = `${this.toHex(data[7])} ${this.toHex(data[8])} ${this.toHex(data[9])} ${this.toHex(data[10])}`;
-      let decoded = '';
-
-      switch (addr) {
-        case 0x01000000: // Patch number
-          decoded = this.decodePatchNumber(payload);
-          break;
-        case 0x18000000: // Mode
-          decoded = payload[0] === 0 ? 'Guitar Mode' : 'Bass Mode';
-          this.deviceState.update(s => ({ ...s, mode: payload[0] === 0 ? 'GTR' : 'BSS' }));
-          break;
-        case 0x18000001: // Patch name
-          decoded = this.decodePatchName(payload);
-          break;
-        case 0x18000200: // Patch level
-          decoded = `Level: ${payload[0]} (0–200)`;
-          break;
-        case 0x18000208: // Tempo
-          decoded = this.decodeTempo(payload);
-          break;
-        case 0x18000600: // MFX type
-          decoded = `MFX Type: ${payload[0]} (${this.mfxTypeName(payload[0])})`;
-          break;
-        default:
-          decoded = `${payload.length} byte(s) of data`;
-      }
-
+    if (data[1]===this.ROLAND_ID && data[5]===0x53 && data[6]===this.CMD_DT1) {
+      const addr = (data[7]<<24)|(data[8]<<16)|(data[9]<<8)|data[10];
+      const payload = data.slice(11, data.length-2);
+      const addrStr = [7,8,9,10].map(i=>this.toHex(data[i])).join(' ');
+      let decoded = `${payload.length}B: ${payload.map(b=>this.toHex(b)).join(' ')}`;
+      if (addr===0x01000000) decoded = this.decodePatchNumber(payload);
+      else if (addr===0x18000000) { decoded = payload[0]===0?'Guitar Mode':'Bass Mode'; this.deviceState.update(s=>({...s, mode: decoded.slice(0,3)})); }
+      else if (addr===0x18000001) decoded = this.decodePatchName(payload);
+      else if (addr===0x18000200) decoded = `Level: ${payload[0]}`;
+      else if (addr===0x18000208) decoded = this.decodeTempo(payload);
       this.addLog('rx', `DT1 @ ${addrStr}`, decoded, data);
       return;
     }
-
-    this.addLog('rx', 'SysEx', `Unknown (${data.length} bytes)`, data);
+    this.addLog('rx', 'SysEx', `Unknown (${data.length}B)`, data);
   }
 
-  decodePatchNumber(payload: number[]): string {
-    let num = (payload[0] << 8) | payload[1];
-    if (num > 2047) num -= 1751;
-    const bank = Math.floor(num / 128);
-    const patchN = num % 128;
-    const bankLetter = String.fromCharCode(65 + Math.floor(bank / 8));
-    const display = `${bankLetter}${(bank % 8) + 1}-${String(patchN + 1).padStart(2, '0')}`;
-    this.deviceState.update(s => ({ ...s, patchNumber: display }));
-    return `Patch: ${display} (raw: ${num})`;
+  decodePatchNumber(p: number[]): string {
+    let num = (p[0]<<7)|p[1]; if (num>2047) num-=1751;
+    const b = Math.floor(num/128), n = num%128;
+    const disp = `${String.fromCharCode(65+Math.floor(b/8))}${(b%8)+1}-${String(n+1).padStart(2,'0')}`;
+    this.deviceState.update(s=>({...s, patchNumber: disp}));
+    return `Patch: ${disp} (raw:${num})`;
   }
 
-  decodePatchName(payload: number[]): string {
-    const nameBytes = payload.slice(1);
-    const name = nameBytes.map(b => String.fromCharCode(b)).join('').replace(/\0/g, '').trim();
-    this.deviceState.update(s => ({ ...s, patchName: name || '—' }));
+  decodePatchName(p: number[]): string {
+    const name = p.map(b=>String.fromCharCode(b)).join('').replace(/\0/g,'').trim();
+    this.deviceState.update(s=>({...s, patchName: name||'—'}));
     return `Name: "${name}"`;
   }
 
-  decodeTempo(payload: number[]): string {
-    if (payload.length >= 2) {
-      const bpm = payload[0] * 16 + payload[1];
-      return `Tempo: ${bpm} BPM`;
-    }
-    return `Tempo data: ${payload.map(this.toHex).join(' ')}`;
-  }
+  decodeTempo(p: number[]): string { return p.length>=2 ? `Tempo: ${p[0]*16+p[1]} BPM` : p.map(b=>this.toHex(b)).join(' '); }
+  getMidiMsgType(s: number): string { const t=s>>4,c=(s&0xF)+1; return ({8:'Note Off',9:'Note On',11:'CC',12:'PC',14:'Pitch Bend'} as any)[t]||'MIDI'+` Ch${c}`; }
+  describeShortMsg(d: number[]): string { const t=d[0]>>4; if(t===11) return `CC#${d[1]}=${d[2]}`; if(t===12) return `PC:${d[1]}`; return d.map(b=>this.toHex(b)).join(' '); }
 
-  mfxTypeName(n: number): string {
-    const types = ['Equalizer', 'Spectrum', 'Enhancer', 'Humanizer', 'Overdrive', 'Distortion',
-      'Compressor', 'Limiter', 'Gate', 'Delay', 'Chorus', 'Flanger', 'Phaser', 'Tremolo', 'Auto Pan',
-      'Slicer', 'Rotary', 'VK Rotary', 'Hexa Chorus', 'Tremolo Chorus', 'Stereo Chorus',
-      'Space D', '3D Chorus', 'Stereo Delay', 'Mod Delay', '3 Tap Delay', '4 Tap Delay',
-      'Tm Ctrl Delay', 'Reverb', 'Gated Reverb', '2x2 Chorus', 'Sub Delay'];
-    return types[n] || `Type ${n}`;
-  }
-
-  getMidiMsgType(status: number): string {
-    const type = status >> 4;
-    const ch = (status & 0x0F) + 1;
-    const names: any = { 8: 'Note Off', 9: 'Note On', 10: 'Aftertouch', 11: 'Control Change',
-      12: 'Program Change', 13: 'Channel Pressure', 14: 'Pitch Bend', 15: 'System' };
-    return `${names[type] || 'Unknown'} (Ch${ch})`;
-  }
-
-  describeShortMsg(data: number[]): string {
-    const type = data[0] >> 4;
-    if (type === 11) return `CC #${data[1]} = ${data[2]}`;
-    if (type === 12) return `Program: ${data[1]}`;
-    if (type === 14) {
-      const val = ((data[2] << 7) | data[1]) - 8192;
-      return `Pitch Bend: ${val}`;
-    }
-    return data.map(this.toHex).join(' ');
-  }
-
-  // ═══ PRESET QUERIES ═══
-  queryIdentity() {
-    const msg = [0xF0, 0x7E, 0x7F, 0x06, 0x01, 0xF7];
-    this.sendSysEx(msg, 'Universal Identity Request');
-  }
-
-  queryPatchNumber() {
-    this.sendSysEx(this.buildRQ1(0x01, 0x00, 0x00, 0x00, 2), 'RQ1 Patch Number');
-  }
-
-  queryMode() {
-    this.sendSysEx(this.buildRQ1(0x18, 0x00, 0x00, 0x00, 1), 'RQ1 Guitar/Bass Mode');
-  }
-
-  queryPatchName() {
-    this.sendSysEx(this.buildRQ1(0x18, 0x00, 0x00, 0x01, 17), 'RQ1 Patch Name');
-  }
-
-  queryPatchLevel() {
-    this.sendSysEx(this.buildRQ1(0x18, 0x00, 0x02, 0x00, 1), 'RQ1 Patch Level');
-  }
-
-  queryTempo() {
-    this.sendSysEx(this.buildRQ1(0x18, 0x00, 0x02, 0x08, 2), 'RQ1 Patch Tempo');
-  }
-
-  queryMfxType() {
-    this.sendSysEx(this.buildRQ1(0x18, 0x00, 0x06, 0x00, 1), 'RQ1 MFX Type');
-  }
-
-  queryAssign1() {
-    this.sendSysEx(this.buildRQ1(0x18, 0x00, 0x10, 0x00, 8), 'RQ1 Assign 1');
-  }
+  queryIdentity()    { this.sendSysEx([0xF0,0x7E,0x7F,0x06,0x01,0xF7], 'Universal Identity'); }
+  queryPatchNumber() { this.sendSysEx(this.buildRQ1(0x01,0x00,0x00,0x00,2), 'Patch Number'); }
+  queryMode()        { this.sendSysEx(this.buildRQ1(0x18,0x00,0x00,0x00,1), 'Mode'); }
+  queryPatchName()   { this.sendSysEx(this.buildRQ1(0x18,0x00,0x00,0x01,17), 'Patch Name'); }
+  queryPatchLevel()  { this.sendSysEx(this.buildRQ1(0x18,0x00,0x02,0x00,1), 'Patch Level'); }
+  queryTempo()       { this.sendSysEx(this.buildRQ1(0x18,0x00,0x02,0x08,2), 'Tempo'); }
+  queryMfx()         { this.sendSysEx(this.buildRQ1(0x18,0x00,0x06,0x00,8), 'MFX block (×8)'); }
+  queryAssign1()     { this.sendSysEx(this.buildRQ1(0x18,0x00,0x01,0x0C,1), 'assign1Switch'); }
 
   sendCustomRQ1() {
-    const a1 = parseInt(this.addr1, 16) || 0;
-    const a2 = parseInt(this.addr2, 16) || 0;
-    const a3 = parseInt(this.addr3, 16) || 0;
-    const a4 = parseInt(this.addr4, 16) || 0;
-    const addr = `${this.toHex(a1)} ${this.toHex(a2)} ${this.toHex(a3)} ${this.toHex(a4)}`;
-    this.sendSysEx(this.buildRQ1(a1, a2, a3, a4, this.reqSize), `RQ1 @ ${addr} ×${this.reqSize}`);
+    const [a,b,c,d] = [this.addr1,this.addr2,this.addr3,this.addr4].map(x=>parseInt(x,16)||0);
+    this.sendSysEx(this.buildRQ1(a,b,c,d,this.reqSize), `RQ1 @ ${this.toHex(a)} ${this.toHex(b)} ${this.toHex(c)} ${this.toHex(d)} ×${this.reqSize}`);
   }
 
   sendRawSysex() {
-    const raw = this.rawSysex.trim();
-    const bytes = raw.split(/[\s,]+/).filter(Boolean).map(s => parseInt(s, 16));
-    if (bytes.some(isNaN)) {
-      this.addLog('error', 'Parse Error', 'Invalid hex in raw SysEx field.');
-      return;
-    }
+    const bytes = this.rawSysex.trim().split(/[\s,]+/).filter(Boolean).map(s=>parseInt(s,16));
+    if (bytes.some(isNaN)) { this.addLog('error','Parse Error','Invalid hex'); return; }
     this.sendSysEx(bytes, 'Raw SysEx');
   }
 
-  // ═══ LOGGING ═══
-  addLog(direction: 'tx' | 'rx' | 'info' | 'error', label: string, decoded?: string, bytes?: number[]) {
+  addLog(direction: 'tx'|'rx'|'info'|'error', label: string, decoded?: string, bytes?: number[]) {
     const now = new Date();
-    const time = now.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
-      + '.' + String(now.getMilliseconds()).padStart(3, '0');
-
-    this.logEntries.update(entries => [
-      ...entries,
-      { time, direction, label, decoded, bytes }
-    ]);
-
-    // Auto-scroll
-    if (this.autoScroll) {
-      setTimeout(() => {
-        const logEl = document.getElementById('log');
-        if (logEl) logEl.scrollTop = logEl.scrollHeight;
-      }, 50);
-    }
+    const time = now.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+'.'+String(now.getMilliseconds()).padStart(3,'0');
+    this.logEntries.update(e => [...e, { time, direction, label, decoded, bytes }]);
+    if (this.autoScroll) setTimeout(()=>{ const el=document.getElementById('log'); if(el) el.scrollTop=el.scrollHeight; }, 50);
   }
 
-  clearLog() {
-    this.logEntries.set([]);
-    this.stats.set({ tx: 0, rx: 0, btx: 0, brx: 0, lastRx: '—' });
-  }
-
-  toggleAutoScroll() {
-    this.autoScroll = !this.autoScroll;
-  }
+  clearLog() { this.logEntries.set([]); this.stats.set({tx:0,rx:0,btx:0,brx:0,lastRx:'—'}); }
+  toggleAutoScroll() { this.autoScroll = !this.autoScroll; }
 
   exportLog() {
-    let text = 'GR-55 MIDI Explorer Log\n' + new Date().toISOString() + '\n\n';
-    this.logEntries().forEach(e => {
-      text += `[${e.time}] ${e.direction.toUpperCase()} ${e.label}\n`;
-      if (e.bytes) text += `  ${e.bytes.map(this.toHex).join(' ')}\n`;
-      if (e.decoded) text += `  ${e.decoded}\n`;
-      text += '\n';
-    });
-    const blob = new Blob([text], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `gr55-log-${Date.now()}.txt`;
-    a.click();
+    let t = 'GR-55 Log\n'+new Date().toISOString()+'\n\n';
+    this.logEntries().forEach(e => { t+=`[${e.time}] ${e.direction.toUpperCase()} ${e.label}\n`; if(e.bytes) t+='  '+e.bytes.map(b=>this.toHex(b)).join(' ')+'\n'; if(e.decoded) t+='  '+e.decoded+'\n'; t+='\n'; });
+    const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'})); a.download=`gr55-log-${Date.now()}.txt`; a.click();
   }
 
-  // ═══ UTILITIES ═══
-  toHex(byte: number): string {
-    return byte.toString(16).toUpperCase().padStart(2, '0');
-  }
+  toHex(b: number): string { return b.toString(16).toUpperCase().padStart(2,'0'); }
 
-  formatBytesColored(bytes: number[], type: string): string {
-    if (!bytes || !bytes.length) return '';
-    return bytes.map((b, i) => {
-      let cls = '';
-      if (i === 0 || i === bytes.length - 1) cls = 'b-end';
-      else if (i === 1 || i === 2) cls = 'b-header';
-      else if (i >= 3 && i <= 6) cls = 'b-header';
-      else if (i >= 7 && i <= 10) cls = 'b-addr';
-      else if (i === bytes.length - 2) cls = 'b-chk';
-      else cls = 'b-data';
+  formatBytesColored(bytes: number[]): string {
+    if (!bytes?.length) return '';
+    return bytes.map((b,i)=>{
+      let cls = i===0||i===bytes.length-1 ? 'b-end' : i>=1&&i<=6 ? 'b-header' : i>=7&&i<=10 ? 'b-addr' : i===bytes.length-2 ? 'b-chk' : 'b-data';
       return `<span class="${cls}">${this.toHex(b)}</span>`;
     }).join(' ');
   }
 
-  // For template use
-  hasOutput(): boolean {
-    return !!this.selectedOutput;
-  }
+  hasOutput(): boolean { return !!this.selectedOutput; }
 }
