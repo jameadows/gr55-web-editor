@@ -244,7 +244,7 @@
             <div class="control-group">
               <app-led
                 [isOn]="!pcm1MuteSwitch()"
-                [label]="'PCM 1 On'"
+                [label]="!pcm1MuteSwitch() ? 'PCM 1 On' : 'PCM 1 Off'"
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
@@ -274,8 +274,9 @@
               <label class="picker-sublabel">Tone</label>
               <select
                 class="tone-select"
-                (change)="onPcm1ToneSelectChange(+$any($event.target).value)"
-                size="5">
+                size="5"
+                #pcm1ToneSelectEl
+                (change)="onPcm1ToneSelectChange(+pcm1ToneSelectEl.value)">
                 @for (opt of pcm1TonesInCategory(); track opt.value) {
                   <option [value]="opt.value" [selected]="opt.value === pcm1ToneSelect()">
                     {{ opt.label }}
@@ -395,7 +396,7 @@
             <div class="control-group">
               <app-led
                 [isOn]="!pcm2MuteSwitch()"
-                [label]="'PCM 2 On'"
+                [label]="!pcm2MuteSwitch() ? 'PCM 2 On' : 'PCM 2 Off'"
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
@@ -425,8 +426,9 @@
               <label class="picker-sublabel">Tone</label>
               <select
                 class="tone-select"
-                (change)="onPcm2ToneSelectChange(+$any($event.target).value)"
-                size="5">
+                size="5"
+                #pcm2ToneSelectEl
+                (change)="onPcm2ToneSelectChange(+pcm2ToneSelectEl.value)">
                 @for (opt of pcm2TonesInCategory(); track opt.value) {
                   <option [value]="opt.value" [selected]="opt.value === pcm2ToneSelect()">
                     {{ opt.label }}
