@@ -49,7 +49,6 @@ export class PcmDeepEditorComponent implements OnChanges {
       { field: (tone as any).chromatic,        label: 'Chromatic',       group: 'Voice' },
       { field: (tone as any).legatoSwitch,     label: 'Legato',          group: 'Voice' },
       { field: (tone as any).nuanceSwitch,     label: 'Nuance',          group: 'Voice' },
-      { field: (tone as any).releaseMode,      label: 'Release Mode',    group: 'Voice' },
       { field: (tone as any).portamentoSwitch, label: 'Portamento',      group: 'Voice' },
       { field: (tone as any).outputMfxSelect,  label: 'Output (MFX)',    group: 'Voice' },
 

@@ -622,11 +622,8 @@ export const GR55AddressMap = {
         enumValues: ['OFF', 'ON', 'TONE'], label: 'Portamento',
         defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
       } as FieldDefinition<number>,
-      releaseMode: {
-        address: 0x1800200E, size: 1, type: 'enum',
-        enumValues: ['1', '2'], label: 'Release Mode',
-        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
-      } as FieldDefinition<number>,
+      // NOTE: No releaseMode field here — address 0x1800200E does not exist in
+      // the GR-55 PCM Tone Common section and causes a 5-second timeout.
       outputMfxSelect: {
         address: 0x18002015, size: 1, type: 'enum',
         enumValues: ['PATCH', 'LINE1', 'LINE2'], label: 'Output (MFX)',
@@ -746,11 +743,7 @@ export const GR55AddressMap = {
         enumValues: ['OFF', 'ON', 'TONE'], label: 'Portamento',
         defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
       } as FieldDefinition<number>,
-      releaseMode: {
-        address: 0x1800210E, size: 1, type: 'enum',
-        enumValues: ['1', '2'], label: 'Release Mode',
-        defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
-      } as FieldDefinition<number>,
+      // NOTE: No releaseMode — address 0x1800210E does not exist in the GR-55.
       outputMfxSelect: {
         address: 0x18002115, size: 1, type: 'enum',
         enumValues: ['PATCH', 'LINE1', 'LINE2'], label: 'Output (MFX)',
@@ -2041,7 +2034,8 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       assign7TargetMin: {
-        address: 0x18000182,
+        // Roland 7-bit carry: raw offset 0x0182 → byte3=0x82>0x7F → carry → bytes 18 00 02 02
+        address: 0x18000202,
         size: 3,
         type: 'number',
         range: [0, 16383],
@@ -2052,7 +2046,8 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       assign7TargetMax: {
-        address: 0x18000185,
+        // Roland 7-bit carry: raw offset 0x0185 → bytes 18 00 02 05
+        address: 0x18000205,
         size: 3,
         type: 'number',
         range: [0, 16383],
@@ -2063,7 +2058,8 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       assign7Source: {
-        address: 0x18000188,
+        // Roland 7-bit carry: raw offset 0x0188 → bytes 18 00 02 08
+        address: 0x18000208,
         size: 1,
         type: 'enum',
         enumValues: ['CC01', 'CC02', 'CC03', 'CC04', 'CC05', 'CC06', 'CC07',
@@ -2081,7 +2077,8 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       assign7SourceMode: {
-        address: 0x18000189,
+        // Roland 7-bit carry: raw offset 0x0189 → bytes 18 00 02 09
+        address: 0x18000209,
         size: 1,
         type: 'enum',
         enumValues: ['MOMENT', 'TOGGLE'],
