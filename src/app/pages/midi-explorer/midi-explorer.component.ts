@@ -24,21 +24,35 @@ export interface ScanResult {
   dataStr?: string;
 }
 
+// Results from empirical scan 2025-03-01:
+// ✅ Common(0x0000), MFX-sends(0x0300), Modeling(0x0500), MFX(0x0600),
+//    Effects-block(0x0700), Assigns(0x010C), PCMTone1/2, PCMOff1/2
+// ❌ 0x0800, 0x0900, 0x0A00 — DO NOT EXIST as separate pages
+// Chorus/Reverb/EQ are packed within the 0x07xx block
 const SECTION_PROBES = [
-  { label: 'Common base',   addr: 0x18000000, note: 'Mode, Name' },
-  { label: 'MFX? (0x0300)', addr: 0x18000300, note: 'Our map: mfxChorusSend' },
-  { label: 'MFX? (0x0500)', addr: 0x18000500, note: 'Old map: modeling' },
-  { label: 'MFX? (0x0600)', addr: 0x18000600, note: 'Old map: MFX base' },
-  { label: 'Delay?(0x0700)', addr: 0x18000700, note: 'Current map' },
-  { label: 'Chorus?(0x0800)',addr: 0x18000800, note: 'Current map' },
-  { label: 'Reverb?(0x0900)',addr: 0x18000900, note: 'Current map' },
-  { label: 'EQ?(0x0A00)',    addr: 0x18000A00, note: 'Current map' },
-  { label: 'EQ?(0x0A11)',    addr: 0x18000A11, note: 'eqSwitch' },
-  { label: 'Assigns(0x010C)',addr: 0x1800010C, note: 'assign1Switch' },
-  { label: 'PCMTone1(0x2000)',addr:0x18002000, note: 'toneSelect' },
-  { label: 'PCMTone2(0x2100)',addr:0x18002100, note: 'toneSelect' },
-  { label: 'PCMOff1(0x3000)', addr:0x18003000, note: 'TVF offsets' },
-  { label: 'PCMOff2(0x3100)', addr:0x18003100, note: 'TVF offsets' },
+  // ✅ Confirmed responding
+  { label: '✅ Common',        addr: 0x18000000, note: 'Mode/Name/Level - CONFIRMED' },
+  { label: '✅ Assigns',       addr: 0x1800010C, note: 'assign1Switch - CONFIRMED' },
+  { label: '✅ MFX sends',     addr: 0x18000300, note: 'chorus/delay/reverb send - CONFIRMED' },
+  { label: '✅ Modeling',      addr: 0x18000500, note: 'guitar/bass modeling - CONFIRMED' },
+  { label: '✅ MFX',           addr: 0x18000600, note: 'MFX type/params - CONFIRMED' },
+  { label: '✅ Effects block', addr: 0x18000700, note: 'Delay+Chorus+Reverb+EQ all here' },
+  { label: '✅ PCM Tone 1',    addr: 0x18002000, note: 'toneSelect - CONFIRMED' },
+  { label: '✅ PCM Tone 2',    addr: 0x18002100, note: 'toneSelect - CONFIRMED' },
+  { label: '✅ PCM Offsets 1', addr: 0x18003000, note: 'TVF/TVA offsets - CONFIRMED' },
+  { label: '✅ PCM Offsets 2', addr: 0x18003100, note: 'TVF/TVA offsets - CONFIRMED' },
+  // ❌ Dead addresses — do not scan
+  { label: '❌ 0x0800',        addr: 0x18000800, note: 'DEAD — chorus is NOT here' },
+  { label: '❌ 0x0900',        addr: 0x18000900, note: 'DEAD — reverb is NOT here' },
+  { label: '❌ 0x0A00',        addr: 0x18000A00, note: 'DEAD — EQ is NOT here' },
+];
+
+// Preset scan ranges for convenience
+const SCAN_PRESETS = [
+  { label: 'Effects block (0x0700–0x077F)', start: '18000700', end: '1800077F', stride: '01' },
+  { label: 'MFX params (0x0600–0x067F)',    start: '18000600', end: '1800067F', stride: '01' },
+  { label: 'Common (0x0000–0x007F)',        start: '18000000', end: '1800007F', stride: '01' },
+  { label: 'Assigns (0x010C–0x021A)',       start: '1800010C', end: '1800021A', stride: '01' },
 ];
 
 @Component({
@@ -86,6 +100,7 @@ export class MidiExplorerComponent implements OnInit, OnDestroy {
   readonly CMD_RQ1 = 0x11;
   readonly CMD_DT1 = 0x12;
   readonly sectionProbes = SECTION_PROBES;
+  readonly scanPresets = SCAN_PRESETS;
 
   sysexPreview = computed(() => {
     const bytes = this.buildRQ1(
@@ -314,6 +329,12 @@ export class MidiExplorerComponent implements OnInit, OnDestroy {
   queryTempo()       { this.sendSysEx(this.buildRQ1(0x18,0x00,0x02,0x08,2), 'Tempo'); }
   queryMfx()         { this.sendSysEx(this.buildRQ1(0x18,0x00,0x06,0x00,8), 'MFX block (×8)'); }
   queryAssign1()     { this.sendSysEx(this.buildRQ1(0x18,0x00,0x01,0x0C,1), 'assign1Switch'); }
+
+  loadPreset(preset: any) {
+    this.scanStartHex = preset.start;
+    this.scanEndHex = preset.end;
+    this.scanStrideHex = preset.stride;
+  }
 
   sendCustomRQ1() {
     const [a,b,c,d] = [this.addr1,this.addr2,this.addr3,this.addr4].map(x=>parseInt(x,16)||0);

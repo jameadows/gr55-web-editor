@@ -107,6 +107,13 @@
             </div>
           </div>
 
+          <div class="scanner-row" style="gap:6px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:10px;color:#555;align-self:center">Presets:</span>
+            @for (p of scanPresets; track p.label) {
+              <button class="btn" style="width:auto;padding:5px 10px;font-size:10px" (click)="loadPreset(p)" [disabled]="isScanning()">{{ p.label }}</button>
+            }
+          </div>
+
           <div class="scanner-row scanner-btns">
             <button class="btn primary" (click)="runScan()" [disabled]="isScanning() || !hasOutput()">▶ Scan Range</button>
             <button class="btn accent" (click)="probeSectionBases()" [disabled]="isScanning() || !hasOutput()">⚡ Probe Known Sections</button>
