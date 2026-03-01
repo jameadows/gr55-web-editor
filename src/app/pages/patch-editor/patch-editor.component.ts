@@ -464,9 +464,10 @@ export class PatchEditorComponent implements OnInit {
     // Stagger subsequent section loading to prevent overwhelming the MIDI queue
     setTimeout(() => {
       this.loadDelayParameters();
-      this.loadChorusParameters();
-      this.loadReverbParameters();
-      this.loadEqParameters();
+      // TODO: re-enable once correct addresses confirmed via MIDI scanner
+      // this.loadChorusParameters();
+      // this.loadReverbParameters();
+      // this.loadEqParameters();
     }, 150);
 
     setTimeout(() => {
