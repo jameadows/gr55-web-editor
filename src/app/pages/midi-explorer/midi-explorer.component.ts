@@ -117,11 +117,11 @@ export class MidiExplorerComponent implements OnInit, OnDestroy {
     const outputs: any[] = []; const inputs: any[] = [];
     for (const [id, port] of this.midiAccess.outputs) {
       outputs.push({ id, name: (port as any).name });
-      if ((port as any).name.toUpperCase().includes('GR')) { this.outputPortId = id; this.selectOutput(id); }
+      if (!this.outputPortId && (port as any).name.toUpperCase().includes('GR')) { this.outputPortId = id; this.selectOutput(id); }
     }
     for (const [id, port] of this.midiAccess.inputs) {
       inputs.push({ id, name: (port as any).name });
-      if ((port as any).name.toUpperCase().includes('GR')) { this.inputPortId = id; this.selectInput(id); }
+      if (!this.inputPortId && (port as any).name.toUpperCase().includes('GR')) { this.inputPortId = id; this.selectInput(id); }
     }
     this.outputPorts.set(outputs);
     this.inputPorts.set(inputs);
