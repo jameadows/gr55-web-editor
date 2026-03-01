@@ -453,32 +453,32 @@ export class PatchEditorComponent implements OnInit {
   // ═══════════════════════════════════════════════════════════
   // PATCH LOADING
   // ═══════════════════════════════════════════════════════════
-  
+
   loadPatch() {
     // Show loading spinner
     this.isLoading.set(true);
-    
-    // Load Common section parameters
+
+    // Load Common section parameters immediately
     this.loadCommonParameters();
-    
-    // Load Effects sections
-    this.loadDelayParameters();
-    this.loadChorusParameters();
-    this.loadReverbParameters();
-    this.loadEqParameters();
-    
-    // Load PCM Tone sections
-    this.loadPcm1Parameters();
-    this.loadPcm2Parameters();
-    
-    // Load Modeling section
-    this.loadModelingParameters();
-    
-    // Load MFX section
-    this.loadMfxParameters();
-    
-    // Load Assigns section
-    this.loadAssignsParameters();
+
+    // Stagger subsequent section loading to prevent overwhelming the MIDI queue
+    setTimeout(() => {
+      this.loadDelayParameters();
+      this.loadChorusParameters();
+      this.loadReverbParameters();
+      this.loadEqParameters();
+    }, 150);
+
+    setTimeout(() => {
+      this.loadPcm1Parameters();
+      this.loadPcm2Parameters();
+    }, 400);
+
+    setTimeout(() => {
+      this.loadModelingParameters();
+      this.loadMfxParameters();
+      this.loadAssignsParameters();
+    }, 700);
 
     // Read the active slot number so the write dialog can highlight it
     this.gr55.getCurrentPatchNumber().subscribe({
@@ -1010,14 +1010,13 @@ export class PatchEditorComponent implements OnInit {
 
   private loadPcm1Parameters() {
     const map = GR55AddressMap.patch.pcmTone1;
-    
+
     this.gr55.readParameter(map.toneSelect).subscribe({
       next: (v) => this.pcm1ToneSelect.set(v),
       error: (e) => console.error('Failed to read PCM1 tone select:', e)
     });
-    
-    this.gr55.readParameter(map.muteSwitch).subscribe({
-      next: (v) => this.pcm1MuteSwitch.set(v),
+
+    this.gr55.readParameter(map.muteSwitch).subscribe({      next: (v) => this.pcm1MuteSwitch.set(v),
       error: (e) => console.error('Failed to read PCM1 mute:', e)
     });
     
@@ -1120,15 +1119,15 @@ export class PatchEditorComponent implements OnInit {
   // ═══════════════════════════════════════════════════════════
   // PCM TONE 2 SECTION
   // ═══════════════════════════════════════════════════════════
-  
+
   private loadPcm2Parameters() {
     const map = GR55AddressMap.patch.pcmTone2;
-    
+
     this.gr55.readParameter(map.toneSelect).subscribe({
       next: (v) => this.pcm2ToneSelect.set(v),
       error: (e) => console.error('Failed to read PCM2 tone select:', e)
     });
-    
+
     this.gr55.readParameter(map.muteSwitch).subscribe({
       next: (v) => this.pcm2MuteSwitch.set(v),
       error: (e) => console.error('Failed to read PCM2 mute:', e)

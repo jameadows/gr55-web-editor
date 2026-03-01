@@ -41,6 +41,10 @@ export class PcmDeepEditorComponent implements OnChanges {
     const offset = t === 1 ? GR55AddressMap.patch.pcmTone1Offset : GR55AddressMap.patch.pcmTone2Offset;
 
     return [
+      // ── Tone Selection
+      { field: tone.toneSelect, label: 'Tone Number', group: 'Tone Selection' },
+      { field: tone.muteSwitch, label: 'Tone Switch', group: 'Tone Selection' },
+
       // ── Voice behaviour
       { field: (tone as any).chromatic,        label: 'Chromatic',       group: 'Voice' },
       { field: (tone as any).legatoSwitch,     label: 'Legato',          group: 'Voice' },

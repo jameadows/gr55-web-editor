@@ -286,10 +286,10 @@ export class SysexService {
    * @param address   Address to read
    * @param size      Number of bytes to read
    * @param timeoutMs Timeout in milliseconds, measured from when the RQ1 is
-   *                  actually transmitted (default: 2000)
+   *                  actually transmitted (default: 5000)
    * @returns Observable that emits the response data bytes
    */
-  request(address: number, size: number, timeoutMs: number = 2000): Observable<number[]> {
+  request(address: number, size: number, timeoutMs: number = 5000): Observable<number[]> {
     const rq1 = this.buildRQ1(address, size);
 
     return new Observable<number[]>(subscriber => {
