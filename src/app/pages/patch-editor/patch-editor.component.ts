@@ -630,13 +630,15 @@ export class PatchEditorComponent implements OnInit {
       error: (e) => console.error('Failed to read delay type:', e)
     });
     
-    this.gr55.readParameter(map.delayTime).subscribe({
-      next: (v) => this.delayTime.set(v),
+    // TODO: delayTime address unconfirmed - skip to avoid timeout blocking queue
+    // this.gr55.readParameter(map.delayTime).subscribe({
+    //   next: (v) => this.delayTime.set(v),
       error: (e) => console.error('Failed to read delay time:', e)
     });
     
-    this.gr55.readParameter(map.delayFeedback).subscribe({
-      next: (v) => this.delayFeedback.set(v),
+    // TODO: delayFeedback address unconfirmed - skip to avoid timeout blocking queue
+    // this.gr55.readParameter(map.delayFeedback).subscribe({
+    //   next: (v) => this.delayFeedback.set(v),
       error: (e) => console.error('Failed to read delay feedback:', e)
     });
     
