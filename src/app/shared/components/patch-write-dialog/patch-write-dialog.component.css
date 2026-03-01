@@ -1,0 +1,319 @@
+/* ── Backdrop & panel ─────────────────────────────────────────────────── */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: backdrop-in 0.12s ease;
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dialog-panel {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  width: min(680px, 96vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  animation: panel-in 0.15s ease;
+}
+
+@keyframes panel-in {
+  from { transform: translateY(-12px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)     scale(1);    opacity: 1; }
+}
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+
+.dialog-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.dialog-close {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.dialog-close:hover { color: #ccc; background: #2a2a2a; }
+
+/* ── Name row ─────────────────────────────────────────────────────────── */
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem 0.5rem;
+  flex-shrink: 0;
+}
+
+.field-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #666;
+  white-space: nowrap;
+  min-width: 90px;
+}
+
+.name-input {
+  flex: 1;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 5px;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  padding: 0.4rem 0.6rem;
+  letter-spacing: 0.06em;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.name-input:focus { border-color: #68d391; }
+
+.char-count {
+  font-size: 0.65rem;
+  color: #555;
+  white-space: nowrap;
+}
+
+/* ── Search row ───────────────────────────────────────────────────────── */
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 1.25rem 0.25rem;
+  flex-shrink: 0;
+}
+
+.search-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.5rem;
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 5px;
+  color: #ccc;
+  font-size: 0.82rem;
+  padding: 0.35rem 2rem 0.35rem 1.75rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus { border-color: #4a9eff; }
+
+.search-clear {
+  position: absolute;
+  right: 0.4rem;
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.25rem;
+  border-radius: 3px;
+}
+
+.search-clear:hover { color: #ccc; }
+
+.result-count {
+  font-size: 0.65rem;
+  color: #555;
+  white-space: nowrap;
+  min-width: 120px;
+  text-align: right;
+}
+
+/* ── Legend ───────────────────────────────────────────────────────────── */
+
+.legend-row {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.25rem 1.25rem;
+  flex-shrink: 0;
+}
+
+.legend-chip {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.5rem;
+  border-radius: 3px;
+}
+
+.legend-current  { background: #1a3a2a; border: 1px solid #276749; color: #68d391; }
+.legend-selected { background: #3a2a00; border: 1px solid #b7791f; color: #f6ad55; }
+
+/* ── Slot grid ────────────────────────────────────────────────────────── */
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  padding: 0.5rem 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  /* 3-col mirrors the GR-55 bank structure (3 patches per bank) */
+}
+
+.slot-btn {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 4px;
+  color: #888;
+  font-size: 0.72rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  line-height: 1.2;
+}
+
+.slot-btn:hover:not(.is-selected) {
+  background: #1e1e1e;
+  border-color: #444;
+  color: #bbb;
+}
+
+.slot-btn.is-current {
+  background: #1a3a2a;
+  border-color: #276749;
+  color: #68d391;
+}
+
+.slot-btn.is-selected {
+  background: #3a2a00;
+  border-color: #b7791f;
+  color: #f6ad55;
+  box-shadow: 0 0 0 1px #b7791f;
+}
+
+.slot-btn.is-current.is-selected {
+  background: #2a3a00;
+  border-color: #b7791f;
+  color: #f6ad55;
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #555;
+  font-size: 0.8rem;
+  padding: 2rem;
+}
+
+/* ── Selection summary ────────────────────────────────────────────────── */
+
+.selection-summary {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.78rem;
+  color: #888;
+  min-height: 2rem;
+  border-top: 1px solid #222;
+  flex-shrink: 0;
+}
+
+.summary-text strong { color: #ccc; }
+
+.overwrite-note { color: #f6ad55; font-style: italic; }
+
+.summary-hint { color: #555; font-style: italic; }
+
+/* ── Footer ───────────────────────────────────────────────────────────── */
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+
+.btn-cancel {
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 5px;
+  color: #999;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-cancel:hover { background: #2a2a2a; color: #ccc; }
+
+.btn-write {
+  background: linear-gradient(135deg, #276749, #1a4a34);
+  border: 1px solid #38a169;
+  border-radius: 5px;
+  color: #9ae6b4;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.45rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.btn-write:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2f855a, #276749);
+  border-color: #68d391;
+  color: #c6f6d5;
+}
+
+.btn-write:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

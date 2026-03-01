@@ -1,0 +1,110 @@
+<!-- Backdrop -->
+@if (visible) {
+  <div class="dialog-backdrop" (click)="cancel()">
+    <div class="dialog-panel" (click)="$event.stopPropagation()">
+
+      <!-- ── Header ─────────────────────────────────────────── -->
+      <div class="dialog-header">
+        <h2 class="dialog-title">Write Patch to GR-55</h2>
+        <button class="dialog-close" (click)="cancel()" title="Close (Esc)">✕</button>
+      </div>
+
+      <!-- ── Patch name ──────────────────────────────────────── -->
+      <div class="name-row">
+        <label class="field-label" for="patchNameInput">Patch Name</label>
+        <input
+          id="patchNameInput"
+          class="name-input"
+          type="text"
+          maxlength="16"
+          [ngModel]="editableName()"
+          (ngModelChange)="editableName.set($event)"
+          placeholder="16 characters max"
+          spellcheck="false"
+          autocomplete="off">
+        <span class="char-count">{{ editableName().length }}/16</span>
+      </div>
+
+      <!-- ── Slot search ─────────────────────────────────────── -->
+      <div class="search-row">
+        <label class="field-label" for="slotSearch">Destination Slot</label>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            #searchInput
+            id="slotSearch"
+            class="search-input"
+            type="text"
+            placeholder="Filter slots — e.g. U05 or U12-2"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+            autocomplete="off"
+            spellcheck="false">
+          @if (searchQuery()) {
+            <button class="search-clear" (click)="onSearchChange('')" title="Clear">✕</button>
+          }
+        </div>
+        <span class="result-count">
+          @if (searchQuery()) {
+            {{ filteredSlots().length }} of 297 slots
+          } @else {
+            297 slots (U01-1 → U99-3)
+          }
+        </span>
+      </div>
+
+      <!-- ── Legend ──────────────────────────────────────────── -->
+      <div class="legend-row">
+        <span class="legend-chip legend-current">Current</span>
+        <span class="legend-chip legend-selected">Selected</span>
+      </div>
+
+      <!-- ── Slot grid ───────────────────────────────────────── -->
+      <div class="slot-grid" #slotGrid>
+        @for (entry of filteredSlots(); track entry.slot) {
+          <button
+            class="slot-btn"
+            [class.is-current]="isCurrentSlot(entry.slot)"
+            [class.is-selected]="isSelected(entry.slot)"
+            [attr.data-slot]="entry.slot"
+            (click)="selectSlot(entry.slot)"
+            [title]="'Write to ' + entry.label + (isCurrentSlot(entry.slot) ? ' (current)' : '')"
+            type="button">
+            {{ entry.label }}
+          </button>
+        }
+        @if (filteredSlots().length === 0) {
+          <p class="no-results">No slots match "{{ searchQuery() }}"</p>
+        }
+      </div>
+
+      <!-- ── Selected slot summary ───────────────────────────── -->
+      <div class="selection-summary">
+        @if (selectedSlot() !== null) {
+          <span class="summary-text">
+            Writing <strong>{{ editableName() || '(unnamed)' }}</strong>
+            → <strong>{{ selectedLabel() }}</strong>
+            @if (isCurrentSlot(selectedSlot()!)) {
+              <span class="overwrite-note">&nbsp;(overwrites current patch)</span>
+            }
+          </span>
+        } @else {
+          <span class="summary-hint">Select a destination slot above</span>
+        }
+      </div>
+
+      <!-- ── Footer buttons ──────────────────────────────────── -->
+      <div class="dialog-footer">
+        <button class="btn-cancel" (click)="cancel()" type="button">Cancel</button>
+        <button
+          class="btn-write"
+          [disabled]="!canConfirm()"
+          (click)="confirm()"
+          type="button">
+          Write to {{ selectedLabel() ?? 'GR-55' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

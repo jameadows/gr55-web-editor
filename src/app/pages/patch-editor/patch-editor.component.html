@@ -39,16 +39,44 @@
         [size]="12">
       </app-led>
       <span class="patch-name-display">{{ patchName() }}</span>
+      @if (currentSlot() !== null) {
+        <span class="slot-badge" title="Current patch slot">
+          {{ slotLabel(currentSlot()!) }}
+        </span>
+      }
+      <!-- Quick save: Ctrl+S / writes to current slot -->
       <button
         class="btn-save"
         [class.saving]="isSavingPatch()"
+        [class.flash-success]="saveFlash() === 'success'"
+        [class.flash-error]="saveFlash() === 'error'"
         [disabled]="isSavingPatch() || !isConnected()"
         (click)="savePatchToHardware()"
-        title="Write current patch to hardware (Ctrl+S)">
-        {{ isSavingPatch() ? 'Writing…' : 'Save' }}
+        title="Quick-save to current slot (Ctrl+S)">
+        @if (isSavingPatch()) { Writing… }
+        @else if (saveFlash() === 'success') { Saved ✓ }
+        @else if (saveFlash() === 'error') { Error ✗ }
+        @else { Save }
+      </button>
+      <!-- Write to any slot -->
+      <button
+        class="btn-write-to"
+        [disabled]="isSavingPatch() || !isConnected()"
+        (click)="openWriteDialog()"
+        title="Write to a specific slot…">
+        Write to…
       </button>
     </div>
   </header>
+
+  <!-- Write-to-Slot picker dialog -->
+  <app-patch-write-dialog
+    [visible]="showWriteDialog()"
+    [patchName]="patchName()"
+    [currentSlot]="currentSlot()"
+    (confirmed)="onWriteConfirmed($event)"
+    (cancelled)="onWriteCancelled()">
+  </app-patch-write-dialog>
   
   <!-- Tab Navigation -->
   <nav class="tab-nav">

@@ -149,6 +149,59 @@
   50%       { opacity: 1; }
 }
 
+/* Flash states for quick-save feedback */
+.btn-save.flash-success {
+  background: linear-gradient(135deg, #2f855a, #276749);
+  border-color: #68d391;
+  color: #c6f6d5;
+}
+
+.btn-save.flash-error {
+  background: linear-gradient(135deg, #822727, #5a1a1a);
+  border-color: #fc8181;
+  color: #feb2b2;
+}
+
+/* Slot badge shown next to patch name */
+.slot-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.06em;
+  color: #68d391;
+  background: #1a3a2a;
+  border: 1px solid #276749;
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+}
+
+/* Write-to-Slot button */
+.btn-write-to {
+  background: #1a1a2e;
+  border: 1px solid #4a4a8a;
+  border-radius: 5px;
+  color: #9090d0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.btn-write-to:hover:not(:disabled) {
+  background: #22223e;
+  border-color: #7070c0;
+  color: #c0c0f0;
+}
+
+.btn-write-to:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+
+
 .param-value {
   font-size: 0.62rem;
   color: #a0aec0;

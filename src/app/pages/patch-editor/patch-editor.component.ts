@@ -29,6 +29,7 @@ import {
 import { KeyboardShortcutService } from '../../core/services/keyboard-shortcut.service';
 import { ConfirmationDialogService } from '../../core/services/confirmation-dialog.service';
 import { AssignTargetSelectComponent } from '../../shared/components/assign-target-select/assign-target-select.component';
+import { PatchWriteDialogComponent, WriteConfirmation } from '../../shared/components/patch-write-dialog/patch-write-dialog.component';
 
 type TabId = 'common' | 'pcm1' | 'pcm2' | 'modeling' | 'mfx' | 'delay' | 'chorus' | 'reverb' | 'eq' | 'assigns';
 
@@ -54,7 +55,8 @@ interface Tab {
     MfxDeepEditorComponent,
     ModelingDeepEditorComponent,
     PcmDeepEditorComponent,
-    AssignTargetSelectComponent
+    AssignTargetSelectComponent,
+    PatchWriteDialogComponent
   ],
   templateUrl: './patch-editor.component.html',
   styleUrl: './patch-editor.component.css'
@@ -76,6 +78,12 @@ export class PatchEditorComponent implements OnInit {
   isConnected = this.midiIo.isConnected;
   isLoading = signal(false);
   isSavingPatch = signal(false);
+  /** Brief "Saved ✓" flash on the save button after a successful quick-save */
+  saveFlash = signal<'success' | 'error' | null>(null);
+  /** Controls visibility of the Write-to-Slot picker dialog */
+  showWriteDialog = signal(false);
+  /** Slot number currently active on the GR-55 (read on connect / after write) */
+  currentSlot = signal<number | null>(null);
   
   // ═══════════════════════════════════════════════════════════
   // TAB NAVIGATION
@@ -103,6 +111,13 @@ export class PatchEditorComponent implements OnInit {
   showSecondaryControls = signal(true);
   showAdvancedControls = signal(false);
   showConnectionPrompt = computed(() => !this.isConnected());
+
+  /** Format a 0-based slot number as "U01-1" → "U99-3" */
+  slotLabel(slot: number): string {
+    const bankIdx = Math.floor(slot / 3);
+    const posIdx  = slot % 3;
+    return `U${String(bankIdx + 1).padStart(2, '0')}-${posIdx + 1}`;
+  }
   
   // ═══════════════════════════════════════════════════════════
   // PATCH PARAMETERS (from GR-55)
@@ -464,6 +479,12 @@ export class PatchEditorComponent implements OnInit {
     
     // Load Assigns section
     this.loadAssignsParameters();
+
+    // Read the active slot number so the write dialog can highlight it
+    this.gr55.getCurrentPatchNumber().subscribe({
+      next: (n) => this.currentSlot.set(n),
+      error: () => {}   // non-fatal
+    });
     
     // Hide loading spinner after a short delay to ensure all reads complete
     setTimeout(() => {
@@ -895,43 +916,92 @@ export class PatchEditorComponent implements OnInit {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // SAVE PATCH TO HARDWARE
+  // SAVE / WRITE PATCH TO HARDWARE
   // ═══════════════════════════════════════════════════════════
 
+  /**
+   * Quick save — Ctrl+S / Save button.
+   * Writes the edit buffer back to the CURRENT slot with no dialog.
+   * Shows a brief success/error flash on the button instead of alert().
+   */
   async savePatchToHardware() {
-    if (!this.isConnected()) return;
+    if (!this.isConnected() || this.isSavingPatch()) return;
 
-    let slotNum: number;
-    try {
-      slotNum = await new Promise<number>((resolve, reject) => {
-        this.gr55.getCurrentPatchNumber().subscribe({ next: resolve, error: reject });
-      });
-    } catch {
-      alert('Could not read current patch number from GR-55.');
-      return;
+    // Read current slot if we don't have it yet
+    if (this.currentSlot() === null) {
+      try {
+        const slot = await new Promise<number>((res, rej) =>
+          this.gr55.getCurrentPatchNumber().subscribe({ next: res, error: rej })
+        );
+        this.currentSlot.set(slot);
+      } catch {
+        this.flashSaveResult('error');
+        return;
+      }
     }
 
-    const slotDisplay = slotNum + 1; // 1-based for user display
-    const name = this.patchName();
-    const confirmed = await this.confirmDialog.confirm({
-      title: 'Write Patch to Hardware',
-      message: `Write current changes to Patch ${slotDisplay} ("${name}") on the GR-55?\n\nThis will overwrite the saved patch.`,
-      confirmText: 'Write to GR-55',
-      cancelText: 'Cancel',
-      danger: false,
-    });
+    await this.executeWrite(this.currentSlot()!, this.patchName());
+  }
 
-    if (!confirmed) return;
+  /** Open the Write-to-Slot picker dialog */
+  openWriteDialog() {
+    if (!this.isConnected() || this.isSavingPatch()) return;
+    this.showWriteDialog.set(true);
+  }
 
+  /** Called when user confirms a slot in the dialog */
+  async onWriteConfirmed(confirmation: WriteConfirmation) {
+    this.showWriteDialog.set(false);
+    await this.executeWrite(confirmation.slot, confirmation.patchName);
+  }
+
+  /** Called when user cancels the dialog */
+  onWriteCancelled() {
+    this.showWriteDialog.set(false);
+  }
+
+  /**
+   * Core write routine — shared by quick save and dialog write.
+   *
+   * Steps:
+   *  1. If name changed, send the rename to the edit buffer first.
+   *  2. Send "write to slot" SysEx to commit the edit buffer to persistent memory.
+   *  3. Re-read the slot number so currentSlot reflects any destination change.
+   *  4. Flash button green (success) or red (error).
+   */
+  private async executeWrite(slot: number, name: string) {
     this.isSavingPatch.set(true);
     try {
-      await this.gr55.writePatchToSlot(slotNum);
+      // 1. Rename if needed
+      const trimmed = name.trim().substring(0, 16);
+      if (trimmed && trimmed !== this.patchName()) {
+        await new Promise<void>((res, rej) =>
+          this.gr55.setPatchName(trimmed).subscribe({ next: () => res(), error: rej })
+        );
+        this.patchName.set(trimmed);
+      }
+
+      // 2. Write edit buffer → persistent slot
+      await this.gr55.writePatchToSlot(slot);
+
+      // 3. Update cached slot
+      this.currentSlot.set(slot);
+
+      // 4. Success flash
+      this.flashSaveResult('success');
+
     } catch (e) {
-      console.error('Failed to write patch to slot:', e);
-      alert('Write failed — check connection and try again.');
+      console.error('Patch write failed:', e);
+      this.flashSaveResult('error');
     } finally {
       this.isSavingPatch.set(false);
     }
+  }
+
+  /** Flash the save button green (success) or red (error) for 1.8 s */
+  private flashSaveResult(result: 'success' | 'error') {
+    this.saveFlash.set(result);
+    setTimeout(() => this.saveFlash.set(null), 1800);
   }
 
   // ═══════════════════════════════════════════════════════════
