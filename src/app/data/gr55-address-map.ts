@@ -128,11 +128,13 @@ export const GR55AddressMap = {
       /**
        * Patch name (16 ASCII characters)
        * Address: 0x18000001 (pack7 0x000001)
-       * Note: Response includes 1 dummy byte at END (byte 16)
+       * 16 bytes, one per character. byte[0] IS the first character —
+       * the old "dummy byte" theory was incorrect and caused the first
+       * character to be dropped on every read.
        */
       patchName: {
         address: 0x18000001,
-        size: 17, // 16 name bytes + 1 dummy at end
+        size: 16, // exactly 16 name chars, no dummy byte
         type: 'string',
         label: 'Patch Name',
         description: 'Patch name (16 characters max)',
@@ -514,14 +516,14 @@ export const GR55AddressMap = {
     },
     
     // ═══════════════════════════════════════════════════════════════
-    // PCM TONE 1 SECTION (0x18002000-0x18002016)
+    // PCM TONE 1 SECTION (0x18002000-0x18002015)
     // From gr55-remote PatchPCMToneStruct
     // ═══════════════════════════════════════════════════════════════
     
     pcmTone1: {
       toneSelect: {
         address: 0x18002000,
-        size: 3, // PCM tone select field (special encoding)
+        size: 2, // 910 tones (0-909) fits in 2×7-bit bytes (max 16383)
         type: 'number',
         range: [0, 909],
         label: 'PCM Tone Number',
@@ -532,7 +534,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       muteSwitch: {
-        address: 0x18002003,
+        address: 0x18002002,
         size: 1,
         type: 'boolean',
         label: 'Mute Switch',
@@ -543,7 +545,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<boolean>,
       
       partLevel: {
-        address: 0x18002004,
+        address: 0x18002003,
         size: 1,
         type: 'number',
         range: [0, 127],
@@ -554,7 +556,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       partOctaveShift: {
-        address: 0x18002005,
+        address: 0x18002004,
         size: 1,
         type: 'number',
         range: [-3, 3],
@@ -566,7 +568,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       partPan: {
-        address: 0x18002009,
+        address: 0x18002008,
         size: 1,
         type: 'number',
         range: [0, 127], // 0=L64, 64=CENTER, 127=R63
@@ -577,7 +579,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       partCoarseTune: {
-        address: 0x1800200A,
+        address: 0x18002009,
         size: 1,
         type: 'number',
         range: [-24, 24],
@@ -590,7 +592,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       partFineTune: {
-        address: 0x1800200B,
+        address: 0x1800200A,
         size: 1,
         type: 'number',
         range: [-50, 50],
@@ -604,29 +606,29 @@ export const GR55AddressMap = {
 
       // Additional PatchPCMToneStruct fields
       chromatic: {
-        address: 0x18002006, size: 1, type: 'boolean', label: 'Chromatic',
+        address: 0x18002005, size: 1, type: 'boolean', label: 'Chromatic',
         defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 1'
       } as FieldDefinition<boolean>,
       legatoSwitch: {
-        address: 0x18002007, size: 1, type: 'boolean', label: 'Legato',
+        address: 0x18002006, size: 1, type: 'boolean', label: 'Legato',
         defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 1'
       } as FieldDefinition<boolean>,
       nuanceSwitch: {
-        address: 0x18002008, size: 1, type: 'boolean', label: 'Nuance',
+        address: 0x18002007, size: 1, type: 'boolean', label: 'Nuance',
         defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 1'
       } as FieldDefinition<boolean>,
       portamentoSwitch: {
-        address: 0x1800200C, size: 1, type: 'enum',
+        address: 0x1800200B, size: 1, type: 'enum',
         enumValues: ['OFF', 'ON', 'TONE'], label: 'Portamento',
         defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
       } as FieldDefinition<number>,
       releaseMode: {
-        address: 0x1800200F, size: 1, type: 'enum',
+        address: 0x1800200E, size: 1, type: 'enum',
         enumValues: ['1', '2'], label: 'Release Mode',
         defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
       } as FieldDefinition<number>,
       outputMfxSelect: {
-        address: 0x18002016, size: 1, type: 'enum',
+        address: 0x18002015, size: 1, type: 'enum',
         enumValues: ['PATCH', 'LINE1', 'LINE2'], label: 'Output (MFX)',
         defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 1'
       } as FieldDefinition<number>,
@@ -637,10 +639,15 @@ export const GR55AddressMap = {
     // Same structure as PCM Tone 1, different base address
     // ═══════════════════════════════════════════════════════════════
     
+    // ═══════════════════════════════════════════════════════════════
+    // PCM TONE 2 SECTION (0x18002100-0x18002115)
+    // Same structure as PCM Tone 1, different base address
+    // ═══════════════════════════════════════════════════════════════
+    
     pcmTone2: {
       toneSelect: {
         address: 0x18002100,
-        size: 3,
+        size: 2, // 910 tones (0-909) fits in 2×7-bit bytes
         type: 'number',
         range: [0, 909],
         label: 'PCM Tone Number',
@@ -651,7 +658,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       muteSwitch: {
-        address: 0x18002103,
+        address: 0x18002102,
         size: 1,
         type: 'boolean',
         label: 'Mute Switch',
@@ -662,7 +669,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<boolean>,
       
       partLevel: {
-        address: 0x18002104,
+        address: 0x18002103,
         size: 1,
         type: 'number',
         range: [0, 127],
@@ -673,7 +680,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       partOctaveShift: {
-        address: 0x18002105,
+        address: 0x18002104,
         size: 1,
         type: 'number',
         range: [-3, 3],
@@ -685,7 +692,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       partPan: {
-        address: 0x18002109,
+        address: 0x18002108,
         size: 1,
         type: 'number',
         range: [0, 127],
@@ -696,7 +703,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       partCoarseTune: {
-        address: 0x1800210A,
+        address: 0x18002109,
         size: 1,
         type: 'number',
         range: [-24, 24],
@@ -709,7 +716,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       partFineTune: {
-        address: 0x1800210B,
+        address: 0x1800210A,
         size: 1,
         type: 'number',
         range: [-50, 50],
@@ -722,30 +729,30 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       // Additional PatchPCMToneStruct fields for PCM Tone 2
-      chromatic2: {
-        address: 0x18002106, size: 1, type: 'boolean', label: 'Chromatic',
+      chromatic: {
+        address: 0x18002105, size: 1, type: 'boolean', label: 'Chromatic',
         defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 2'
       } as FieldDefinition<boolean>,
-      legatoSwitch2: {
-        address: 0x18002107, size: 1, type: 'boolean', label: 'Legato',
+      legatoSwitch: {
+        address: 0x18002106, size: 1, type: 'boolean', label: 'Legato',
         defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 2'
       } as FieldDefinition<boolean>,
-      nuanceSwitch2: {
-        address: 0x18002108, size: 1, type: 'boolean', label: 'Nuance',
+      nuanceSwitch: {
+        address: 0x18002107, size: 1, type: 'boolean', label: 'Nuance',
         defaultValue: false, uiLevel: 'secondary', category: 'PCM Tone 2'
       } as FieldDefinition<boolean>,
-      portamentoSwitch2: {
-        address: 0x1800210C, size: 1, type: 'enum',
+      portamentoSwitch: {
+        address: 0x1800210B, size: 1, type: 'enum',
         enumValues: ['OFF', 'ON', 'TONE'], label: 'Portamento',
         defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
       } as FieldDefinition<number>,
-      releaseMode2: {
-        address: 0x1800210F, size: 1, type: 'enum',
+      releaseMode: {
+        address: 0x1800210E, size: 1, type: 'enum',
         enumValues: ['1', '2'], label: 'Release Mode',
         defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
       } as FieldDefinition<number>,
-      outputMfxSelect2: {
-        address: 0x18002116, size: 1, type: 'enum',
+      outputMfxSelect: {
+        address: 0x18002115, size: 1, type: 'enum',
         enumValues: ['PATCH', 'LINE1', 'LINE2'], label: 'Output (MFX)',
         defaultValue: 0, uiLevel: 'secondary', category: 'PCM Tone 2'
       } as FieldDefinition<number>,

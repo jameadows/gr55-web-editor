@@ -169,20 +169,16 @@ export class Gr55ProtocolService {
   /**
    * Get patch name
    * 
-   * Note: Response includes 1 dummy byte at the END (byte 16).
+   * Reads 16 bytes from 0x18000001; all bytes are the name characters.
    */
   getPatchName(): Observable<string> {
-    return this.sysex.request(0x18000001, 17).pipe(
-      map(data => {
-        // Take first 16 bytes (actual name), skip last dummy byte
-        const nameBytes = data.slice(0, 16);
-        // Convert to string, remove null padding
-        return nameBytes
-          .map(b => String.fromCharCode(b))
-          .join('')
-          .replace(/\0/g, '')
-          .trim();
-      })
+    return this.sysex.request(0x18000001, 16).pipe(
+      map(data => data
+        .map(b => String.fromCharCode(b))
+        .join('')
+        .replace(/\0/g, '')
+        .trim()
+      )
     );
   }
   
@@ -192,17 +188,12 @@ export class Gr55ProtocolService {
    * @param name Patch name (max 16 characters)
    */
   setPatchName(name: string): Observable<void> {
-    // Truncate to 16 chars
+    // Truncate to 16 chars, write directly — no dummy byte prefix
     const truncated = name.substring(0, 16);
-    
-    // Convert to bytes, pad with nulls, add dummy byte at end
-    const data = new Array(17).fill(0);
-    
+    const data = new Array(16).fill(0);
     for (let i = 0; i < truncated.length; i++) {
       data[i] = truncated.charCodeAt(i);
     }
-    // Dummy byte at position 16 (already 0 from fill)
-    
     return from(this.sysex.write(0x18000001, data));
   }
   
@@ -401,14 +392,10 @@ export class Gr55ProtocolService {
         return num as T;
         
       case 'string':
-        // Patch name: GR-55 appends 1 dummy byte AFTER the 16-char name.
-        // Response is 17 bytes: [char1..char16, dummy]
-        let stringData = data;
-        if (field.label === 'Patch Name' && data.length === 17) {
-          stringData = data.slice(0, 16);
-        }
-        // Convert bytes to ASCII string
-        return stringData
+        // Convert bytes to ASCII string. All bytes are real name characters —
+        // the old "dummy byte at byte[0]" theory was wrong and caused the first
+        // character to be dropped.
+        return data
           .map(b => String.fromCharCode(b))
           .join('')
           .replace(/\0/g, '')
@@ -456,6 +443,7 @@ export class Gr55ProtocolService {
       case 'string':
         const str = value as unknown as string;
         const strBytes = new Array(field.size).fill(0);
+        // Write characters directly starting at byte[0] — no dummy byte prefix.
         for (let i = 0; i < Math.min(str.length, field.size); i++) {
           strBytes[i] = str.charCodeAt(i) & 0x7F;
         }

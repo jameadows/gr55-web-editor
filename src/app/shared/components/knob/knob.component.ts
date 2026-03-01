@@ -7,7 +7,7 @@
  * © 2025 GR-55 Web Editor Contributors (MIT License)
  */
 
-import { Component, Input, Output, EventEmitter, signal, computed, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -22,8 +22,17 @@ export class KnobComponent {
   // INPUTS
   // ═══════════════════════════════════════════════════════════
   
-  /** Current value */
-  @Input() value: number = 0;
+  /**
+   * Current value — backed by a signal so computed() properties
+   * (rotation, displayValue) re-evaluate whenever the parent updates it.
+   * A plain @Input() is not tracked by Angular signals, so the SVG
+   * transform would never update on load without this pattern.
+   */
+  private _value = signal(0);
+
+  @Input()
+  set value(v: number) { this._value.set(v); }
+  get value(): number { return this._value(); }
   
   /** Minimum value */
   @Input() min: number = 0;
@@ -75,14 +84,14 @@ export class KnobComponent {
   
   /** Current rotation angle in degrees (-135° to +135°) */
   rotation = computed(() => {
-    const currentValue = this.isDragging() ? this.dragValue() : this.value;
+    const currentValue = this.isDragging() ? this.dragValue() : this._value();
     const normalized = (currentValue - this.min) / (this.max - this.min);
     return normalized * 270 - 135; // Map 0-1 to -135° to +135°
   });
   
   /** Display value with units */
   displayValue = computed(() => {
-    const currentValue = this.isDragging() ? this.dragValue() : this.value;
+    const currentValue = this.isDragging() ? this.dragValue() : this._value();
     return this.units ? `${currentValue}${this.units}` : currentValue.toString();
   });
   

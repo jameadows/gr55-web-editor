@@ -263,7 +263,6 @@
               <label class="picker-sublabel">Category</label>
               <select
                 class="tone-select"
-                [value]="pcm1SelectedCategory().name"
                 (change)="onPcm1CategoryChange($any($event.target).value)"
                 size="5">
                 @for (cat of pcmCategories; track cat.name) {
@@ -275,7 +274,6 @@
               <label class="picker-sublabel">Tone</label>
               <select
                 class="tone-select"
-                [value]="pcm1ToneSelect()"
                 (change)="onPcm1ToneSelectChange(+$any($event.target).value)"
                 size="5">
                 @for (opt of pcm1TonesInCategory(); track opt.value) {
@@ -416,7 +414,6 @@
               <label class="picker-sublabel">Category</label>
               <select
                 class="tone-select"
-                [value]="pcm2SelectedCategory().name"
                 (change)="onPcm2CategoryChange($any($event.target).value)"
                 size="5">
                 @for (cat of pcmCategories; track cat.name) {
@@ -428,7 +425,6 @@
               <label class="picker-sublabel">Tone</label>
               <select
                 class="tone-select"
-                [value]="pcm2ToneSelect()"
                 (change)="onPcm2ToneSelectChange(+$any($event.target).value)"
                 size="5">
                 @for (opt of pcm2TonesInCategory(); track opt.value) {
