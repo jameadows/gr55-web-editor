@@ -379,6 +379,15 @@ export class Gr55ProtocolService {
    */
   private decodeValue<T>(data: number[], field: FieldDefinition<T>): T {
     switch (field.type) {
+      case 'nibble':
+        // Roland nibble encoding: each byte holds 4 bits (0x0–0xF), big-endian.
+        // e.g. delayTime 400ms=4000 → stored as (0x0F, 0x0A, 0x00)
+        let nibbleVal = 0;
+        for (let i = 0; i < field.size; i++) {
+          nibbleVal = (nibbleVal << 4) | (data[i] & 0x0F);
+        }
+        return nibbleVal as T;
+
       case 'number':
         // Simple case: single byte number
         if (field.size === 1) {
@@ -419,6 +428,16 @@ export class Gr55ProtocolService {
    */
   private encodeValue<T>(value: T, field: FieldDefinition<T>): number[] {
     switch (field.type) {
+      case 'nibble': {
+        // Roland nibble encoding: split value into 4-bit nibbles, one per byte.
+        const nibbleNum = value as unknown as number;
+        const nibbleBytes: number[] = [];
+        for (let i = field.size - 1; i >= 0; i--) {
+          nibbleBytes.unshift((nibbleNum >> (i * 4)) & 0x0F);
+        }
+        return nibbleBytes;
+      }
+
       case 'number':
         const num = value as unknown as number;
         

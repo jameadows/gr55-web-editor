@@ -29,8 +29,10 @@ export interface FieldDefinition<T = any> {
   /** Size in bytes (1-256) */
   size: number;
   
-  /** Data type */
-  type: 'number' | 'string' | 'enum' | 'boolean';
+  /** Data type.
+   *  'nibble' = Roland nibble encoding: each byte holds 4 bits (0x0–0xF),
+   *  must be bulk-read (size bytes); decoded as byte[0]<<(4*(size-1)) | ... */
+  type: 'number' | 'string' | 'enum' | 'boolean' | 'nibble';
   
   /** Valid range for numeric types [min, max] */
   range?: [number, number];
@@ -1187,8 +1189,13 @@ export const GR55AddressMap = {
     },
     
     // ═══════════════════════════════════════════════════════════════
-    // DELAY SECTION (0x18000605-0x1800060A)
-    // Roland GR-55 MIDI Implementation: temporaryPatch Delay page
+    // DELAY SECTION (0x18000605-0x1800060B)
+    // Confirmed via empirical scan 2025-03-01:
+    //   0x605 delaySwitch  (1 byte, boolean)
+    //   0x606 delayType    (1 byte, enum)
+    //   0x607-0x609 delayTime (3 nibble bytes — MUST bulk-read, individual reads timeout)
+    //   0x60A delayFeedback   (1 byte)
+    //   0x60B delayEffectLevel (1 byte)
     // ═══════════════════════════════════════════════════════════════
     
     delay: {
@@ -1215,18 +1222,18 @@ export const GR55AddressMap = {
       
       delayTime: {
         address: 0x18000607,
-        size: 2, // USplit12Field
-        type: 'number',
+        size: 3, // Roland nibble encoding: 3 bytes × 4 bits = 12-bit value (0-3413)
+        type: 'nibble',
         range: [0, 3413],
         label: 'Delay Time',
-        description: 'Delay time (0-3400ms, or note values)',
+        description: 'Delay time (0-3400ms). Stored as 3 nibble bytes, bulk read only.',
         defaultValue: 500,
         uiLevel: 'secondary',
         category: 'Delay'
       } as FieldDefinition<number>,
       
       delayFeedback: {
-        address: 0x18000609,
+        address: 0x1800060A, // confirmed: scan shows byte at 0x60A = 0x14 = 20
         size: 1,
         type: 'number',
         range: [0, 100],
@@ -1237,7 +1244,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       delayEffectLevel: {
-        address: 0x1800060A,
+        address: 0x1800060B, // confirmed: scan shows byte at 0x60B = 0x00
         size: 1,
         type: 'number',
         range: [0, 120],
