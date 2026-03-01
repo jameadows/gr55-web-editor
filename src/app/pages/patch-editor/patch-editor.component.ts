@@ -1903,7 +1903,55 @@ export class PatchEditorComponent implements OnInit {
     });
   }
   
-  // Note: Additional handlers for Assign 2-8 min/max values would follow the same pattern
-  // Users can adjust via the UI and the handlers will write to GR-55
+  // ═══════════════════════════════════════════════════════════
+  // ASSIGN SOURCE MODE / MIN / MAX HANDLERS (all 8 assigns)
+  // ═══════════════════════════════════════════════════════════
+
+  private writeAssignParam(field: any, value: number | boolean, signal: any, reload: () => void) {
+    signal.set(value);
+    this.gr55.writeParameter(field, value).subscribe({
+      error: (e) => { console.error('Assign write failed:', e); reload(); }
+    });
+  }
+
+  // ── Assign 1 ──
+  onAssign1SourceModeChange(v: number) { this.writeAssignParam(GR55AddressMap.patch.assigns.assign1SourceMode, v, this.assign1SourceMode, () => this.loadAssignsParameters()); }
+  onAssign1TargetMinChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign1TargetMin,  v, this.assign1TargetMin,  () => this.loadAssignsParameters()); }
+  onAssign1TargetMaxChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign1TargetMax,  v, this.assign1TargetMax,  () => this.loadAssignsParameters()); }
+
+  // ── Assign 2 ──
+  onAssign2SourceModeChange(v: number) { this.writeAssignParam(GR55AddressMap.patch.assigns.assign2SourceMode, v, this.assign2SourceMode, () => this.loadAssignsParameters()); }
+  onAssign2TargetMinChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign2TargetMin,  v, this.assign2TargetMin,  () => this.loadAssignsParameters()); }
+  onAssign2TargetMaxChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign2TargetMax,  v, this.assign2TargetMax,  () => this.loadAssignsParameters()); }
+
+  // ── Assign 3 ──
+  onAssign3SourceModeChange(v: number) { this.writeAssignParam(GR55AddressMap.patch.assigns.assign3SourceMode, v, this.assign3SourceMode, () => this.loadAssignsParameters()); }
+  onAssign3TargetMinChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign3TargetMin,  v, this.assign3TargetMin,  () => this.loadAssignsParameters()); }
+  onAssign3TargetMaxChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign3TargetMax,  v, this.assign3TargetMax,  () => this.loadAssignsParameters()); }
+
+  // ── Assign 4 ──
+  onAssign4SourceModeChange(v: number) { this.writeAssignParam(GR55AddressMap.patch.assigns.assign4SourceMode, v, this.assign4SourceMode, () => this.loadAssignsParameters()); }
+  onAssign4TargetMinChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign4TargetMin,  v, this.assign4TargetMin,  () => this.loadAssignsParameters()); }
+  onAssign4TargetMaxChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign4TargetMax,  v, this.assign4TargetMax,  () => this.loadAssignsParameters()); }
+
+  // ── Assign 5 ──
+  onAssign5SourceModeChange(v: number) { this.writeAssignParam(GR55AddressMap.patch.assigns.assign5SourceMode, v, this.assign5SourceMode, () => this.loadAssignsParameters()); }
+  onAssign5TargetMinChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign5TargetMin,  v, this.assign5TargetMin,  () => this.loadAssignsParameters()); }
+  onAssign5TargetMaxChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign5TargetMax,  v, this.assign5TargetMax,  () => this.loadAssignsParameters()); }
+
+  // ── Assign 6 ──
+  onAssign6SourceModeChange(v: number) { this.writeAssignParam(GR55AddressMap.patch.assigns.assign6SourceMode, v, this.assign6SourceMode, () => this.loadAssignsParameters()); }
+  onAssign6TargetMinChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign6TargetMin,  v, this.assign6TargetMin,  () => this.loadAssignsParameters()); }
+  onAssign6TargetMaxChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign6TargetMax,  v, this.assign6TargetMax,  () => this.loadAssignsParameters()); }
+
+  // ── Assign 7 ──
+  onAssign7SourceModeChange(v: number) { this.writeAssignParam(GR55AddressMap.patch.assigns.assign7SourceMode, v, this.assign7SourceMode, () => this.loadAssignsParameters()); }
+  onAssign7TargetMinChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign7TargetMin,  v, this.assign7TargetMin,  () => this.loadAssignsParameters()); }
+  onAssign7TargetMaxChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign7TargetMax,  v, this.assign7TargetMax,  () => this.loadAssignsParameters()); }
+
+  // ── Assign 8 ──
+  onAssign8SourceModeChange(v: number) { this.writeAssignParam(GR55AddressMap.patch.assigns.assign8SourceMode, v, this.assign8SourceMode, () => this.loadAssignsParameters()); }
+  onAssign8TargetMinChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign8TargetMin,  v, this.assign8TargetMin,  () => this.loadAssignsParameters()); }
+  onAssign8TargetMaxChange(v: number)  { this.writeAssignParam(GR55AddressMap.patch.assigns.assign8TargetMax,  v, this.assign8TargetMax,  () => this.loadAssignsParameters()); }
 }
 

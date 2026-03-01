@@ -491,37 +491,69 @@
   top: -1px;
 }
 
-/* ── Assign row layout ──────────────────────────────────────────────── */
+/* ── Assign table layout ────────────────────────────────────────────── */
 
+.assign-header-row,
 .assign-row {
   display: grid;
-  grid-template-columns: 52px 180px 1fr auto;
-  gap: 0.75rem;
-  align-items: start;
-  padding: 0.5rem 0;
+  grid-template-columns: 70px 160px 110px 1fr 72px 72px;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.assign-header-row {
+  padding: 0.25rem 0.75rem 0.1rem;
+  margin-bottom: -0.25rem;
+}
+
+.assign-header-row span {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #666;
+  text-align: center;
+}
+
+.assign-header-row span:nth-child(4) { text-align: left; }
+
+.assign-section {
+  padding: 0.4rem 0.75rem !important;
+  margin-bottom: 2px !important;
+}
+
+.assign-section + .assign-section {
+  border-top: 1px solid #1a1a1a;
+}
+
+.assign-row {
+  padding: 0.15rem 0;
 }
 
 .assign-sw {
   display: flex;
-  justify-content: center;
-  padding-top: 1.2rem;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.assign-source {
-  min-width: 0;
+.assign-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #555;
+  width: 14px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
+.assign-source,
+.assign-mode,
 .assign-target {
   min-width: 0;
 }
 
-.assign-range {
+.assign-minmax {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.1rem;
-  white-space: nowrap;
-  padding-top: 0;
+  justify-content: center;
 }
 
 .assign-field-label {
@@ -533,18 +565,13 @@
   letter-spacing: 0.04em;
 }
 
-.assign-range .assign-field-label {
-  font-size: 0.65rem;
-  text-align: right;
-  margin-bottom: 0;
-  margin-top: 0.25rem;
-}
-
-@media (max-width: 700px) {
+@media (max-width: 900px) {
+  .assign-header-row { display: none; }
   .assign-row {
-    grid-template-columns: 52px 1fr;
+    grid-template-columns: 60px 1fr 100px;
     grid-template-rows: auto auto auto;
+    row-gap: 0.4rem;
   }
-  .assign-target { grid-column: 1 / -1; }
-  .assign-range  { grid-column: 1 / -1; flex-direction: row; justify-content: flex-start; }
+  .assign-target  { grid-column: 1 / -1; }
+  .assign-minmax  { justify-content: flex-start; }
 }

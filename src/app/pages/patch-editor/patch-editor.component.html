@@ -1181,265 +1181,320 @@
           </div>
         </section>
         
+        <!-- Column header row -->
+        <div class="assign-header-row">
+          <span></span>
+          <span>Source</span>
+          <span>Mode</span>
+          <span>Target</span>
+          <span>Min</span>
+          <span>Max</span>
+        </div>
+
         <!-- ASSIGN 1 -->
-        <section class="parameter-section">
-          <h3>Assign 1</h3>
-          <div class="assign-config">
-            <div class="assign-row">
-              <div class="assign-sw">
-                <app-led
-                  label="ON"
-                  [isOn]="assign1Switch()"
-                  [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 1."
-                  (valueChange)="onAssign1SwitchChange($event)">
-                </app-led>
-              </div>
-              <div class="assign-source">
-                <label class="assign-field-label">Source</label>
-                <app-dropdown
-                  [value]="assign1Source()"
-                  [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 1."
-                  (valueChange)="onAssign1SourceChange($event)">
-                </app-dropdown>
-              </div>
-              <div class="assign-target">
-                <label class="assign-field-label">Target</label>
-                <app-assign-target-select
-                  [value]="assign1Target()"
-                  (valueChange)="onAssign1TargetChange($event)">
-                </app-assign-target-select>
-              </div>
-              <div class="assign-range">
-                <label class="assign-field-label">Min</label>
-                <app-parameter-label value="{{ assign1TargetMin() }}" />
-                <label class="assign-field-label">Max</label>
-                <app-parameter-label value="{{ assign1TargetMax() }}" />
-              </div>
+        <section class="parameter-section assign-section">
+          <div class="assign-row">
+            <div class="assign-sw">
+              <span class="assign-num">1</span>
+              <app-led label="ON" [isOn]="assign1Switch()" [clickable]="true"
+                tooltip="Enable/disable ASSIGN 1." (valueChange)="onAssign1SwitchChange($event)">
+              </app-led>
+            </div>
+            <div class="assign-source">
+              <app-dropdown [value]="assign1Source()" [options]="assignSourceOptions"
+                tooltip="Control source for ASSIGN 1 — the physical controller that drives this assign."
+                (valueChange)="onAssign1SourceChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-mode">
+              <app-dropdown [value]="assign1SourceMode()" [options]="['MOMENT','TOGGLE']"
+                tooltip="MOMENT: active only while held. TOGGLE: press to flip on/off."
+                color="cyan"
+                (valueChange)="onAssign1SourceModeChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-target">
+              <app-assign-target-select [value]="assign1Target()"
+                (valueChange)="onAssign1TargetChange($event)">
+              </app-assign-target-select>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign1TargetMin()" [min]="0" [max]="16383"
+                tooltip="Minimum value sent to target when source is at its minimum position."
+                (valueChange)="onAssign1TargetMinChange($event)">
+              </app-knob>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign1TargetMax()" [min]="0" [max]="16383"
+                tooltip="Maximum value sent to target when source is at its maximum position."
+                (valueChange)="onAssign1TargetMaxChange($event)">
+              </app-knob>
             </div>
           </div>
         </section>
 
         <!-- ASSIGN 2 -->
-        <section class="parameter-section">
-          <h3>Assign 2</h3>
-          <div class="assign-config">
-            <div class="assign-row">
-              <div class="assign-sw">
-                <app-led label="ON" [isOn]="assign2Switch()" [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 2." (valueChange)="onAssign2SwitchChange($event)">
-                </app-led>
-              </div>
-              <div class="assign-source">
-                <label class="assign-field-label">Source</label>
-                <app-dropdown [value]="assign2Source()" [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 2." (valueChange)="onAssign2SourceChange($event)">
-                </app-dropdown>
-              </div>
-              <div class="assign-target">
-                <label class="assign-field-label">Target</label>
-                <app-assign-target-select [value]="assign2Target()" (valueChange)="onAssign2TargetChange($event)">
-                </app-assign-target-select>
-              </div>
-              <div class="assign-range">
-                <label class="assign-field-label">Min</label>
-                <app-parameter-label value="{{ assign2TargetMin() }}" />
-                <label class="assign-field-label">Max</label>
-                <app-parameter-label value="{{ assign2TargetMax() }}" />
-              </div>
+        <section class="parameter-section assign-section">
+          <div class="assign-row">
+            <div class="assign-sw">
+              <span class="assign-num">2</span>
+              <app-led label="ON" [isOn]="assign2Switch()" [clickable]="true"
+                tooltip="Enable/disable ASSIGN 2." (valueChange)="onAssign2SwitchChange($event)">
+              </app-led>
+            </div>
+            <div class="assign-source">
+              <app-dropdown [value]="assign2Source()" [options]="assignSourceOptions"
+                tooltip="Control source for ASSIGN 2." (valueChange)="onAssign2SourceChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-mode">
+              <app-dropdown [value]="assign2SourceMode()" [options]="['MOMENT','TOGGLE']"
+                tooltip="MOMENT: active only while held. TOGGLE: press to flip on/off."
+                color="cyan" (valueChange)="onAssign2SourceModeChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-target">
+              <app-assign-target-select [value]="assign2Target()" (valueChange)="onAssign2TargetChange($event)">
+              </app-assign-target-select>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign2TargetMin()" [min]="0" [max]="16383"
+                tooltip="Minimum target value." (valueChange)="onAssign2TargetMinChange($event)">
+              </app-knob>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign2TargetMax()" [min]="0" [max]="16383"
+                tooltip="Maximum target value." (valueChange)="onAssign2TargetMaxChange($event)">
+              </app-knob>
             </div>
           </div>
         </section>
 
         <!-- ASSIGN 3 -->
-        <section class="parameter-section">
-          <h3>Assign 3</h3>
-          <div class="assign-config">
-            <div class="assign-row">
-              <div class="assign-sw">
-                <app-led label="ON" [isOn]="assign3Switch()" [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 3." (valueChange)="onAssign3SwitchChange($event)">
-                </app-led>
-              </div>
-              <div class="assign-source">
-                <label class="assign-field-label">Source</label>
-                <app-dropdown [value]="assign3Source()" [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 3." (valueChange)="onAssign3SourceChange($event)">
-                </app-dropdown>
-              </div>
-              <div class="assign-target">
-                <label class="assign-field-label">Target</label>
-                <app-assign-target-select [value]="assign3Target()" (valueChange)="onAssign3TargetChange($event)">
-                </app-assign-target-select>
-              </div>
-              <div class="assign-range">
-                <label class="assign-field-label">Min</label>
-                <app-parameter-label value="{{ assign3TargetMin() }}" />
-                <label class="assign-field-label">Max</label>
-                <app-parameter-label value="{{ assign3TargetMax() }}" />
-              </div>
+        <section class="parameter-section assign-section">
+          <div class="assign-row">
+            <div class="assign-sw">
+              <span class="assign-num">3</span>
+              <app-led label="ON" [isOn]="assign3Switch()" [clickable]="true"
+                tooltip="Enable/disable ASSIGN 3." (valueChange)="onAssign3SwitchChange($event)">
+              </app-led>
+            </div>
+            <div class="assign-source">
+              <app-dropdown [value]="assign3Source()" [options]="assignSourceOptions"
+                tooltip="Control source for ASSIGN 3." (valueChange)="onAssign3SourceChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-mode">
+              <app-dropdown [value]="assign3SourceMode()" [options]="['MOMENT','TOGGLE']"
+                tooltip="MOMENT: active only while held. TOGGLE: press to flip on/off."
+                color="cyan" (valueChange)="onAssign3SourceModeChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-target">
+              <app-assign-target-select [value]="assign3Target()" (valueChange)="onAssign3TargetChange($event)">
+              </app-assign-target-select>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign3TargetMin()" [min]="0" [max]="16383"
+                tooltip="Minimum target value." (valueChange)="onAssign3TargetMinChange($event)">
+              </app-knob>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign3TargetMax()" [min]="0" [max]="16383"
+                tooltip="Maximum target value." (valueChange)="onAssign3TargetMaxChange($event)">
+              </app-knob>
             </div>
           </div>
         </section>
 
         <!-- ASSIGN 4 -->
-        <section class="parameter-section">
-          <h3>Assign 4</h3>
-          <div class="assign-config">
-            <div class="assign-row">
-              <div class="assign-sw">
-                <app-led label="ON" [isOn]="assign4Switch()" [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 4." (valueChange)="onAssign4SwitchChange($event)">
-                </app-led>
-              </div>
-              <div class="assign-source">
-                <label class="assign-field-label">Source</label>
-                <app-dropdown [value]="assign4Source()" [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 4." (valueChange)="onAssign4SourceChange($event)">
-                </app-dropdown>
-              </div>
-              <div class="assign-target">
-                <label class="assign-field-label">Target</label>
-                <app-assign-target-select [value]="assign4Target()" (valueChange)="onAssign4TargetChange($event)">
-                </app-assign-target-select>
-              </div>
-              <div class="assign-range">
-                <label class="assign-field-label">Min</label>
-                <app-parameter-label value="{{ assign4TargetMin() }}" />
-                <label class="assign-field-label">Max</label>
-                <app-parameter-label value="{{ assign4TargetMax() }}" />
-              </div>
+        <section class="parameter-section assign-section">
+          <div class="assign-row">
+            <div class="assign-sw">
+              <span class="assign-num">4</span>
+              <app-led label="ON" [isOn]="assign4Switch()" [clickable]="true"
+                tooltip="Enable/disable ASSIGN 4." (valueChange)="onAssign4SwitchChange($event)">
+              </app-led>
+            </div>
+            <div class="assign-source">
+              <app-dropdown [value]="assign4Source()" [options]="assignSourceOptions"
+                tooltip="Control source for ASSIGN 4." (valueChange)="onAssign4SourceChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-mode">
+              <app-dropdown [value]="assign4SourceMode()" [options]="['MOMENT','TOGGLE']"
+                tooltip="MOMENT: active only while held. TOGGLE: press to flip on/off."
+                color="cyan" (valueChange)="onAssign4SourceModeChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-target">
+              <app-assign-target-select [value]="assign4Target()" (valueChange)="onAssign4TargetChange($event)">
+              </app-assign-target-select>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign4TargetMin()" [min]="0" [max]="16383"
+                tooltip="Minimum target value." (valueChange)="onAssign4TargetMinChange($event)">
+              </app-knob>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign4TargetMax()" [min]="0" [max]="16383"
+                tooltip="Maximum target value." (valueChange)="onAssign4TargetMaxChange($event)">
+              </app-knob>
             </div>
           </div>
         </section>
 
         <!-- ASSIGN 5 -->
-        <section class="parameter-section">
-          <h3>Assign 5</h3>
-          <div class="assign-config">
-            <div class="assign-row">
-              <div class="assign-sw">
-                <app-led label="ON" [isOn]="assign5Switch()" [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 5." (valueChange)="onAssign5SwitchChange($event)">
-                </app-led>
-              </div>
-              <div class="assign-source">
-                <label class="assign-field-label">Source</label>
-                <app-dropdown [value]="assign5Source()" [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 5." (valueChange)="onAssign5SourceChange($event)">
-                </app-dropdown>
-              </div>
-              <div class="assign-target">
-                <label class="assign-field-label">Target</label>
-                <app-assign-target-select [value]="assign5Target()" (valueChange)="onAssign5TargetChange($event)">
-                </app-assign-target-select>
-              </div>
-              <div class="assign-range">
-                <label class="assign-field-label">Min</label>
-                <app-parameter-label value="{{ assign5TargetMin() }}" />
-                <label class="assign-field-label">Max</label>
-                <app-parameter-label value="{{ assign5TargetMax() }}" />
-              </div>
+        <section class="parameter-section assign-section">
+          <div class="assign-row">
+            <div class="assign-sw">
+              <span class="assign-num">5</span>
+              <app-led label="ON" [isOn]="assign5Switch()" [clickable]="true"
+                tooltip="Enable/disable ASSIGN 5." (valueChange)="onAssign5SwitchChange($event)">
+              </app-led>
+            </div>
+            <div class="assign-source">
+              <app-dropdown [value]="assign5Source()" [options]="assignSourceOptions"
+                tooltip="Control source for ASSIGN 5." (valueChange)="onAssign5SourceChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-mode">
+              <app-dropdown [value]="assign5SourceMode()" [options]="['MOMENT','TOGGLE']"
+                tooltip="MOMENT: active only while held. TOGGLE: press to flip on/off."
+                color="cyan" (valueChange)="onAssign5SourceModeChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-target">
+              <app-assign-target-select [value]="assign5Target()" (valueChange)="onAssign5TargetChange($event)">
+              </app-assign-target-select>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign5TargetMin()" [min]="0" [max]="16383"
+                tooltip="Minimum target value." (valueChange)="onAssign5TargetMinChange($event)">
+              </app-knob>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign5TargetMax()" [min]="0" [max]="16383"
+                tooltip="Maximum target value." (valueChange)="onAssign5TargetMaxChange($event)">
+              </app-knob>
             </div>
           </div>
         </section>
 
         <!-- ASSIGN 6 -->
-        <section class="parameter-section">
-          <h3>Assign 6</h3>
-          <div class="assign-config">
-            <div class="assign-row">
-              <div class="assign-sw">
-                <app-led label="ON" [isOn]="assign6Switch()" [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 6." (valueChange)="onAssign6SwitchChange($event)">
-                </app-led>
-              </div>
-              <div class="assign-source">
-                <label class="assign-field-label">Source</label>
-                <app-dropdown [value]="assign6Source()" [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 6." (valueChange)="onAssign6SourceChange($event)">
-                </app-dropdown>
-              </div>
-              <div class="assign-target">
-                <label class="assign-field-label">Target</label>
-                <app-assign-target-select [value]="assign6Target()" (valueChange)="onAssign6TargetChange($event)">
-                </app-assign-target-select>
-              </div>
-              <div class="assign-range">
-                <label class="assign-field-label">Min</label>
-                <app-parameter-label value="{{ assign6TargetMin() }}" />
-                <label class="assign-field-label">Max</label>
-                <app-parameter-label value="{{ assign6TargetMax() }}" />
-              </div>
+        <section class="parameter-section assign-section">
+          <div class="assign-row">
+            <div class="assign-sw">
+              <span class="assign-num">6</span>
+              <app-led label="ON" [isOn]="assign6Switch()" [clickable]="true"
+                tooltip="Enable/disable ASSIGN 6." (valueChange)="onAssign6SwitchChange($event)">
+              </app-led>
+            </div>
+            <div class="assign-source">
+              <app-dropdown [value]="assign6Source()" [options]="assignSourceOptions"
+                tooltip="Control source for ASSIGN 6." (valueChange)="onAssign6SourceChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-mode">
+              <app-dropdown [value]="assign6SourceMode()" [options]="['MOMENT','TOGGLE']"
+                tooltip="MOMENT: active only while held. TOGGLE: press to flip on/off."
+                color="cyan" (valueChange)="onAssign6SourceModeChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-target">
+              <app-assign-target-select [value]="assign6Target()" (valueChange)="onAssign6TargetChange($event)">
+              </app-assign-target-select>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign6TargetMin()" [min]="0" [max]="16383"
+                tooltip="Minimum target value." (valueChange)="onAssign6TargetMinChange($event)">
+              </app-knob>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign6TargetMax()" [min]="0" [max]="16383"
+                tooltip="Maximum target value." (valueChange)="onAssign6TargetMaxChange($event)">
+              </app-knob>
             </div>
           </div>
         </section>
-        
+
         <!-- ASSIGN 7 -->
-        <section class="parameter-section">
-          <h3>Assign 7</h3>
-          <div class="assign-config">
-            <div class="assign-row">
-              <div class="assign-sw">
-                <app-led label="ON" [isOn]="assign7Switch()" [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 7." (valueChange)="onAssign7SwitchChange($event)">
-                </app-led>
-              </div>
-              <div class="assign-source">
-                <label class="assign-field-label">Source</label>
-                <app-dropdown [value]="assign7Source()" [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 7." (valueChange)="onAssign7SourceChange($event)">
-                </app-dropdown>
-              </div>
-              <div class="assign-target">
-                <label class="assign-field-label">Target</label>
-                <app-assign-target-select [value]="assign7Target()" (valueChange)="onAssign7TargetChange($event)">
-                </app-assign-target-select>
-              </div>
-              <div class="assign-range">
-                <label class="assign-field-label">Min</label>
-                <app-parameter-label value="{{ assign7TargetMin() }}" />
-                <label class="assign-field-label">Max</label>
-                <app-parameter-label value="{{ assign7TargetMax() }}" />
-              </div>
+        <section class="parameter-section assign-section">
+          <div class="assign-row">
+            <div class="assign-sw">
+              <span class="assign-num">7</span>
+              <app-led label="ON" [isOn]="assign7Switch()" [clickable]="true"
+                tooltip="Enable/disable ASSIGN 7." (valueChange)="onAssign7SwitchChange($event)">
+              </app-led>
+            </div>
+            <div class="assign-source">
+              <app-dropdown [value]="assign7Source()" [options]="assignSourceOptions"
+                tooltip="Control source for ASSIGN 7." (valueChange)="onAssign7SourceChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-mode">
+              <app-dropdown [value]="assign7SourceMode()" [options]="['MOMENT','TOGGLE']"
+                tooltip="MOMENT: active only while held. TOGGLE: press to flip on/off."
+                color="cyan" (valueChange)="onAssign7SourceModeChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-target">
+              <app-assign-target-select [value]="assign7Target()" (valueChange)="onAssign7TargetChange($event)">
+              </app-assign-target-select>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign7TargetMin()" [min]="0" [max]="16383"
+                tooltip="Minimum target value." (valueChange)="onAssign7TargetMinChange($event)">
+              </app-knob>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign7TargetMax()" [min]="0" [max]="16383"
+                tooltip="Maximum target value." (valueChange)="onAssign7TargetMaxChange($event)">
+              </app-knob>
             </div>
           </div>
         </section>
 
         <!-- ASSIGN 8 -->
-        <section class="parameter-section">
-          <h3>Assign 8</h3>
-          <div class="assign-config">
-            <div class="assign-row">
-              <div class="assign-sw">
-                <app-led label="ON" [isOn]="assign8Switch()" [clickable]="true"
-                  tooltip="Enable/disable ASSIGN 8." (valueChange)="onAssign8SwitchChange($event)">
-                </app-led>
-              </div>
-              <div class="assign-source">
-                <label class="assign-field-label">Source</label>
-                <app-dropdown [value]="assign8Source()" [options]="assignSourceOptions"
-                  tooltip="Control source for ASSIGN 8." (valueChange)="onAssign8SourceChange($event)">
-                </app-dropdown>
-              </div>
-              <div class="assign-target">
-                <label class="assign-field-label">Target</label>
-                <app-assign-target-select [value]="assign8Target()" (valueChange)="onAssign8TargetChange($event)">
-                </app-assign-target-select>
-              </div>
-              <div class="assign-range">
-                <label class="assign-field-label">Min</label>
-                <app-parameter-label value="{{ assign8TargetMin() }}" />
-                <label class="assign-field-label">Max</label>
-                <app-parameter-label value="{{ assign8TargetMax() }}" />
-              </div>
+        <section class="parameter-section assign-section">
+          <div class="assign-row">
+            <div class="assign-sw">
+              <span class="assign-num">8</span>
+              <app-led label="ON" [isOn]="assign8Switch()" [clickable]="true"
+                tooltip="Enable/disable ASSIGN 8." (valueChange)="onAssign8SwitchChange($event)">
+              </app-led>
+            </div>
+            <div class="assign-source">
+              <app-dropdown [value]="assign8Source()" [options]="assignSourceOptions"
+                tooltip="Control source for ASSIGN 8." (valueChange)="onAssign8SourceChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-mode">
+              <app-dropdown [value]="assign8SourceMode()" [options]="['MOMENT','TOGGLE']"
+                tooltip="MOMENT: active only while held. TOGGLE: press to flip on/off."
+                color="cyan" (valueChange)="onAssign8SourceModeChange($event)">
+              </app-dropdown>
+            </div>
+            <div class="assign-target">
+              <app-assign-target-select [value]="assign8Target()" (valueChange)="onAssign8TargetChange($event)">
+              </app-assign-target-select>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign8TargetMin()" [min]="0" [max]="16383"
+                tooltip="Minimum target value." (valueChange)="onAssign8TargetMinChange($event)">
+              </app-knob>
+            </div>
+            <div class="assign-minmax">
+              <app-knob [value]="assign8TargetMax()" [min]="0" [max]="16383"
+                tooltip="Maximum target value." (valueChange)="onAssign8TargetMaxChange($event)">
+              </app-knob>
             </div>
           </div>
         </section>
 
         <div class="info-box">
-          <p><strong>Complete Assigns System:</strong> All 8 assignable controls plus CTL pedal. Each Target selector covers all 535 assignable GR-55 parameters — type to filter.</p>
+          <p><strong>Source Mode:</strong> MOMENT = active while held (use for expression pedals/continuous controllers). TOGGLE = press once to latch on, again to release (use for switches/CTL).</p>
+          <p><strong>Min/Max:</strong> The range of values sent to the target. Set Min &gt; Max to invert the control direction.</p>
         </div>
       </div>
     }
