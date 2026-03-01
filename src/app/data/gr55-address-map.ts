@@ -1187,13 +1187,13 @@ export const GR55AddressMap = {
     },
     
     // ═══════════════════════════════════════════════════════════════
-    // DELAY SECTION (0x18000700-0x18000706)
+    // DELAY SECTION (0x18000605-0x1800060A)
     // Roland GR-55 MIDI Implementation: temporaryPatch Delay page
     // ═══════════════════════════════════════════════════════════════
     
     delay: {
       delaySwitch: {
-        address: 0x18000700,
+        address: 0x18000605,
         size: 1,
         type: 'boolean',
         label: 'Delay Switch',
@@ -1203,7 +1203,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<boolean>,
       
       delayType: {
-        address: 0x18000701,
+        address: 0x18000606,
         size: 1,
         type: 'enum',
         enumValues: ['SINGLE', 'PAN', 'REVERSE', 'ANALOG', 'TAPE', 'MODULATE', 'HICUT'],
@@ -1214,7 +1214,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       delayTime: {
-        address: 0x18000702,
+        address: 0x18000607,
         size: 2, // USplit12Field
         type: 'number',
         range: [0, 3413],
@@ -1226,7 +1226,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       delayFeedback: {
-        address: 0x18000705,
+        address: 0x18000609,
         size: 1,
         type: 'number',
         range: [0, 100],
@@ -1237,7 +1237,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       delayEffectLevel: {
-        address: 0x18000706,
+        address: 0x1800060A,
         size: 1,
         type: 'number',
         range: [0, 120],
@@ -1249,13 +1249,13 @@ export const GR55AddressMap = {
     },
     
     // ═══════════════════════════════════════════════════════════════
-    // CHORUS SECTION (0x18000800-0x18000804)
+    // CHORUS SECTION (0x18000600-0x18000604)
     // Roland GR-55 MIDI Implementation: temporaryPatch Chorus page
     // ═══════════════════════════════════════════════════════════════
     
     chorus: {
       chorusSwitch: {
-        address: 0x18000800,
+        address: 0x18000600,
         size: 1,
         type: 'boolean',
         label: 'Chorus Switch',
@@ -1265,7 +1265,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<boolean>,
       
       chorusType: {
-        address: 0x18000801,
+        address: 0x18000601,
         size: 1,
         type: 'enum',
         enumValues: ['MONO', 'STEREO', 'MONO MILD', 'STEREO MILD'],
@@ -1276,7 +1276,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       chorusRate: {
-        address: 0x18000802,
+        address: 0x18000602,
         size: 1,
         type: 'number',
         range: [0, 113],
@@ -1288,7 +1288,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       chorusDepth: {
-        address: 0x18000803,
+        address: 0x18000603,
         size: 1,
         type: 'number',
         range: [0, 100],
@@ -1299,7 +1299,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       chorusEffectLevel: {
-        address: 0x18000804,
+        address: 0x18000604,
         size: 1,
         type: 'number',
         range: [0, 100],
@@ -1311,13 +1311,13 @@ export const GR55AddressMap = {
     },
     
     // ═══════════════════════════════════════════════════════════════
-    // REVERB SECTION (0x18000900-0x18000904)
+    // REVERB SECTION (0x1800060C-0x18000610)
     // Roland GR-55 MIDI Implementation: temporaryPatch Reverb page
     // ═══════════════════════════════════════════════════════════════
     
     reverb: {
       reverbSwitch: {
-        address: 0x18000900,
+        address: 0x1800060C,
         size: 1,
         type: 'boolean',
         label: 'Reverb Switch',
@@ -1327,7 +1327,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<boolean>,
       
       reverbType: {
-        address: 0x18000901,
+        address: 0x1800060D,
         size: 1,
         type: 'enum',
         enumValues: ['AMBIENCE', 'ROOM', 'HALL1', 'HALL2', 'PLATE'],
@@ -1338,7 +1338,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       reverbTime: {
-        address: 0x18000902,
+        address: 0x1800060E,
         size: 1,
         type: 'number',
         range: [1, 100], // 0.1-10.0s (stored as 1-100)
@@ -1351,7 +1351,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       reverbHighCut: {
-        address: 0x18000903,
+        address: 0x1800060F,
         size: 1,
         type: 'enum',
         enumValues: ['700', '1000', '1400', '2000', '3000', '4000', '5000', '6300', '8000', '11000', 'FLAT'],
@@ -1364,7 +1364,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
       
       reverbEffectLevel: {
-        address: 0x18000904,
+        address: 0x18000610,
         size: 1,
         type: 'number',
         range: [0, 100],
@@ -1376,14 +1376,14 @@ export const GR55AddressMap = {
     },
 
     // ═══════════════════════════════════════════════════════════════
-    // EQ SECTION (0x18000A11-0x18000A1D)
+    // EQ SECTION (0x18000611-0x1800061D)
     // 5-band parametric EQ + EZ Character
-    // Roland GR-55 MIDI Implementation: temporaryPatch sendsAndEq page (base 0x18000A00) + offsets 0x11-0x1D
+    // Roland GR-55 MIDI Implementation: confirmed via VController_v2 source + empirical scan
     // ═══════════════════════════════════════════════════════════════
 
     eq: {
       eqSwitch: {
-        address: 0x18000A11,
+        address: 0x18000611,
         size: 1,
         type: 'boolean',
         label: 'EQ Switch',
@@ -1393,7 +1393,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<boolean>,
 
       eqLowCutoff: {
-        address: 0x18000A12,
+        address: 0x18000612,
         size: 1,
         type: 'enum',
         enumValues: ['FLAT', '55', '110', '165', '200', '280', '340', '400', '500', '630', '800'],
@@ -1404,7 +1404,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqLowGain: {
-        address: 0x18000A13,
+        address: 0x18000613,
         size: 1,
         type: 'number',
         range: [0, 40],
@@ -1416,7 +1416,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqLowMidCutoff: {
-        address: 0x18000A14,
+        address: 0x18000614,
         size: 1,
         type: 'enum',
         enumValues: ['20','25','31.5','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300','8000','10000'],
@@ -1427,7 +1427,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqLowMidQ: {
-        address: 0x18000A15,
+        address: 0x18000615,
         size: 1,
         type: 'enum',
         enumValues: ['0.5', '1', '2', '4', '8', '16'],
@@ -1438,7 +1438,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqLowMidGain: {
-        address: 0x18000A16,
+        address: 0x18000616,
         size: 1,
         type: 'number',
         range: [0, 40],
@@ -1450,7 +1450,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqHighMidCutoff: {
-        address: 0x18000A17,
+        address: 0x18000617,
         size: 1,
         type: 'enum',
         enumValues: ['20','25','31.5','40','50','63','80','100','125','160','200','250','315','400','500','630','800','1000','1250','1600','2000','2500','3150','4000','5000','6300','8000','10000'],
@@ -1461,7 +1461,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqHighMidQ: {
-        address: 0x18000A18,
+        address: 0x18000618,
         size: 1,
         type: 'enum',
         enumValues: ['0.5', '1', '2', '4', '8', '16'],
@@ -1472,7 +1472,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqHighMidGain: {
-        address: 0x18000A19,
+        address: 0x18000619,
         size: 1,
         type: 'number',
         range: [0, 40],
@@ -1484,7 +1484,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqHighCutoff: {
-        address: 0x18000A1A,
+        address: 0x1800061A,
         size: 1,
         type: 'enum',
         enumValues: ['700', '1000', '1400', '2000', '3000', '4000', '6000', '8000', '11000', 'FLAT'],
@@ -1495,7 +1495,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqHighGain: {
-        address: 0x18000A1B,
+        address: 0x1800061B,
         size: 1,
         type: 'number',
         range: [0, 40],
@@ -1507,7 +1507,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       eqLevel: {
-        address: 0x18000A1C,
+        address: 0x1800061C,
         size: 1,
         type: 'number',
         range: [0, 40],
@@ -1519,7 +1519,7 @@ export const GR55AddressMap = {
       } as FieldDefinition<number>,
 
       ezCharacter: {
-        address: 0x18000A1D,
+        address: 0x1800061D,
         size: 1,
         type: 'number',
         range: [0, 6],
