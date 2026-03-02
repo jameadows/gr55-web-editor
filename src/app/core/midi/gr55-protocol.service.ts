@@ -391,13 +391,15 @@ export class Gr55ProtocolService {
       case 'tone-select': {
         // GR-55 PCM tone select: 3-byte big-endian 7-bit with melodic base offset.
         // Encoded value = pack7(0x580000) + toneIndex = 1441792 + toneIndex.
-        // Source: gr55-remote RolandGR55ToneMap.ts tonesAndOffsets[0] = pack7(0x580000).
+        // Source: gr55-remote RolandGR55ToneMap.ts tonesAndOffsets[0] = pack7(0x580000)
         const TONE_BASE = 1441792; // pack7(0x580000)
         let toneEncoded = 0;
         for (let i = 0; i < field.size; i++) {
           toneEncoded = (toneEncoded << 7) | (data[i] & 0x7F);
         }
-        return Math.max(0, toneEncoded - TONE_BASE) as T;
+        const toneIndex = Math.max(0, toneEncoded - TONE_BASE);
+        console.log(`[tone-select] read bytes [${data.map((b: number) => '0x' + b.toString(16).toUpperCase().padStart(2,'0')).join(', ')}] → encoded=${toneEncoded} (0x${toneEncoded.toString(16).toUpperCase()}) → toneIndex=${toneIndex}`);
+        return toneIndex as T;
       }
 
       case 'number':
@@ -460,6 +462,7 @@ export class Gr55ProtocolService {
         for (let i = field.size - 1; i >= 0; i--) {
           toneBytes.unshift((encoded >> (i * 7)) & 0x7F);
         }
+        console.log(`[tone-select] toneIndex=${toneIdx} → encoded=${encoded} (0x${encoded.toString(16).toUpperCase()}) → bytes [${toneBytes.map(b => '0x' + b.toString(16).toUpperCase().padStart(2,'0')).join(', ')}]`);
         return toneBytes;
       }
 
