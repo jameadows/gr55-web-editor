@@ -388,14 +388,17 @@ export class Gr55ProtocolService {
         }
         return nibbleVal as T;
 
-      case 'number-le':
-        // Roland little-endian 7-bit: byte[0]=LSB, byte[1]=MSB.
-        // Confirmed for PCM toneSelect: scan shows byte[0]=tone, byte[1]=0.
-        let leVal = 0;
+      case 'tone-select': {
+        // GR-55 PCM tone select: 3-byte big-endian 7-bit with melodic base offset.
+        // Encoded value = pack7(0x580000) + toneIndex = 1441792 + toneIndex.
+        // Source: gr55-remote RolandGR55ToneMap.ts tonesAndOffsets[0] = pack7(0x580000).
+        const TONE_BASE = 1441792; // pack7(0x580000)
+        let toneEncoded = 0;
         for (let i = 0; i < field.size; i++) {
-          leVal |= (data[i] & 0x7F) << (i * 7);
+          toneEncoded = (toneEncoded << 7) | (data[i] & 0x7F);
         }
-        return leVal as T;
+        return Math.max(0, toneEncoded - TONE_BASE) as T;
+      }
 
       case 'number':
         // Simple case: single byte number
@@ -447,18 +450,17 @@ export class Gr55ProtocolService {
         return nibbleBytes;
       }
 
-      case 'number-le': {
-        // Roland little-endian 7-bit: byte[0]=LSB, byte[1]=MSB.
-        const leNum = value as unknown as number;
-        let leClamped = leNum;
-        if (field.range) {
-          leClamped = Math.max(field.range[0], Math.min(field.range[1], leNum));
+      case 'tone-select': {
+        // GR-55 PCM tone select encoding. Add melodic base, write as 3-byte big-endian 7-bit.
+        const TONE_BASE = 1441792; // pack7(0x580000)
+        const toneIdx = value as unknown as number;
+        const clamped = Math.max(0, Math.min(909, toneIdx));
+        const encoded = TONE_BASE + clamped;
+        const toneBytes: number[] = [];
+        for (let i = field.size - 1; i >= 0; i--) {
+          toneBytes.unshift((encoded >> (i * 7)) & 0x7F);
         }
-        const leBytes: number[] = [];
-        for (let i = 0; i < field.size; i++) {
-          leBytes.push((leClamped >> (i * 7)) & 0x7F);
-        }
-        return leBytes;
+        return toneBytes;
       }
 
       case 'number':

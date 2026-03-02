@@ -32,7 +32,7 @@ export interface FieldDefinition<T = any> {
   /** Data type.
    *  'nibble' = Roland nibble encoding: each byte holds 4 bits (0x0–0xF),
    *  must be bulk-read (size bytes); decoded as byte[0]<<(4*(size-1)) | ... */
-  type: 'number' | 'number-le' | 'string' | 'enum' | 'boolean' | 'nibble';
+  type: 'number' | 'tone-select' | 'string' | 'enum' | 'boolean' | 'nibble';
   
   /** Valid range for numeric types [min, max] */
   range?: [number, number];
@@ -525,16 +525,16 @@ export const GR55AddressMap = {
     pcmTone1: {
       toneSelect: {
         address: 0x18002000,
-        size: 2, // 910 tones stored little-endian: byte[0]=LSB, byte[1]=MSB
-        type: 'number-le', // Confirmed: scan shows byte[0]=19=tone, byte[1]=0
+        size: 3, // Roland 3×7-bit big-endian. Encoded = pack7(0x580000) + toneIndex = 1441792 + i.
+        type: 'tone-select', // adds melodic base offset before encode/after decode
         range: [0, 909],
         label: 'PCM Tone Number',
-        description: '910 PCM tones available (0-indexed)',
+        description: '910 melodic PCM tones (0-indexed). Encoded with 0x160000 base.',
         defaultValue: 0,
         uiLevel: 'primary',
         category: 'PCM Tone 1'
       } as FieldDefinition<number>,
-      
+
       muteSwitch: {
         address: 0x18002003, // Confirmed by scan: PCM1 muted → 0x18002003=0x01 ✓
         size: 1,
@@ -646,11 +646,11 @@ export const GR55AddressMap = {
     pcmTone2: {
       toneSelect: {
         address: 0x18002100,
-        size: 2, // Little-endian: byte[0]=LSB, byte[1]=MSB (mirrors PCM1 layout)
-        type: 'number-le',
+        size: 3, // Roland 3×7-bit big-endian. Encoded = pack7(0x580000) + toneIndex.
+        type: 'tone-select',
         range: [0, 909],
         label: 'PCM Tone Number',
-        description: '910 PCM tones available (0-indexed)',
+        description: '910 melodic PCM tones (0-indexed). Encoded with 0x160000 base.',
         defaultValue: 0,
         uiLevel: 'primary',
         category: 'PCM Tone 2'
