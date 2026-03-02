@@ -460,7 +460,7 @@ export class Gr55ProtocolService {
         const encoded = TONE_BASE + clamped;
         const toneBytes: number[] = [];
         for (let i = field.size - 1; i >= 0; i--) {
-          toneBytes.unshift((encoded >> (i * 7)) & 0x7F);
+          toneBytes.push((encoded >> (i * 7)) & 0x7F);
         }
         console.log(`[tone-select] toneIndex=${toneIdx} → encoded=${encoded} (0x${encoded.toString(16).toUpperCase()}) → bytes [${toneBytes.map(b => '0x' + b.toString(16).toUpperCase().padStart(2,'0')).join(', ')}]`);
         return toneBytes;
