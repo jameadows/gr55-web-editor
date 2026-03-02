@@ -483,7 +483,7 @@ export class Gr55ProtocolService {
         // Multi-byte: MSB first
         const numBytes: number[] = [];
         for (let i = field.size - 1; i >= 0; i--) {
-          numBytes.unshift((clamped >>> (i * 7)) & 0x7F);
+          numBytes.push((clamped >>> (i * 7)) & 0x7F);
         }
         return numBytes;
         
