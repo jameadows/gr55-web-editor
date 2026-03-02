@@ -388,6 +388,15 @@ export class Gr55ProtocolService {
         }
         return nibbleVal as T;
 
+      case 'number-le':
+        // Roland little-endian 7-bit: byte[0]=LSB, byte[1]=MSB.
+        // Confirmed for PCM toneSelect: scan shows byte[0]=tone, byte[1]=0.
+        let leVal = 0;
+        for (let i = 0; i < field.size; i++) {
+          leVal |= (data[i] & 0x7F) << (i * 7);
+        }
+        return leVal as T;
+
       case 'number':
         // Simple case: single byte number
         if (field.size === 1) {
@@ -436,6 +445,20 @@ export class Gr55ProtocolService {
           nibbleBytes.unshift((nibbleNum >> (i * 4)) & 0x0F);
         }
         return nibbleBytes;
+      }
+
+      case 'number-le': {
+        // Roland little-endian 7-bit: byte[0]=LSB, byte[1]=MSB.
+        const leNum = value as unknown as number;
+        let leClamped = leNum;
+        if (field.range) {
+          leClamped = Math.max(field.range[0], Math.min(field.range[1], leNum));
+        }
+        const leBytes: number[] = [];
+        for (let i = 0; i < field.size; i++) {
+          leBytes.push((leClamped >> (i * 7)) & 0x7F);
+        }
+        return leBytes;
       }
 
       case 'number':
