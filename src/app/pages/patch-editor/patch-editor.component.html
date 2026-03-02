@@ -548,7 +548,7 @@
             <div class="control-group">
               <app-led
                 [isOn]="!modelingMuteSwitch()"
-                [label]="'Modeling On'"
+                [label]="!modelingMuteSwitch() ? 'Modeling On' : 'Modeling Off'"
                 [color]="'green'"
                 [size]="16"
                 [clickable]="true"
