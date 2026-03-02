@@ -7,11 +7,10 @@
     <select 
       class="dropdown-select"
       [disabled]="disabled"
-      [value]="value"
       (change)="onChange($event)">
       
       @for (option of options; track $index) {
-        <option [value]="$index">{{ option }}</option>
+        <option [value]="$index" [selected]="$index === value">{{ option }}</option>
       }
     </select>
     
